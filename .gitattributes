@@ -1,2 +1,10 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Game data and models are binary; never touch their bytes
+*.bin binary
+*.glb binary
+*.wasm binary
+*.webp binary
+*.png binary
+*.jpg binary

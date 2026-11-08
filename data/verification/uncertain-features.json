@@ -1,0 +1,2379 @@
+{
+ "generated": "2026-11-01T21:22:18.634Z",
+ "note": "Features whose dimensions were estimated by rule. Verify against site survey or licensed reference data.",
+ "namedBuildingsWithEstimatedHeight": [
+  {
+   "id": "w1128100173",
+   "name": "Edith and Peter O’Donnell Jr. Athenaeum",
+   "kind": "yes",
+   "assumedHeightM": 8
+  },
+  {
+   "id": "w1283101980",
+   "name": "Phase 3 Mail",
+   "kind": "roof",
+   "assumedHeightM": 4.5
+  },
+  {
+   "id": "w1283164843",
+   "name": "Phase 2 Mail",
+   "kind": "roof",
+   "assumedHeightM": 4.5
+  },
+  {
+   "id": "w1283203935",
+   "name": "Phase 4 Mail",
+   "kind": "roof",
+   "assumedHeightM": 4.5
+  },
+  {
+   "id": "w1283400721",
+   "name": "Phase 5 Mail",
+   "kind": "roof",
+   "assumedHeightM": 4.5
+  },
+  {
+   "id": "w1283839596",
+   "name": "Phase 6 Mail",
+   "kind": "roof",
+   "assumedHeightM": 4.5
+  },
+  {
+   "id": "w1283839600",
+   "name": "Phase 7 Mail",
+   "kind": "roof",
+   "assumedHeightM": 4.5
+  },
+  {
+   "id": "w1284300641",
+   "name": "Phase 8A Mail",
+   "kind": "yes",
+   "assumedHeightM": 8
+  },
+  {
+   "id": "w1443116530",
+   "name": "Performance Hall and Music Building",
+   "kind": "construction",
+   "assumedHeightM": 8
+  },
+  {
+   "id": "w1482479187",
+   "name": "Student Union / Student Success Center",
+   "kind": "construction",
+   "assumedHeightM": 8
+  }
+ ],
+ "unnamedCampusBuildings": [
+  {
+   "id": "w470345846",
+   "kind": "university"
+  },
+  {
+   "id": "w470345849",
+   "kind": "university"
+  },
+  {
+   "id": "w470345850",
+   "kind": "university"
+  },
+  {
+   "id": "w470345851",
+   "kind": "university"
+  },
+  {
+   "id": "w470346654",
+   "kind": "parking"
+  },
+  {
+   "id": "w539342565",
+   "kind": "yes"
+  },
+  {
+   "id": "w543192295",
+   "kind": "university"
+  },
+  {
+   "id": "w543572367",
+   "kind": "parking"
+  },
+  {
+   "id": "w544926294",
+   "kind": "roof"
+  },
+  {
+   "id": "w546843087",
+   "kind": "university"
+  },
+  {
+   "id": "w546843088",
+   "kind": "university"
+  },
+  {
+   "id": "w546843091",
+   "kind": "university"
+  },
+  {
+   "id": "w546843092",
+   "kind": "university"
+  },
+  {
+   "id": "w547127998",
+   "kind": "roof"
+  },
+  {
+   "id": "w598179041",
+   "kind": "yes"
+  },
+  {
+   "id": "w598197567",
+   "kind": "university"
+  },
+  {
+   "id": "w598197592",
+   "kind": "parking"
+  },
+  {
+   "id": "w598197604",
+   "kind": "yes"
+  },
+  {
+   "id": "w598197607",
+   "kind": "university"
+  },
+  {
+   "id": "w598197610",
+   "kind": "university"
+  },
+  {
+   "id": "w598197613",
+   "kind": "university"
+  },
+  {
+   "id": "w598197614",
+   "kind": "university"
+  },
+  {
+   "id": "w598197626",
+   "kind": "university"
+  },
+  {
+   "id": "w598197639",
+   "kind": "yes"
+  },
+  {
+   "id": "w598200429",
+   "kind": "yes"
+  },
+  {
+   "id": "w979928156",
+   "kind": "yes"
+  },
+  {
+   "id": "w980367173",
+   "kind": "parking"
+  },
+  {
+   "id": "w980411456",
+   "kind": "roof"
+  },
+  {
+   "id": "w980790393",
+   "kind": "yes"
+  },
+  {
+   "id": "w985412985",
+   "kind": "yes"
+  },
+  {
+   "id": "w985412986",
+   "kind": "yes"
+  },
+  {
+   "id": "w985412987",
+   "kind": "yes"
+  },
+  {
+   "id": "w986763208",
+   "kind": "yes"
+  },
+  {
+   "id": "w1083681429",
+   "kind": "yes"
+  },
+  {
+   "id": "w1098320140",
+   "kind": "yes"
+  },
+  {
+   "id": "w1121109766",
+   "kind": "yes"
+  },
+  {
+   "id": "w1209796624",
+   "kind": "university"
+  },
+  {
+   "id": "w1210248129",
+   "kind": "university"
+  },
+  {
+   "id": "w1210807902",
+   "kind": "roof"
+  },
+  {
+   "id": "w1210878802",
+   "kind": "roof"
+  },
+  {
+   "id": "w1210878809",
+   "kind": "roof"
+  },
+  {
+   "id": "w1210878810",
+   "kind": "roof"
+  },
+  {
+   "id": "w1210888344",
+   "kind": "roof"
+  },
+  {
+   "id": "w1210888345",
+   "kind": "roof"
+  },
+  {
+   "id": "w1210951670",
+   "kind": "roof"
+  },
+  {
+   "id": "w1211157846",
+   "kind": "roof"
+  },
+  {
+   "id": "w1211157847",
+   "kind": "roof"
+  },
+  {
+   "id": "w1211157848",
+   "kind": "roof"
+  },
+  {
+   "id": "w1212409228",
+   "kind": "roof"
+  },
+  {
+   "id": "w1213168132",
+   "kind": "university"
+  },
+  {
+   "id": "w1213224258",
+   "kind": "roof"
+  },
+  {
+   "id": "w1213224260",
+   "kind": "roof"
+  },
+  {
+   "id": "w1213224284",
+   "kind": "roof"
+  },
+  {
+   "id": "w1216376480",
+   "kind": "roof"
+  },
+  {
+   "id": "w1216376481",
+   "kind": "roof"
+  },
+  {
+   "id": "w1216376521",
+   "kind": "roof"
+  },
+  {
+   "id": "w1216376525",
+   "kind": "roof"
+  },
+  {
+   "id": "w1216376526",
+   "kind": "roof"
+  },
+  {
+   "id": "w1245072068",
+   "kind": "roof"
+  },
+  {
+   "id": "w1245072070",
+   "kind": "roof"
+  },
+  {
+   "id": "w1245155728",
+   "kind": "roof"
+  },
+  {
+   "id": "w1247577288",
+   "kind": "roof"
+  },
+  {
+   "id": "w1282317532",
+   "kind": "yes"
+  },
+  {
+   "id": "w1283203937",
+   "kind": "roof"
+  },
+  {
+   "id": "w1283520946",
+   "kind": "roof"
+  },
+  {
+   "id": "w1313135810",
+   "kind": "roof"
+  },
+  {
+   "id": "w1313135813",
+   "kind": "roof"
+  },
+  {
+   "id": "w1315284709",
+   "kind": "roof"
+  },
+  {
+   "id": "w1315284713",
+   "kind": "roof"
+  },
+  {
+   "id": "w1315284714",
+   "kind": "roof"
+  },
+  {
+   "id": "w1341976341",
+   "kind": "roof"
+  },
+  {
+   "id": "w1356596148",
+   "kind": "roof"
+  },
+  {
+   "id": "w1426802513",
+   "kind": "roof"
+  },
+  {
+   "id": "w1427234081",
+   "kind": "roof"
+  },
+  {
+   "id": "w1427234087",
+   "kind": "roof"
+  },
+  {
+   "id": "w1448060900",
+   "kind": "roof"
+  },
+  {
+   "id": "w1448060902",
+   "kind": "roof"
+  },
+  {
+   "id": "w1456804748",
+   "kind": "yes"
+  },
+  {
+   "id": "w1456805646",
+   "kind": "roof"
+  },
+  {
+   "id": "w1456843089",
+   "kind": "roof"
+  },
+  {
+   "id": "w1456843093",
+   "kind": "roof"
+  },
+  {
+   "id": "w1456843097",
+   "kind": "roof"
+  },
+  {
+   "id": "w1470200863",
+   "kind": "yes"
+  },
+  {
+   "id": "w1506496742",
+   "kind": "yes"
+  },
+  {
+   "id": "w1506496743",
+   "kind": "yes"
+  },
+  {
+   "id": "w1506496744",
+   "kind": "yes"
+  },
+  {
+   "id": "w1569898156",
+   "kind": "yes"
+  },
+  {
+   "id": "r16437912",
+   "kind": "roof"
+  }
+ ],
+ "roadsWithEstimatedWidth": [
+  {
+   "id": 9968619,
+   "name": "University Parkway",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 9971795,
+   "name": "Drive A",
+   "cls": "service",
+   "widthM": 6
+  },
+  {
+   "id": 9971799,
+   "name": "Franklyn Jenifer Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 9981853,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 9992286,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 10
+  },
+  {
+   "id": 9993631,
+   "name": "Tatum Street",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 10011559,
+   "name": "Cullum Street",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 15179243,
+   "name": "Frank Johnson Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 15181747,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 15190055,
+   "name": "Stewart Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 15195558,
+   "name": "Drive H",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 15212604,
+   "name": "Frankford Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 94827509,
+   "name": "Armstrong Drive",
+   "cls": "unclassified",
+   "widthM": 8
+  },
+  {
+   "id": 134921619,
+   "name": "University Parkway",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 134921623,
+   "name": "Roundabout",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 134921624,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 134921628,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 207046319,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 280265849,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 280265851,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 14.6
+  },
+  {
+   "id": 280324646,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 297556493,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 297556494,
+   "name": "Field Street",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 305202808,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 305202809,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 305202812,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 308348862,
+   "name": "Frank Johnson Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 419452356,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 419452357,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 419452358,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 419452359,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 419460702,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 419460709,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 419512937,
+   "name": "Frankford Road",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 419512939,
+   "name": "Frankford Road",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 430784418,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 430784423,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 430784430,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 430784441,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 431842989,
+   "name": "University Parkway",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 431842990,
+   "name": "University Parkway",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 431842991,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 431842992,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 431842994,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 466958934,
+   "name": "Drive G",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 514362004,
+   "name": "Drive H",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 514362005,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 543181779,
+   "name": "Facilities Way",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 543192259,
+   "name": "Drive H",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 543192262,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 543192264,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 543192265,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 543947244,
+   "name": "Drive B",
+   "cls": "service",
+   "widthM": 6
+  },
+  {
+   "id": 545113560,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 545113561,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 557285158,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 557285162,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 557344392,
+   "name": "Tatum Street",
+   "cls": "tertiary",
+   "widthM": 14.6
+  },
+  {
+   "id": 568283478,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568283486,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 13
+  },
+  {
+   "id": 568283489,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568283504,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568283512,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568290641,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568290643,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 568290644,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568297184,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568297186,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568297187,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 568297188,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 571721617,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 571721620,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 571984939,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 571984945,
+   "name": "West Lookout Drive",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 571984950,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 573192238,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 573192239,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 573192255,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 590643672,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 590643674,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 625192131,
+   "name": "West Shore Drive",
+   "cls": "tertiary",
+   "widthM": 10
+  },
+  {
+   "id": 625192133,
+   "name": "Tatum Street",
+   "cls": "unclassified",
+   "widthM": 8
+  },
+  {
+   "id": 669246241,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 750684341,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 750684343,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 750684344,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 750684345,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 750684350,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 750731404,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 866974523,
+   "name": "Tatum Street",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 866974524,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 866974525,
+   "name": "Drive H",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 866974526,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 866974528,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 18
+  },
+  {
+   "id": 866974529,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 866977321,
+   "name": "Roundabout",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 955812818,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 955812819,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 955812820,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 955812821,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 963309487,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 965300634,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 986097728,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 986097729,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 992387931,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1024439230,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1024439231,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1042965308,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1042965309,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1042965310,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1042965311,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1042965313,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1042965314,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1042965315,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1042965316,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1042965317,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1042965318,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1042965319,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1042965320,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1042965321,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1046763034,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1047139345,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1047139346,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1047139347,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 10
+  },
+  {
+   "id": 1071189797,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1071189799,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1071189800,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1073822037,
+   "name": "Frankford Road",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1073822041,
+   "name": "Frankford Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1074138444,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1074138445,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1074138446,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1074421606,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1074421607,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1074421608,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1074726702,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1075009551,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1075009552,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1075009553,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1075009926,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1077054772,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1077054773,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1077054774,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1077054775,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1077054776,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1077054777,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1077054778,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1077054779,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1077981558,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1077981559,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1080766607,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1081387073,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1087412512,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1087412513,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1098359911,
+   "name": "West Lookout Drive",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1098549988,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1098556189,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1098556190,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1098556191,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1098556192,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1098556193,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1098556194,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1098556196,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1098556197,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1098556198,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1098556199,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1098556200,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1098556201,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1106559028,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1108059857,
+   "name": "West Shore Drive",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1108059860,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1120402115,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1148626465,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1148626466,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1148666230,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1148666231,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1148666232,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1148666234,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1148666235,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1148666236,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1148666238,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1148666239,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1148666240,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1148666245,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1148666246,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177082780,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1177082781,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177082785,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1177082786,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177082787,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177082788,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177082789,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082791,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177082792,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082793,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082794,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082802,
+   "name": "Franklyn Jenifer Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082803,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082804,
+   "name": "Franklyn Jenifer Drive",
+   "cls": "unclassified",
+   "widthM": 8
+  },
+  {
+   "id": 1177082805,
+   "name": "Franklyn Jenifer Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082806,
+   "name": "Franklyn Jenifer Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082807,
+   "name": "Franklyn Jenifer Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177082808,
+   "name": "Franklyn Jenifer Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346334,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346335,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1177346338,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 18
+  },
+  {
+   "id": 1177346339,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 18
+  },
+  {
+   "id": 1177346352,
+   "name": "Frank Johnson Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177346353,
+   "name": "Frank Johnson Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346361,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346362,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346367,
+   "name": "West Lookout Drive",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177346369,
+   "name": "West Lookout Drive",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346370,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177346371,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346373,
+   "name": "West Lookout Drive",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346374,
+   "name": "Bryce Jordan Drive",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346375,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346376,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177346378,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177346379,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346380,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177346382,
+   "name": "Cullum Street",
+   "cls": "unclassified",
+   "widthM": 8
+  },
+  {
+   "id": 1177346383,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177346384,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346385,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1177346386,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1177346387,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346388,
+   "name": "Facilities Way",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177346391,
+   "name": "Drive H",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1177861528,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1209682571,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1209682575,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1209682576,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1210935714,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1210946296,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1210946297,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1210946298,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1210946299,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1210963913,
+   "name": "Armstrong Drive",
+   "cls": "unclassified",
+   "widthM": 8
+  },
+  {
+   "id": 1210963914,
+   "name": "Armstrong Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1211192368,
+   "name": "Roundabout",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1211192369,
+   "name": "Roundabout",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1247551423,
+   "name": "Drive H",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1263663923,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1285885392,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1285885393,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1285885394,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1285885395,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1285885396,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1314755866,
+   "name": "Drive A",
+   "cls": "unclassified",
+   "widthM": 8
+  },
+  {
+   "id": 1314755867,
+   "name": "Drive A",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1315267670,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1315267671,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1315267672,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1316012608,
+   "name": "Drive H",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1349979478,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1349979484,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1349979485,
+   "name": "Loop Road SW",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1349979486,
+   "name": "Tatum Street",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1349979487,
+   "name": "Tatum Street",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1349979489,
+   "name": "Tatum Street",
+   "cls": "unclassified",
+   "widthM": 8
+  },
+  {
+   "id": 1349979492,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1349979493,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1350335532,
+   "name": "University Parkway",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1356360291,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1370841702,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1370841703,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1411085815,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1411085816,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1411085817,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1426760147,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1426760148,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1426760149,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 4.4
+  },
+  {
+   "id": 1426760150,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1426760151,
+   "name": "North Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1426760157,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1426760160,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1426760161,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1427234072,
+   "name": "Rutford Avenue",
+   "cls": "unclassified",
+   "widthM": 11.2
+  },
+  {
+   "id": 1434797665,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1434797666,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1443116540,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1443116541,
+   "name": "Armstrong Drive",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1460479678,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1460479679,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 18
+  },
+  {
+   "id": 1460479680,
+   "name": "West Campbell Road",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1465999841,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1465999843,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1465999845,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1465999847,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1465999848,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1465999850,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1465999851,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1465999852,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1465999853,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1465999854,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1465999855,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1465999856,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1465999857,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1465999858,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1465999859,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1465999860,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1470191953,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1470191954,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1470191955,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1470191956,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1470191957,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1470191958,
+   "name": "North Waterview Drive",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1470200184,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1470225221,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1470225222,
+   "name": "Waterview Parkway",
+   "cls": "secondary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1470257340,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 14.6
+  },
+  {
+   "id": 1470257341,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1470257342,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 11.2
+  },
+  {
+   "id": 1483263011,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1483263012,
+   "name": "Synergy Park Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1502428225,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1502428226,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1502718334,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1502718335,
+   "name": "Jonsson Boulevard",
+   "cls": "tertiary",
+   "widthM": 4.4
+  },
+  {
+   "id": 1536041828,
+   "name": "North Floyd Road",
+   "cls": "tertiary",
+   "widthM": 7.8
+  },
+  {
+   "id": 1536679181,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1536679182,
+   "name": "Loop Road",
+   "cls": "unclassified",
+   "widthM": 7.8
+  },
+  {
+   "id": 1563971582,
+   "name": "Franklyn Jenifer Drive",
+   "cls": "service",
+   "widthM": 6
+  }
+ ],
+ "stepsWithoutStepCount": 63,
+ "counts": {
+  "estimatedHeights": 1146,
+  "estimatedRoadWidths": 2951,
+  "unnamedBuildings": 1202,
+  "bumpsOffRoad": 0
+ }
+}

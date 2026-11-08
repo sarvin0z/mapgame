@@ -1,0 +1,7 @@
+node_modules/
+dist/
+data/raw/
+*.log
+data/preview/
+data/refs/
+artifacts/qa/*.png

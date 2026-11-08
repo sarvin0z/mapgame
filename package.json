@@ -1,0 +1,31 @@
+{
+  "name": "utd-ems-sim",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "fetch-osm": "node scripts/fetch-osm.mjs",
+    "process-osm": "node scripts/process-osm.ts",
+    "fetch-rasters": "node scripts/fetch-rasters.ts",
+    "process-rasters": "node scripts/process-rasters.ts",
+    "build-cart": "\"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe\" -b --factory-startup --python blender/build_cart.py -- public/models/uemr_cart.glb",
+    "reconstruction-plan": "node scripts/reconstruction-plan.ts",
+    "build-buildings": "\"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe\" -b --factory-startup --python blender/build_buildings.py -- reconstruction/specs.json public/models/buildings"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.21.0",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/three": "^0.187.0",
+    "geotiff": "^2.1.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}

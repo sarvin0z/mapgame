@@ -1,0 +1,1713 @@
+{
+  "_about": "Architectural observations per building, written only from the listed reference photos (data/refs, sources in utdallas-map-areas/sources.csv). Each feature carries a confidence: high = clearly visible in an official photo; medium = visible but partial, oblique, or from one side only; low = inferred from a distant or aerial view. Features with no reference are left out and listed under 'unknown'. Recipe fields drive blender/build_buildings.py.",
+  "buildings": {
+    "Founders Building": {
+      "refs": [
+        "12_Founders_Building.jpg"
+      ],
+      "roof": [
+        "thin flat roof plane floating above the top floor, projecting ~3 m on all sides, on slender posts",
+        "high"
+      ],
+      "materials": [
+        "white painted precast concrete fins; blue-green tinted glass",
+        "high"
+      ],
+      "windows": [
+        "full-height glazing between closely spaced white vertical fins (~1.8 m), fins run the full height",
+        "high"
+      ],
+      "entrances": [
+        "glazed storefront ground floor with double doors on the long facade",
+        "medium"
+      ],
+      "features": [
+        [
+          "white vertical fins over the whole facade",
+          "high"
+        ],
+        [
+          "floating roof canopy",
+          "high"
+        ],
+        [
+          "glazed ground floor slightly recessed",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "rear facade",
+        "rooftop equipment"
+      ],
+      "recipe": {
+        "facade": "fins",
+        "finSpacing": 1.8,
+        "finDepth": 0.9,
+        "wall": "white",
+        "glass": "teal",
+        "roof": "floatingPlane",
+        "roofOverhang": 6.0,
+        "ground": "storefront",
+        "roofTilt": 6.0
+      }
+    },
+    "Founders North": {
+      "refs": [
+        "73_Founders_North_Courtyard.jpg",
+        "83_Founders_North_Courtyard_2.jpg"
+      ],
+      "roof": [
+        "flat",
+        "medium"
+      ],
+      "materials": [
+        "white precast vertical fins and glass, matching Founders",
+        "medium"
+      ],
+      "windows": [
+        "full-height glazing between white fins",
+        "medium"
+      ],
+      "entrances": [
+        "courtyard side opening onto the Rock Garden",
+        "medium"
+      ],
+      "features": [
+        [
+          "Rock Garden courtyard with specimen rocks on pedestals",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "street facades"
+      ],
+      "recipe": {
+        "facade": "fins",
+        "finSpacing": 2.4,
+        "finDepth": 0.5,
+        "wall": "concrete",
+        "glass": "darkBlue",
+        "roof": "parapet",
+        "ground": "storefront"
+      }
+    },
+    "Eugene McDermott Library": {
+      "refs": [
+        "02_McDermott_Library.png"
+      ],
+      "roof": [
+        "flat with deep projecting fascia",
+        "high"
+      ],
+      "materials": [
+        "tan precast concrete",
+        "high"
+      ],
+      "windows": [
+        "upper floors: recessed ribbon windows behind a rhythm of deep precast frames (square bays); ground floor: shaded glass behind a deep overhang",
+        "high"
+      ],
+      "entrances": [
+        "main entrance at the recessed ground floor facing the mall",
+        "medium"
+      ],
+      "features": [
+        [
+          "stepped upper floors with deep horizontal precast bands",
+          "high"
+        ],
+        [
+          "low tan concrete planter walls along the front",
+          "high"
+        ],
+        [
+          "upper floors overhang a shaded ground floor",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "north facade"
+      ],
+      "recipe": {
+        "facade": "precastFrames",
+        "bay": 4.5,
+        "wall": "tan",
+        "glass": "dark",
+        "roof": "fascia",
+        "ground": "recessedColumns",
+        "recess": 3.2,
+        "groundCanopy": 3.5
+      }
+    },
+    "Natural Science and Engineering Research Lab": {
+      "refs": [
+        "03_NSERL.jpg"
+      ],
+      "roof": [
+        "flat with thin metal cornice",
+        "medium"
+      ],
+      "materials": [
+        "blue-violet glazed tile cladding; teal curtain wall; limestone base",
+        "high"
+      ],
+      "windows": [
+        "teal curtain-wall bays and stair tower; punched windows in tiled walls",
+        "high"
+      ],
+      "entrances": [
+        "glazed entrance at the stone base",
+        "medium"
+      ],
+      "features": [
+        [
+          "full-height teal glass stair tower",
+          "high"
+        ],
+        [
+          "limestone ground-floor base",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "rear facade"
+      ],
+      "recipe": {
+        "facade": "tileWithBays",
+        "wall": "violetTile",
+        "glass": "teal",
+        "roof": "cornice",
+        "ground": "recessedColumns",
+        "tower": "glass",
+        "recess": 2.5,
+        "groundMat": "limestone"
+      }
+    },
+    "Bioengineering Science Building": {
+      "refs": [
+        "04_Bioengineering_Sciences_Building.jpg"
+      ],
+      "roof": [
+        "flat with thin projecting roof edge",
+        "high"
+      ],
+      "materials": [
+        "long curtain wall with dark mullions; light limestone end walls with vertical stone fins",
+        "high"
+      ],
+      "windows": [
+        "continuous curtain wall on the long facade, 4 floors",
+        "high"
+      ],
+      "entrances": [
+        "glazed entrance at the end bay",
+        "medium"
+      ],
+      "features": [
+        [
+          "stone end walls framing the glass",
+          "high"
+        ],
+        [
+          "thin roof edge projecting over the curtain wall",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "courtyard side"
+      ],
+      "recipe": {
+        "facade": "curtainWall",
+        "wall": "limestone",
+        "glass": "dark",
+        "roof": "thinEdge",
+        "ground": "curtain",
+        "endWalls": "stone",
+        "stoneFrame": [
+          0.3,
+          0.8
+        ]
+      }
+    },
+    "Edith O'Donnell Arts & Technology Building": {
+      "refs": [
+        "05_Arts_Technology_Building.jpg"
+      ],
+      "roof": [
+        "huge sloped roof cantilevering over the entrance plaza, on exposed steel lattice trusses",
+        "high"
+      ],
+      "materials": [
+        "dark blue glass; white stucco volumes; perforated metal screens",
+        "high"
+      ],
+      "windows": [
+        "tall dark curtain wall under the cantilever",
+        "high"
+      ],
+      "entrances": [
+        "glazed main entrance under the cantilevered roof",
+        "high"
+      ],
+      "features": [
+        [
+          "cantilevered sloped roof with lattice trusses",
+          "high"
+        ],
+        [
+          "white stucco volume with perforated screen",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "back of house facades"
+      ],
+      "recipe": {
+        "facade": "curtainWall",
+        "wall": "whiteStucco",
+        "glass": "darkBlue",
+        "roof": "cantileverTruss",
+        "cantilever": 16,
+        "ground": "curtain",
+        "roofRise": 8.0
+      }
+    },
+    "Cecil H. Green Hall": {
+      "refs": [
+        "09_Green_Hall.jpg"
+      ],
+      "roof": [
+        "flat",
+        "high"
+      ],
+      "materials": [
+        "tan exposed-aggregate precast concrete",
+        "high"
+      ],
+      "windows": [
+        "groups of deep punched square windows in cantilevered upper volumes",
+        "high"
+      ],
+      "entrances": [
+        "recessed ground-floor entrance off a brick-paved plaza with low steps",
+        "high"
+      ],
+      "features": [
+        [
+          "upper floors cantilever over a recessed, shaded ground floor",
+          "high"
+        ],
+        [
+          "brick-paved forecourt",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "punched",
+        "bay": 2.6,
+        "wall": "tanAggregate",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "recessedColumns",
+        "recess": 2.4,
+        "reveal": 0.75
+      }
+    },
+    "Administration Building": {
+      "refs": [
+        "26_Administration_Building.jpg"
+      ],
+      "roof": [
+        "flat, with a central pyramidal metal-and-glass roof lantern",
+        "high"
+      ],
+      "materials": [
+        "tan precast concrete",
+        "high"
+      ],
+      "windows": [
+        "horizontal bands of recessed glazing",
+        "medium"
+      ],
+      "entrances": [
+        "central entrance below the pyramid, facing the landscaped mall",
+        "medium"
+      ],
+      "features": [
+        [
+          "pyramid roof lantern",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "side facades"
+      ],
+      "recipe": {
+        "facade": "bands",
+        "wall": "tan",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "bands",
+        "lantern": "entryPyramid"
+      }
+    },
+    "Student Services Building": {
+      "refs": [
+        "27_Student_Services_Building.jpg"
+      ],
+      "roof": [
+        "flat with thin white roof plane",
+        "high"
+      ],
+      "materials": [
+        "white metal frame grid; light green glass",
+        "high"
+      ],
+      "windows": [
+        "full curtain wall behind a white frame with horizontal louver blades",
+        "high"
+      ],
+      "entrances": [
+        "glazed entrance",
+        "low"
+      ],
+      "features": [
+        [
+          "white sunshade louvers on every floor",
+          "high"
+        ],
+        [
+          "reflecting pool alongside",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "louvered",
+        "wall": "white",
+        "glass": "green",
+        "roof": "thinEdge",
+        "ground": "curtain",
+        "screenOut": 2.0
+      }
+    },
+    "Student Services Building Addition": {
+      "refs": [
+        "28_Student_Services_Building_Addition.jpg"
+      ],
+      "roof": [
+        "flat, edged by a deep dark-gray frame",
+        "high"
+      ],
+      "materials": [
+        "charcoal metal frame; blue glass",
+        "high"
+      ],
+      "windows": [
+        "full-height blue curtain wall inside a projecting charcoal frame",
+        "high"
+      ],
+      "entrances": [
+        "glazed ground floor under the frame",
+        "medium"
+      ],
+      "features": [
+        [
+          "projecting charcoal frame boxing out the upper floors",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "rear"
+      ],
+      "recipe": {
+        "facade": "curtainWall",
+        "wall": "charcoal",
+        "glass": "blue",
+        "roof": "frame",
+        "ground": "curtain"
+      }
+    },
+    "Science Learning Center": {
+      "refs": [
+        "29_Science_Learning_Center.jpg"
+      ],
+      "roof": [
+        "flat parapet",
+        "high"
+      ],
+      "materials": [
+        "light stone/precast; large mosaic of blue glass panels",
+        "high"
+      ],
+      "windows": [
+        "blue glass mosaic wall on the main facade",
+        "high"
+      ],
+      "entrances": [
+        "glazed ground floor at the plaza corner",
+        "medium"
+      ],
+      "features": [
+        [
+          "blue glass mosaic panel wall",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "other facades"
+      ],
+      "recipe": {
+        "facade": "mosaic",
+        "wall": "stoneGray",
+        "glass": "blue",
+        "roof": "parapet",
+        "ground": "storefront"
+      }
+    },
+    "Sciences Building": {
+      "refs": [
+        "13_Sciences_Building.jpg"
+      ],
+      "roof": [
+        "flat",
+        "medium"
+      ],
+      "materials": [
+        "beige limestone; timber soffits and louvers",
+        "high"
+      ],
+      "windows": [
+        "deep-set windows in limestone walls",
+        "medium"
+      ],
+      "entrances": [
+        "entrance with large metal 'SCIENCES BUILDING' letters on the stone",
+        "high"
+      ],
+      "features": [
+        [
+          "wood-slat soffit/louvers",
+          "medium"
+        ],
+        [
+          "mounted building lettering",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "overall massing"
+      ],
+      "recipe": {
+        "facade": "punched",
+        "bay": 3.4,
+        "wall": "limestone",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "recessedColumns",
+        "timber": true,
+        "recess": 3.0
+      }
+    },
+    "Lloyd V. Berkner Hall": {
+      "refs": [
+        "89_Lloyd_V_Berkner_Hall_Current.jpg",
+        "85_Lloyd_V_Berkner_Hall_1973_Historic.jpg"
+      ],
+      "roof": [
+        "flat",
+        "high"
+      ],
+      "materials": [
+        "tan precast concrete, board texture",
+        "high"
+      ],
+      "windows": [
+        "deep-set punched windows in stacked, stepped volumes",
+        "high"
+      ],
+      "entrances": [
+        "ground-floor entrance off the paved plaza",
+        "medium"
+      ],
+      "features": [
+        [
+          "stacked precast volumes with deep reveals",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "punched",
+        "bay": 4.5,
+        "wall": "concrete",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "recessedColumns",
+        "reveal": 0.9,
+        "recess": 2.0
+      }
+    },
+    "Davidson-Gundy Alumni Center": {
+      "refs": [
+        "14_Davidson_Gundy_Alumni_Center.jpg"
+      ],
+      "roof": [
+        "very thin flat roof plane cantilevering far beyond the walls, warm wood soffit",
+        "high"
+      ],
+      "materials": [
+        "floor-to-ceiling glass; wood soffit; slender white posts",
+        "high"
+      ],
+      "windows": [
+        "full-height glass on all visible sides",
+        "high"
+      ],
+      "entrances": [
+        "glass doors under the cantilevered roof",
+        "medium"
+      ],
+      "features": [
+        [
+          "thin cantilevered roof plane",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "curtainWall",
+        "wall": "white",
+        "glass": "warm",
+        "roof": "floatingPlane",
+        "roofOverhang": 4.5,
+        "ground": "curtain",
+        "soffit": "light",
+        "frontReach": 11
+      }
+    },
+    "Activity Center": {
+      "refs": [
+        "11_Activity_Center.jpg",
+        "39_Recreation_Center_Exterior.jpg",
+        "90_Activity_Center_Exterior.jpg"
+      ],
+      "roof": [
+        "flat, low",
+        "high"
+      ],
+      "materials": [
+        "tan precast concrete",
+        "high"
+      ],
+      "windows": [
+        "few windows; glazed central entrance",
+        "high"
+      ],
+      "entrances": [
+        "central glazed entrance on axis with a long walk and steps, with an 'ACTIVITY CENTER' sign wall",
+        "high"
+      ],
+      "features": [
+        [
+          "mostly blank precast walls",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "blank",
+        "wall": "tan",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "entranceOnly",
+        "entryBlock": "glass"
+      }
+    },
+    "Student Union": {
+      "refs": [
+        "91_Student_Union_Exterior.jpg",
+        "10_Student_Union_Plaza.jpg"
+      ],
+      "roof": [
+        "flat with deep tan fascia over a covered terrace",
+        "high"
+      ],
+      "materials": [
+        "tan precast concrete; dark glass",
+        "high"
+      ],
+      "windows": [
+        "dark glazing set back behind the terrace",
+        "high"
+      ],
+      "entrances": [
+        "glazed doors off the terrace, reached by the timber bleacher steps",
+        "high"
+      ],
+      "features": [
+        [
+          "broad timber bleacher steps down to the plaza",
+          "high"
+        ],
+        [
+          "green patio umbrellas on the terrace",
+          "medium"
+        ],
+        [
+          "covered terrace under the fascia",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "north side (OSM marks the Student Success Center expansion under construction)"
+      ],
+      "recipe": {
+        "facade": "bands",
+        "wall": "tanAggregate",
+        "glass": "dark",
+        "roof": "fascia",
+        "ground": "recessedColumns",
+        "recess": 4,
+        "timber": true
+      }
+    },
+    "Karl Hoblitzelle Hall": {
+      "refs": [
+        "97_Karl_Hoblitzelle_Hall_Exterior.jpg",
+        "71_Karl_Hoblitzelle_Hall_2025.png"
+      ],
+      "roof": [
+        "flat, low",
+        "high"
+      ],
+      "materials": [
+        "tan precast concrete",
+        "high"
+      ],
+      "windows": [
+        "dark recessed glazing under a deep overhang",
+        "high"
+      ],
+      "entrances": [
+        "entrance at the top of broad steps under the overhang",
+        "high"
+      ],
+      "features": [
+        [
+          "deep overhang shading the front",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "blank",
+        "wall": "tan",
+        "glass": "dark",
+        "roof": "fascia",
+        "ground": "recessedColumns",
+        "recess": 3,
+        "fasciaDepth": 2.2,
+        "fasciaH": 1.8
+      }
+    },
+    "University Theatre": {
+      "refs": [
+        "81_University_Theatre_Exterior.jpg"
+      ],
+      "roof": [
+        "flat, low",
+        "high"
+      ],
+      "materials": [
+        "tan stucco/precast",
+        "high"
+      ],
+      "windows": [
+        "few; recessed glass entrance",
+        "high"
+      ],
+      "entrances": [
+        "recessed entrance with a digital sign panel beside it",
+        "high"
+      ],
+      "features": [
+        [
+          "blank tan walls with a recessed entry",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "blank",
+        "wall": "concrete",
+        "glass": "dark",
+        "roof": "fascia",
+        "ground": "entranceOnly",
+        "fasciaDepth": 3.5,
+        "fasciaH": 3.2
+      }
+    },
+    "Waterview Science and Technology Center": {
+      "refs": [
+        "98_Waterview_Science_Technology_Center_Exterior.jpg"
+      ],
+      "roof": [
+        "flat",
+        "high"
+      ],
+      "materials": [
+        "red brick; dark glass",
+        "high"
+      ],
+      "windows": [
+        "punched windows in brick; glazed recessed entrance",
+        "high"
+      ],
+      "entrances": [
+        "recessed glass entrance at a brick pier",
+        "high"
+      ],
+      "features": [],
+      "unknown": [],
+      "recipe": {
+        "facade": "punched",
+        "bay": 4,
+        "wall": "redBrick",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "punched",
+        "entryBay": 6.0
+      }
+    },
+    "Synergy Park North": {
+      "refs": [
+        "86_Synergy_Park_North_Exterior.jpg"
+      ],
+      "roof": [
+        "flat",
+        "high"
+      ],
+      "materials": [
+        "white horizontal bands; dark ribbon glass; brown pilasters at the entrance",
+        "high"
+      ],
+      "windows": [
+        "continuous dark ribbon windows on each floor",
+        "high"
+      ],
+      "entrances": [
+        "entrance between brown pilasters",
+        "high"
+      ],
+      "features": [],
+      "unknown": [],
+      "recipe": {
+        "facade": "bands",
+        "wall": "white",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "curtain",
+        "entryPilasters": "8a5a3c"
+      }
+    },
+    "Satellite Utility Plant": {
+      "refs": [
+        "84_Satellite_Utility_Plant_Exterior.jpg"
+      ],
+      "roof": [
+        "flat",
+        "high"
+      ],
+      "materials": [
+        "white concrete base; silver horizontal louver screen above",
+        "high"
+      ],
+      "windows": [
+        "none visible; louvers",
+        "high"
+      ],
+      "entrances": [
+        "service doors in the base",
+        "medium"
+      ],
+      "features": [
+        [
+          "full-width silver louver screen",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "louverScreen",
+        "wall": "white",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "blank"
+      }
+    },
+    "Facilities Management": {
+      "refs": [
+        "15_Facilities_Management.jpg"
+      ],
+      "roof": [
+        "flat",
+        "high"
+      ],
+      "materials": [
+        "dark corrugated metal volume; limestone and white panel volumes",
+        "high"
+      ],
+      "windows": [
+        "small square windows",
+        "high"
+      ],
+      "entrances": [
+        "glass door in the stone volume",
+        "high"
+      ],
+      "features": [
+        [
+          "'FACILITIES MANAGEMENT' lettering on the dark metal",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "punched",
+        "wall": "greyStucco",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "punched",
+        "bay": 6,
+        "wainscot": 1.3,
+        "entryTower": "corrugated"
+      }
+    },
+    "Parking Structure 4": {
+      "refs": [
+        "66_Parking_Structure_4_Exterior.jpg"
+      ],
+      "roof": [
+        "open roof deck",
+        "high"
+      ],
+      "materials": [
+        "silver perforated vertical fin screen; glass stair tower; concrete decks",
+        "high"
+      ],
+      "windows": [
+        "glass stair tower at the corner",
+        "high"
+      ],
+      "entrances": [
+        "vehicle entrances (not visible in photo)",
+        "low"
+      ],
+      "features": [
+        [
+          "vertical fin screen with a wave pattern",
+          "high"
+        ],
+        [
+          "glass stair tower",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "entrance positions"
+      ],
+      "recipe": {
+        "type": "garage",
+        "screen": "fins"
+      }
+    },
+    "Dining Hall West": {
+      "refs": [
+        "08_Dining_Hall_West.jpg"
+      ],
+      "roof": [
+        "flat white roof with overhang",
+        "high"
+      ],
+      "materials": [
+        "glass walls; white roof edge; deck over the pond",
+        "high"
+      ],
+      "windows": [
+        "full-height glass",
+        "high"
+      ],
+      "entrances": [
+        "not visible",
+        "low"
+      ],
+      "features": [
+        [
+          "deck over the pond",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "entrance side"
+      ],
+      "recipe": {
+        "facade": "curtainWall",
+        "wall": "white",
+        "glass": "teal",
+        "roof": "floatingPlane",
+        "roofOverhang": 2.5,
+        "ground": "curtain"
+      }
+    },
+    "Callier Center Richardson Addition": {
+      "refs": [
+        "45_Callier_Center_Richardson_Addition.jpg",
+        "01_Callier_Center.jpg"
+      ],
+      "roof": [
+        "flat",
+        "medium"
+      ],
+      "materials": [
+        "silver vertical metal fins; orange perforated screen balcony; glass",
+        "high"
+      ],
+      "windows": [
+        "glazed ground floor; screened upper floor",
+        "high"
+      ],
+      "entrances": [
+        "glazed entrance with a red exterior stair to the orange balcony",
+        "high"
+      ],
+      "features": [
+        [
+          "orange perforated balcony screen",
+          "high"
+        ],
+        [
+          "red stair",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "fins",
+        "finSpacing": 0.6,
+        "finDepth": 0.3,
+        "wall": "silver",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "storefront",
+        "accent": "orangeBalcony"
+      }
+    },
+    "Helix Hall": {
+      "refs": [
+        "95_Helix_Hall_Residence_Hall_Southwest.jpg"
+      ],
+      "roof": [
+        "gray hip roofs over each wing",
+        "medium"
+      ],
+      "materials": [
+        "tan/beige stucco with white trim bands",
+        "high"
+      ],
+      "windows": [
+        "paired punched windows with white frames on every floor",
+        "high"
+      ],
+      "entrances": [
+        "main entrance in a white curved rotunda with glass bands, reached by steps",
+        "high"
+      ],
+      "features": [
+        [
+          "white curved rotunda with horizontal glass bands at the entrance",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "wing-by-wing roof details"
+      ],
+      "recipe": {
+        "facade": "hall",
+        "wall": "beigeStucco",
+        "glass": "dark",
+        "roof": "hip",
+        "ground": "punched",
+        "rotunda": "pavilion",
+        "frontClear": 16.5
+      }
+    },
+    "Sirius Hall": {
+      "refs": [
+        "06_Sirius_Hall.jpg",
+        "58_Sirius_Hall_Exterior_2024.jpg"
+      ],
+      "roof": [
+        "gray hip roofs over each wing",
+        "medium"
+      ],
+      "materials": [
+        "tan/beige stucco with white trim bands",
+        "high"
+      ],
+      "windows": [
+        "paired punched windows with white frames on every floor",
+        "high"
+      ],
+      "entrances": [
+        "main entrance in a white curved rotunda with glass bands, reached by steps",
+        "high"
+      ],
+      "features": [
+        [
+          "white curved rotunda with glass bands over the entrance steps",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "wing-by-wing roof details"
+      ],
+      "recipe": {
+        "facade": "hall",
+        "wall": "beigeStucco",
+        "glass": "dark",
+        "roof": "hip",
+        "ground": "punched",
+        "rotunda": "pavilion",
+        "frontClear": 8.0
+      }
+    },
+    "Vega Hall": {
+      "refs": [
+        "57_University_Commons_Residence_Halls.jpg"
+      ],
+      "roof": [
+        "gray hip roofs over each wing",
+        "medium"
+      ],
+      "materials": [
+        "tan/beige stucco with white trim bands",
+        "high"
+      ],
+      "windows": [
+        "paired punched windows with white frames on every floor",
+        "high"
+      ],
+      "entrances": [
+        "main entrance in a white curved rotunda with glass bands, reached by steps",
+        "low"
+      ],
+      "features": [
+        [
+          "same University Commons design as Sirius and Helix",
+          "low"
+        ]
+      ],
+      "unknown": [
+        "wing-by-wing roof details"
+      ],
+      "recipe": {
+        "facade": "hall",
+        "wall": "beigeStucco",
+        "glass": "dark",
+        "roof": "hip",
+        "ground": "punched",
+        "rotunda": "pavilion",
+        "frontClear": 10.0
+      }
+    },
+    "Capella Hall": {
+      "refs": [
+        "57_University_Commons_Residence_Halls.jpg"
+      ],
+      "roof": [
+        "gray hip roofs over each wing",
+        "medium"
+      ],
+      "materials": [
+        "tan/beige stucco with white trim bands",
+        "high"
+      ],
+      "windows": [
+        "paired punched windows with white frames on every floor",
+        "high"
+      ],
+      "entrances": [
+        "main entrance in a white curved rotunda with glass bands, reached by steps",
+        "low"
+      ],
+      "features": [
+        [
+          "same University Commons design as Sirius and Helix",
+          "low"
+        ]
+      ],
+      "unknown": [
+        "wing-by-wing roof details"
+      ],
+      "recipe": {
+        "facade": "hall",
+        "wall": "beigeStucco",
+        "glass": "dark",
+        "roof": "hip",
+        "ground": "punched",
+        "rotunda": "pavilion",
+        "frontClear": 9.0
+      }
+    },
+    "Andromeda Hall": {
+      "refs": [
+        "46_Andromeda_Hall_Current.jpg",
+        "92_Andromeda_Hall_Exterior_2015.jpg",
+        "42_Residence_Hall_West.jpg"
+      ],
+      "roof": [
+        "flat with parapet",
+        "high"
+      ],
+      "materials": [
+        "tan panels alternating with red-brown brick bays; white bands; blue glass towers",
+        "high"
+      ],
+      "windows": [
+        "rows of punched windows; full-height blue glass at towers",
+        "high"
+      ],
+      "entrances": [
+        "white curved drum with a columned portico",
+        "high"
+      ],
+      "features": [
+        [
+          "blue glass towers",
+          "high"
+        ],
+        [
+          "white columned portico with curved drum above",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "hall",
+        "wall": "beigeStucco",
+        "glass": "blue",
+        "roof": "parapet",
+        "ground": "punched",
+        "rotunda": "silver",
+        "tower": "glass",
+        "brickBays": true,
+        "frontClear": 10.0
+      }
+    },
+    "Canyon Creek Heights South (CH6)": {
+      "refs": [
+        "43_Canyon_Creek_Heights_South.jpg",
+        "48_Canyon_Creek_Heights_Housing.jpg",
+        "35_Canyon_Creek_Heights_Aerial.jpg"
+      ],
+      "roof": [
+        "flat with projecting cornice",
+        "high"
+      ],
+      "materials": [
+        "dark gray-brown brick lower floors and bays; tan stucco upper floors and bays; white entrance volume",
+        "high"
+      ],
+      "windows": [
+        "punched windows with white frames, grouped in vertical bays",
+        "high"
+      ],
+      "entrances": [
+        "white glazed entrance pavilion",
+        "high"
+      ],
+      "features": [
+        [
+          "alternating brick and stucco vertical bays",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "hall",
+        "wall": "beigeStucco",
+        "glass": "dark",
+        "roof": "cornice",
+        "ground": "punched",
+        "brickBays": true,
+        "bayMat": "canyonBrick",
+        "frontClear": 13.0,
+        "entryLobby": true
+      }
+    },
+    "Canyon Creek Heights North (CH7)": {
+      "refs": [
+        "43_Canyon_Creek_Heights_South.jpg",
+        "48_Canyon_Creek_Heights_Housing.jpg",
+        "35_Canyon_Creek_Heights_Aerial.jpg"
+      ],
+      "roof": [
+        "flat with projecting cornice",
+        "high"
+      ],
+      "materials": [
+        "dark gray-brown brick lower floors and bays; tan stucco upper floors and bays; white entrance volume",
+        "medium"
+      ],
+      "windows": [
+        "punched windows with white frames, grouped in vertical bays",
+        "high"
+      ],
+      "entrances": [
+        "white glazed entrance pavilion",
+        "low"
+      ],
+      "features": [
+        [
+          "alternating brick and stucco vertical bays",
+          "high"
+        ]
+      ],
+      "unknown": [],
+      "recipe": {
+        "facade": "hall",
+        "wall": "beigeStucco",
+        "glass": "dark",
+        "roof": "cornice",
+        "ground": "punched",
+        "brickBays": true,
+        "bayMat": "canyonBrick",
+        "frontClear": 9.5,
+        "entryLobby": true
+      }
+    },
+    "Engineering and Computer Science West": {
+      "refs": [
+        "69_Engineering_Computer_Science_Complex.jpg"
+      ],
+      "roof": [
+        "flat",
+        "medium"
+      ],
+      "materials": [
+        "tan limestone panels; blue glass ribbon windows; glass stair towers; silver curved canopies",
+        "medium"
+      ],
+      "windows": [
+        "narrow blue ribbon windows on each floor between deep limestone bands",
+        "medium"
+      ],
+      "entrances": [
+        "glazed entrance",
+        "low"
+      ],
+      "features": [
+        [
+          "limestone sign wall at the base",
+          "medium"
+        ],
+        [
+          "one-storey glazed entrance pavilion with stone piers and curved silver canopies",
+          "medium"
+        ],
+        [
+          "full-height glass stair tower",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "which facade the photo shows (complex not isolated)"
+      ],
+      "recipe": {
+        "facade": "bands",
+        "bandWall": 0.62,
+        "wall": "limestone",
+        "glass": "blue",
+        "roof": "parapet",
+        "ground": "bands",
+        "tower": "glass",
+        "entryPavilion": true,
+        "frontClear": 15.5
+      }
+    },
+    "Research and Operations Center": {
+      "refs": [
+        "79_Research_Operations_Center.jpg"
+      ],
+      "roof": [
+        "flat behind a plain brick parapet",
+        "high"
+      ],
+      "materials": [
+        "orange-red brick with darker horizontal brick bands",
+        "high"
+      ],
+      "windows": [
+        "very few: small punched windows high on the walls",
+        "high"
+      ],
+      "entrances": [
+        "single glazed door with a small canopy on the parking-lot face",
+        "medium"
+      ],
+      "features": [
+        [
+          "horizontal dark brick bands every ~1.5 m",
+          "high"
+        ],
+        [
+          "mostly blank walls",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "rear facades",
+        "which face the photo shows (assumed the OSM entrance face)"
+      ],
+      "recipe": {
+        "facade": "blank",
+        "wall": "redBrick",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "entranceOnly",
+        "stripes": {
+          "colors": [
+            "6b3224"
+          ],
+          "every": 1.5,
+          "h": 0.3
+        }
+      }
+    },
+    "Reasearch Operations Center West": {
+      "refs": [
+        "80_Research_Operations_Center_West.jpg"
+      ],
+      "roof": [
+        "flat, low parapet",
+        "high"
+      ],
+      "materials": [
+        "light panels with horizontal bands of orange, rust and grey panels of varying length; a blue-grey metal block at one end",
+        "high"
+      ],
+      "windows": [
+        "few: small square windows within the banding",
+        "medium"
+      ],
+      "entrances": [
+        "doors along the long face (positions not certain)",
+        "low"
+      ],
+      "features": [
+        [
+          "horizontal multicoloured panel bands",
+          "high"
+        ],
+        [
+          "blue-grey metal end block",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "rear facade",
+        "exact band pattern (randomised in the model)"
+      ],
+      "recipe": {
+        "facade": "blank",
+        "wall": "whiteStucco",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "entranceOnly",
+        "stripes": {
+          "colors": [
+            "e2702a",
+            "b5532a",
+            "9aa0a3",
+            "d98a4a"
+          ],
+          "every": 0.75,
+          "h": 0.55,
+          "random": true
+        },
+        "endBlock": "5b6c7a"
+      }
+    },
+    "Police Building": {
+      "refs": [
+        "78_UT_Dallas_Police_Building.jpg"
+      ],
+      "roof": [
+        "flat or very low slope behind a metal gutter trim",
+        "high"
+      ],
+      "materials": [
+        "cream vertical-ribbed metal panels with darker steel pilasters",
+        "high"
+      ],
+      "windows": [
+        "a few tall dark windows in the long face",
+        "high"
+      ],
+      "entrances": [
+        "recessed dark-framed glazed entrance with double glass doors up a short flight of steps and a ramp",
+        "high"
+      ],
+      "features": [
+        [
+          "glazed entrance bay set back under the eave",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "rear facades",
+        "which face the photo shows (assumed the OSM entrance face)"
+      ],
+      "recipe": {
+        "facade": "punched",
+        "bay": 7.5,
+        "wall": "creamMetal",
+        "glass": "dark",
+        "roof": "cornice",
+        "ground": "punched",
+        "storefrontBay": 8.0
+      }
+    },
+    "Safety and Grounds": {
+      "refs": [
+        "77_Environmental_Health_Safety_Building.jpg"
+      ],
+      "roof": [
+        "low gable, metal",
+        "medium"
+      ],
+      "materials": [
+        "light grey vertical-ribbed metal panels",
+        "high"
+      ],
+      "windows": [
+        "few: a tall dark window beside the entrance",
+        "high"
+      ],
+      "entrances": [
+        "dark-framed glazed entrance bay with double doors (sign reads Environmental Health & Safety, SG)",
+        "high"
+      ],
+      "features": [],
+      "unknown": [
+        "rear facades"
+      ],
+      "recipe": {
+        "facade": "punched",
+        "bay": 9.0,
+        "wall": "creamMetal",
+        "glass": "dark",
+        "roof": "cornice",
+        "ground": "punched",
+        "storefrontBay": 5.0
+      }
+    },
+    "North Lab": {
+      "refs": [
+        "75_North_Lab_Official.jpg"
+      ],
+      "roof": [
+        "low-slope metal roof with a white gutter trim",
+        "high"
+      ],
+      "materials": [
+        "cream vertical-ribbed metal panels",
+        "high"
+      ],
+      "windows": [
+        "very few small windows",
+        "high"
+      ],
+      "entrances": [
+        "white roll-up doors and white personnel doors along the long faces",
+        "high"
+      ],
+      "features": [
+        [
+          "roll-up service doors",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "door positions on unseen faces (doors placed on the longest face only)"
+      ],
+      "recipe": {
+        "facade": "punched",
+        "bay": 11.0,
+        "wall": "creamMetal",
+        "glass": "dark",
+        "roof": "cornice",
+        "ground": "punched",
+        "rollDoors": 2
+      }
+    },
+    "Housing Storage Warehouse": {
+      "refs": [
+        "96_Housing_Operations_Bulk_Storage_Building.jpg"
+      ],
+      "roof": [
+        "low hipped standing-seam metal roof with deep eaves",
+        "high"
+      ],
+      "materials": [
+        "grey stucco over a stone wainscot; a tower clad in grey lap siding at the entrance",
+        "high"
+      ],
+      "windows": [
+        "large dark-framed punched windows",
+        "high"
+      ],
+      "entrances": [
+        "glazed entrance under a flat metal canopy",
+        "high"
+      ],
+      "features": [
+        [
+          "stone wainscot",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "identity: the photo is titled Housing Operations Bulk Storage Building; matched to the OSM Housing Storage Warehouse by name and size (medium)",
+        "rear facade"
+      ],
+      "recipe": {
+        "facade": "punched",
+        "bay": 6.0,
+        "wall": "greyStucco",
+        "glass": "dark",
+        "roof": "hip",
+        "roofRise": 1.6,
+        "roofMat": "metal",
+        "ground": "punched",
+        "wainscot": 1.0,
+        "storefrontBay": 4.0
+      }
+    },
+    "Modular Lab 2": {
+      "refs": [
+        "82_Modular_Lab_2.jpg"
+      ],
+      "roof": [
+        "flat behind a metal coping",
+        "medium"
+      ],
+      "materials": [
+        "smooth tan panels; steel columns; dark louvered window panels",
+        "high"
+      ],
+      "windows": [
+        "tall narrow dark louvered panels in a regular rhythm along the long face",
+        "high"
+      ],
+      "entrances": [
+        "dark double doors under a projecting metal canopy",
+        "high"
+      ],
+      "features": [],
+      "unknown": [
+        "rear facade"
+      ],
+      "recipe": {
+        "facade": "punched",
+        "bay": 3.2,
+        "wall": "tan",
+        "glass": "dark",
+        "roof": "cornice",
+        "ground": "punched"
+      }
+    },
+    "Recreation Center West": {
+      "refs": [
+        "49_Rec_Center_West_Exterior.jpg"
+      ],
+      "roof": [
+        "flat",
+        "medium"
+      ],
+      "materials": [
+        "smooth tan panels over a split-face block base",
+        "high"
+      ],
+      "windows": [
+        "blue glass box on the upper floor at the entrance",
+        "high"
+      ],
+      "entrances": [
+        "glazed doors under the glass box, which rests on round white columns",
+        "high"
+      ],
+      "features": [
+        [
+          "projecting upper glass box on round columns with the REC CENTER WEST name band",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "which face the entrance is on (placed on the OSM entrance face)",
+        "rest of the facades"
+      ],
+      "recipe": {
+        "facade": "blank",
+        "wall": "tan",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "entranceOnly",
+        "wainscot": 2.2,
+        "upperGlassBox": 9.0
+      }
+    },
+    "Physics Annex": {
+      "refs": [
+        "76_Physics_Annex_Official.jpg"
+      ],
+      "roof": [
+        "flat behind a dark metal coping",
+        "high"
+      ],
+      "materials": [
+        "smooth beige panels",
+        "high"
+      ],
+      "windows": [
+        "few: single windows with light surrounds",
+        "high"
+      ],
+      "entrances": [
+        "dark steel single and double doors in light surrounds, reached by short stairs with rust-red rails",
+        "high"
+      ],
+      "features": [
+        [
+          "communications tower behind (not modelled)",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "rear facades",
+        "stair positions (S-01: door stoops still have no colliders)"
+      ],
+      "recipe": {
+        "facade": "punched",
+        "bay": 9.0,
+        "wall": "tan",
+        "glass": "dark",
+        "roof": "parapet",
+        "ground": "punched",
+        "serviceDoors": 2
+      }
+    }
+  }
+}

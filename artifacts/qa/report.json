@@ -1,0 +1,244 @@
+{
+  "url": "http://127.0.0.1:5188/",
+  "started": "2026-11-07T21:02:20.157Z",
+  "runs": [
+    {
+      "name": "desktop-1600x900",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "warnings": [
+        "THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead."
+      ],
+      "failedRequests": [],
+      "steps": [
+        {
+          "name": "menu",
+          "menuVisible": false,
+          "idle": {
+            "fps": 34.5,
+            "p50": 28.1,
+            "p95": 35.2,
+            "worstMs": 54.7,
+            "calls": 1138,
+            "triangles": 2723869,
+            "geometries": 846,
+            "textures": 87,
+            "heapMB": 1362
+          }
+        },
+        {
+          "name": "free-roam accelerate 5 s",
+          "start": {
+            "x": -391.8,
+            "y": -6.07,
+            "z": 143,
+            "speedMph": 0
+          },
+          "end": {
+            "x": -391.8,
+            "y": -6.07,
+            "z": 143,
+            "speedMph": 0
+          },
+          "moved": 0,
+          "perf": {
+            "fps": 31,
+            "p50": 29.6,
+            "p95": 48.4,
+            "worstMs": 57.3,
+            "calls": 1138,
+            "triangles": 2723869,
+            "geometries": 846,
+            "textures": 87,
+            "heapMB": 1342
+          }
+        },
+        {
+          "name": "steer + brake",
+          "turning": {
+            "x": -390.1,
+            "y": -6.39,
+            "z": 142.4,
+            "speedMph": 7.3
+          },
+          "afterBrake": {
+            "x": -390.7,
+            "y": -6.4,
+            "z": 142.6,
+            "speedMph": -7
+          }
+        },
+        {
+          "name": "controls L H K I B",
+          "chips": [],
+          "audioState": "available"
+        },
+        {
+          "name": "help F1",
+          "helpVisible": false
+        },
+        {
+          "name": "perf overlay",
+          "perf": "FPS33Frame (CPU)24.8 msPhysics2.30 msRender submit21.8 msDraw calls1145Triangles3225kGeometries1260Textures111Chunks loaded/vis/detail148/101/26Physics chunks/colliders14/2545Qualitymedium (auto)JS heap1352 MB"
+        },
+        {
+          "name": "reset to start",
+          "cart": {
+            "x": -391.8,
+            "y": -6.38,
+            "z": 143,
+            "speedMph": 0.3
+          }
+        },
+        {
+          "name": "route challenge random start",
+          "target": "Phase 8 Clubhouse",
+          "label": "Route Challenge · assisted",
+          "countdown": false
+        },
+        {
+          "name": "route challenge bot drive (straight at the beacon)",
+          "finished": false,
+          "seconds": 60,
+          "softlocks": 13,
+          "maxSpeedMph": 14.8
+        },
+        {
+          "name": "objective panel",
+          "label": "Route Challenge · assisted",
+          "time": "1:00.6",
+          "dist": "449 m",
+          "driven": "18 m",
+          "event": "Collision −100"
+        },
+        {
+          "name": "drive into nearest building",
+          "buildingDistance": 28,
+          "events": [
+            "Collision −100"
+          ],
+          "end": [
+            -394.9,
+            -160.5
+          ],
+          "upright": true
+        },
+        {
+          "name": "multi-stop start",
+          "label": "Stop 1 of 4",
+          "target": "University Village Building 39"
+        },
+        {
+          "name": "destination list",
+          "count": 149,
+          "lots": 20,
+          "northside": 0,
+          "waterview": 0
+        },
+        {
+          "name": "night",
+          "perf": {
+            "fps": 58,
+            "p50": 16.9,
+            "p95": 23.3,
+            "worstMs": 38.7,
+            "calls": 513,
+            "triangles": 1040925,
+            "geometries": 1345,
+            "textures": 101,
+            "heapMB": 1033
+          }
+        },
+        {
+          "name": "60 s stability",
+          "before": {
+            "fps": 56.7,
+            "p50": 17.1,
+            "p95": 25.4,
+            "worstMs": 34.6,
+            "calls": 509,
+            "triangles": 1035941,
+            "geometries": 1345,
+            "textures": 101,
+            "heapMB": 1026
+          },
+          "after": {
+            "fps": 60.7,
+            "p50": 16.6,
+            "p95": 19.4,
+            "worstMs": 24.8,
+            "calls": 457,
+            "triangles": 1173865,
+            "geometries": 1393,
+            "textures": 103,
+            "heapMB": 1016
+          },
+          "cart": {
+            "x": -370.3,
+            "y": -6.75,
+            "z": 138.4,
+            "speedMph": 0
+          }
+        },
+        {
+          "name": "resize",
+          "canvas": [
+            768,
+            480,
+            1024,
+            640
+          ]
+        }
+      ],
+      "loadMs": 23137,
+      "gpu": "ANGLE (AMD, AMD Radeon(TM) 840M Graphics (0x00001114) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "name": "mobile-390x844",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "warnings": [
+        "THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead."
+      ],
+      "failedRequests": [],
+      "steps": [
+        {
+          "name": "mobile",
+          "fit": {
+            "panel": [
+              358,
+              804
+            ],
+            "overflowX": false,
+            "scrollable": true
+          },
+          "touchMovedCart": false,
+          "touchControls": false,
+          "perf": {
+            "fps": 26.5,
+            "p50": 36.8,
+            "p95": 55.7,
+            "worstMs": 69.5,
+            "calls": 743,
+            "triangles": 2048948,
+            "geometries": 505,
+            "textures": 67,
+            "heapMB": 1366
+          }
+        }
+      ],
+      "loadMs": 25820,
+      "gpu": "ANGLE (AMD, AMD Radeon(TM) 840M Graphics (0x00001114) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ],
+  "finished": "2026-11-07T21:06:45.807Z"
+}

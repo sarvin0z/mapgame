@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UTD Geographic Viewer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.121.0/Build/Cesium/Widgets/widgets.css" />
+  <style>
+    html, body, #cesium { margin: 0; width: 100%; height: 100%; overflow: hidden; font-family: system-ui, sans-serif; }
+    #panel { position: absolute; top: 10px; left: 10px; background: rgba(14,18,24,.8); color: #eef2f6; padding: 10px 12px; border-radius: 8px; font-size: 13px; max-width: 360px; line-height: 1.45; }
+    #panel button { margin: 3px 3px 0 0; }
+    #panel input { width: 100%; margin-top: 4px; }
+    #panel .warn { color: #ffb37a; }
+  </style>
+</head>
+<body>
+  <div id="cesium"></div>
+  <div id="panel">
+    <b>UTD geographic feasibility viewer</b>
+    <div id="mode"></div>
+    <label>Google Maps Platform API key (Map Tiles API):
+      <input id="key" type="password" placeholder="paste key, then press Load" />
+    </label>
+    <button id="load">Load photorealistic 3D tiles</button>
+    <div style="margin-top:6px">Views:
+      <button data-view="overview">Campus overview</button>
+      <button data-view="plinth">Plinth (1.7 m eye)</button>
+      <button data-view="cart">Cart height (1.6 m)</button>
+      <button data-view="library">Library mall</button>
+    </div>
+    <label><input type="checkbox" id="footprints" checked /> OSM building footprints overlay</label><br />
+    <label><input type="checkbox" id="boundary" checked /> OSM campus boundary</label>
+    <p style="font-size:11px;opacity:.8">Viewing only: no geometry is extracted from Google tiles. Attribution is shown by Cesium as required.</p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/cesium@1.121.0/Build/Cesium/Cesium.js"></script>
+  <script type="module" src="./src/viewer/viewer.ts"></script>
+</body>
+</html>
