@@ -3,7 +3,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { gradePass } from './graphics/grade.ts';
+import { gradePass, installInlineGrade } from './graphics/grade.ts';
 import { boostAll, boostTree, boostReflections } from './graphics/reflections.ts';
 import { loadCampus, DRIVABLE, type CampusData } from './world/campusData.ts';
 import { partition, ensureChunks } from './world/chunks.ts';
@@ -16,6 +16,7 @@ import { loadPhotos } from './world/photos.ts';
 import { parkedCars } from './world/extras.ts';
 import { buildLandmarks, suPromenade } from './world/landmarks.ts';
 import { pointInRing } from './world/spatial.ts';
+import { roadTapers } from './world/roadShape.ts';
 import { lineLookup, polygonLookup, pointLookup } from './world/spatial.ts';
 import { WorldStreamer } from './world/worldStreamer.ts';
 import { centroid } from './world/geometry.ts';
@@ -27,13 +28,17 @@ import { Input } from './input.ts';
 import { CameraRig } from './camera/cameraRig.ts';
 import { Environment, type TimeOfDay } from './graphics/environment.ts';
 import { nightUniform } from './world/occlusion.ts';
-import { PRESETS, ORDER, AdaptiveQuality, type QualityName } from './graphics/quality.ts';
+import { PRESETS, ORDER, AdaptiveQuality, GpuTimer, detectPreset, pixelRatioFor, type QualityName } from './graphics/quality.ts';
 import { Hud } from './ui/hud.ts';
 import { Menus } from './ui/menus.ts';
 import { RouteChallenge } from './gameplay/routeChallenge.ts';
 import { Pedestrians } from './gameplay/pedestrians.ts';
-import { Siren, Horn } from './audio/siren.ts';
+import { Siren, Horn, setEmergencyOutput } from './audio/siren.ts';
+import { AudioMix, CartAudio, Sfx } from './audio/mix.ts';
 import { unproject } from './geo/projection.ts';
+
+// The colour grade is compiled into every material (see grade.ts), so it must be in place before any shader is built.
+installInlineGrade();
 
 const loading = document.getElementById('loading')!;
 const setLoading = (t: string) => { loading.querySelector('p')!.textContent = t; };
@@ -92,6 +97,7 @@ async function main() {
     inBuilding: polygonLookup(data.buildings.filter(b => b.style !== 'canopy').map(b => b.outer)),
     inWater: polygonLookup(data.areas.filter(a => a.kind === 'water' || a.kind === 'pool').map(a => a.outer)),
     treeNear: pointLookup(data.treeList.map(t => [t[0], t[1]] as Pt)),
+    tapers: roadTapers(data.roads.filter(r => DRIVABLE.has(r.cls))),
     cars,
     isStub: (() => {
       // Short walk pieces with a free end (no other way meets it) lead nowhere: OSM artefacts.
@@ -130,10 +136,14 @@ async function main() {
 
   // Reversed-Z depth (float depth, near plane at 1) removes the z-fighting ("flicker") between
   // nearly coplanar facade layers at a distance. Without EXT_clip_control, fall back to log depth.
-  let renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', reversedDepthBuffer: true });
+  // Multisampling is skipped on phone-class screens of 2x density and up: the pixels are already
+  // finer than the eye resolves at arm's length, and MSAA is the dearest thing a tile-based GPU does.
+  const touch = matchMedia('(pointer: coarse)').matches;
+  const antialias = !(touch && devicePixelRatio >= 2);
+  let renderer = new THREE.WebGLRenderer({ antialias, powerPreference: 'high-performance', reversedDepthBuffer: true });
   if (!renderer.capabilities.reversedDepthBuffer) {
     renderer.dispose();
-    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', logarithmicDepthBuffer: true });
+    renderer = new THREE.WebGLRenderer({ antialias, powerPreference: 'high-performance', logarithmicDepthBuffer: true });
   }
   renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
@@ -154,12 +164,21 @@ async function main() {
   // Not the cart: its clear polycarbonate windshield, boosted, flashed white across the open cabin as the cart moved.
   for (const m of models.values()) boostTree(m);
 
-  let quality: QualityName = (params.get('quality') as QualityName) ?? 'high';
-  if (!ORDER.includes(quality)) quality = 'high';
+  // Starting preset: the URL's, or a guess from the device that the adaptive controller then corrects.
+  const gl = renderer.getContext() as WebGL2RenderingContext;
+  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  const guessed = detectPreset({
+    gpu: dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '', touch,
+    memoryGB: nav.deviceMemory, cores: nav.hardwareConcurrency, minScreen: Math.min(screen.width, screen.height),
+  });
+  let quality: QualityName = (params.get('quality') as QualityName) ?? guessed;
+  if (!ORDER.includes(quality)) quality = guessed;
   const adaptive = new AdaptiveQuality(quality);
   if (params.has('quality')) adaptive.enabled = false;
+  const gpuTimer = new GpuTimer(gl);
 
-  const streamer = new WorldStreamer(chunks, mats, ctx, { viewDistance: PRESETS[quality].viewDistance, detailDistance: PRESETS[quality].detailDistance, nearDistance: PRESETS[quality].nearDistance });
+  const streamer = new WorldStreamer(chunks, mats, ctx, { viewDistance: PRESETS[quality].viewDistance, detailDistance: PRESETS[quality].detailDistance, nearDistance: PRESETS[quality].nearDistance, treeFullDistance: PRESETS[quality].treeFullDistance, groundDistance: PRESETS[quality].groundDistance });
   scene.add(streamer.root);
 
   const physics = new PhysicsWorld(R, chunks, terrain);
@@ -195,8 +214,32 @@ async function main() {
     return hit ? hit.timeOfImpact : null;
   };
   const hud = new Hud(data);
+  // Audio: everything plays through the mix's buses (mix.ts); the siren and horn on the emergency bus.
+  const mix = new AudioMix();
+  setEmergencyOutput(mix.bus('emergency'));
+  const cartAudio = new CartAudio(mix), sfx = new Sfx(mix);
   const siren = new Siren();
   const horn = new Horn();
+  const stored = (k: string, d: string) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
+  const store = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } };
+  {
+    const vol = document.getElementById('volume') as HTMLInputElement | null;
+    if (vol) {
+      vol.value = stored('volume', '80');
+      mix.setVolume(+vol.value / 100);
+      vol.addEventListener('input', () => { mix.setVolume(+vol.value / 100); store('volume', vol.value); });
+    }
+  }
+  // Impact feedback (see docs/GRAPHICS.md "Feedback"): a decaying camera shake, scaled to the
+  // event and switchable off in Settings. It offsets the drawn view only, after the camera
+  // rig has placed it, and never the cart.
+  let trauma = 0, shakeT = 0;
+  const shakeBox = document.getElementById('shake') as HTMLInputElement | null;
+  if (shakeBox) { shakeBox.checked = stored('shake', '1') === '1'; shakeBox.addEventListener('change', () => store('shake', shakeBox.checked ? '1' : '0')); }
+  const jolt = (amount: number) => { trauma = Math.min(1, trauma + amount); };
+  const vignette = document.getElementById('vignette');
+  const flashHit = () => { if (!vignette) return; vignette.classList.remove('hit'); void vignette.offsetWidth; vignette.classList.add('hit'); };
+  let lastVy = 0, joltCooldown = 0, lastCount = 0, lastPhase = 'idle';
 
   // Route Challenge (gameplay layer): network-following runs from the UEMR apartment.
   const startPt: Pt = [spawn.pos.x, -spawn.pos.z];
@@ -221,6 +264,8 @@ async function main() {
       spawn.pos = sp.pos; spawn.heading = sp.heading;
       cart.reset(spawn.pos, spawn.heading);
       physics.stream(spawn.pos.x, spawn.pos.z);
+      // Back in the cart: left in the free camera, the driving keys fly the camera and the cart sits still.
+      rig.setMode('chase');
     },
     start: (dest?: string | string[], stops = 1) => {
       const sp = starts[menus.startKey as keyof typeof starts] ?? starts.uv11;
@@ -237,8 +282,8 @@ async function main() {
       hud.toast(si.of > 1 ? `Gauntlet: ${si.of} stops · first ${rc.dest!.name}` : `Respond to ${rc.dest!.name}`);
     },
     quality: q => {
-      if (q === 'auto') { adaptive.enabled = true; return; }
-      adaptive.enabled = false; adaptive.current = q as QualityName; applyQuality(q as QualityName);
+      if (q === 'auto') { adaptive.enabled = true; applyResolution(); return; }
+      adaptive.enabled = false; adaptive.current = q as QualityName; applyQuality(q as QualityName); applyResolution();
     },
     menuOpen: open => { menuOpen = open; },
     time: t => applyTime(t as TimeOfDay),
@@ -280,6 +325,8 @@ async function main() {
     shotCam.position.set(eye[0], terrain.heightAt(eye[0], eye[1]) + (lot ? 14 : 4), -eye[1]);
     shotCam.lookAt(c[0], gy + (lot ? 0 : 6), -c[1]);
     shotCam.updateMatrixWorld();
+    // The photo's surroundings in full detail (distant chunks are kept in their light far form).
+    streamer.ensureFull(shotCam.position, 150);
     streamer.update(shotCam.position, 0);
     env.follow(new THREE.Vector3(c[0], gy, -c[1]));
     env.sun.target.updateMatrixWorld();
@@ -304,26 +351,46 @@ async function main() {
     mats.lampPool.visible = night > 0;
     for (const g of glass) { g.emissive.setRGB(1, 0.8, 0.55); g.emissiveIntensity = night ? 0.05 : 0; }
     cart.headlightsOn = night > 0;
+    cart.glowLevel = night ? 1 : 0.28;
     menus.setTime(t);
   }
   const startTime = params.get('time') as TimeOfDay | null;
   applyTime(startTime && ['golden', 'day', 'night'].includes(startTime) ? startTime : 'golden');
 
-  // Post-processing (bloom for emergency lights) on high quality only.
+  // Post-processing exists only for bloom (lamp glow and the emergency LEDs at night, High):
+  // by day the frame is drawn straight to the canvas, graded in the material shaders. The
+  // chain and its HDR targets are therefore built the first time they are needed.
   // Multisampled half-float target so the post chain keeps MSAA and HDR highlights.
-  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth, innerHeight, { type: THREE.HalfFloatType, samples: 4 }));
-  composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.16, 0.3, 4.0); // sun glare, lamp glow and the emergency LEDs
-  composer.addPass(bloom);
-  composer.addPass(new OutputPass());
-  composer.addPass(gradePass());
+  let post: { composer: EffectComposer; bloom: UnrealBloomPass } | null = null;
+  const ensurePost = () => {
+    if (post) return post;
+    const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth, innerHeight, { type: THREE.HalfFloatType, samples: 4 }));
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.3, 0.3, 4.0);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+    composer.addPass(gradePass());
+    composer.setPixelRatio(renderer.getPixelRatio());
+    composer.setSize(innerWidth, innerHeight);
+    post = { composer, bloom };
+    return post;
+  };
+  const wantPost = () => PRESETS[quality].bloom && env.night > 0;
+
+  /** Render resolution from the preset, the adaptive scale and the window size. */
+  function applyResolution() {
+    const pr = pixelRatioFor(PRESETS[quality], adaptive.enabled ? adaptive.scale : 1, innerWidth, innerHeight, devicePixelRatio);
+    if (Math.abs(pr - renderer.getPixelRatio()) < 1e-3) return;
+    renderer.setPixelRatio(pr);
+    post?.composer.setPixelRatio(pr);
+  }
 
   function applyQuality(name: QualityName) {
     const p = PRESETS[name];
     quality = name;
-    renderer.setPixelRatio(Math.min(devicePixelRatio, p.pixelRatioCap));
-    composer.setPixelRatio(Math.min(devicePixelRatio, p.pixelRatioCap));
-    renderer.shadowMap.enabled = p.shadows;
+    applyResolution();
+    // Shadows are switched at the light: materials pick up the changed light set by themselves,
+    // where switching the renderer's shadow map off needed every shader in the scene rebuilt.
     env.sun.castShadow = p.shadows;
     if (p.shadows && env.sun.shadow.mapSize.x !== p.shadowMapSize) {
       env.sun.shadow.mapSize.set(p.shadowMapSize, p.shadowMapSize);
@@ -333,11 +400,11 @@ async function main() {
     streamer.settings.viewDistance = p.viewDistance;
     streamer.settings.detailDistance = p.detailDistance;
     streamer.settings.nearDistance = p.nearDistance;
+    streamer.settings.treeFullDistance = p.treeFullDistance;
+    streamer.settings.groundDistance = p.groundDistance;
     camera.far = p.viewDistance + 3000;
     camera.updateProjectionMatrix();
     env.setViewDistance(p.viewDistance);
-    bloom.enabled = p.bloom;
-    scene.traverse(o => { if ((o as THREE.Mesh).material) ((o as THREE.Mesh).material as THREE.Material).needsUpdate = true; });
   }
   applyQuality(quality);
 
@@ -369,7 +436,8 @@ async function main() {
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
-    composer.setSize(innerWidth, innerHeight);
+    applyResolution();
+    post?.composer.setSize(innerWidth, innerHeight);
   });
 
   setLoading('Streaming nearby chunks…');
@@ -380,33 +448,43 @@ async function main() {
   const FIXED = physics.world.timestep;
   let acc = 0;
   let last = performance.now();
-  let fpsFrames = 0, fpsTime = 0, fps = 60, frameMs = 0, physMs = 0, renderMs = 0;
+  let fpsFrames = 0, fpsTime = 0, fps = 60, frameMs = 0, physMs = 0, renderMs = 0, cpuSum = 0;
+  /** Recent frame intervals (ms): their fastest few show the display's refresh cap. */
+  const intervals = new Float32Array(120).fill(16.7);
+  let intervalAt = 0;
   let physTimer = 0;
   let shadowFrame = 0;
   const camPos = new THREE.Vector3();
   const tmp = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
 
+  /** Size the composer was set to by the dev harness's timing views ('' = the window's). */
+  let postSize = '';
   // Exposed for automated browser checks and debugging.
   // `freezeFoliage` (seconds) holds the wind sway still for frame-difference flicker checks.
-  const sim = { cart, physics, streamer, rig, renderer, scene, camera, data, terrain, spawn, composer, bloom, freezeFoliage: null as number | null };
+  const sim = { cart, physics, streamer, rig, renderer, scene, camera, data, terrain, spawn, adaptive, gpuTimer, mix, cartAudio, get quality() { return quality; }, get post() { return post; }, freezeFoliage: null as number | null };
   (window as any).__sim = sim;
   if (import.meta.env.DEV) {
     const { installHarness } = await import('./debug/harness.ts');
+
     installHarness({
       data, cart, physics, streamer, rig, terrain, renderer, scene, camera, sun: env.sun, sunDir: env.sunDir,
+      frame: now => frame(now, false),
       post: (w, h) => {
-        if (!PRESETS[quality].bloom) return false;
-        composer.setPixelRatio(1); composer.setSize(w, h); composer.render(0.016);
-        composer.setPixelRatio(Math.min(devicePixelRatio, PRESETS[quality].pixelRatioCap)); composer.setSize(innerWidth, innerHeight);
+        if (!wantPost()) return false;
+        const { composer } = ensurePost();
+        // Resized only when the size changes (timing loops call this every frame), and put back on the next real frame.
+        if (postSize !== w + 'x' + h) { composer.setPixelRatio(1); composer.setSize(w, h); postSize = w + 'x' + h; }
+        composer.render(0.016);
         return true;
       },
     });
   }
 
-  function frame(now: number) {
-    requestAnimationFrame(frame);
+  function frame(now: number, scheduled = true) {
+    if (scheduled) requestAnimationFrame(t => frame(t));
     const dt = Math.min(0.1, (now - last) / 1000);
+    intervals[intervalAt = (intervalAt + 1) % intervals.length] = now - last;
     last = now;
     const t0 = performance.now();
 
@@ -422,6 +500,7 @@ async function main() {
     let steps = 0;
     const tp = performance.now();
     while (acc >= FIXED && steps < 10) {
+      cart.snapshot();
       cart.update(di, FIXED);
       physics.step();
       acc -= FIXED;
@@ -435,8 +514,19 @@ async function main() {
 
     foliageTime.value = sim.freezeFoliage ?? now / 1000;
     mats.layers.water.normalMap?.offset.set(foliageTime.value * 0.012, foliageTime.value * 0.008);
-    cart.syncVisual(dt, { pointLights: PRESETS[quality].pointLights });
+    cart.syncVisual(dt, { pointLights: PRESETS[quality].pointLights }, steps < 10 ? acc / FIXED : 1);
     rig.update(cart, dt, now / 1000);
+    // Shake: trauma decays every frame and is squared, so small knocks barely move the view.
+    if (trauma > 0) {
+      trauma = Math.max(0, trauma - dt * 1.8);
+      if (rig.mode !== 'free' && (shakeBox?.checked ?? true)) {
+        const s = trauma * trauma;
+        shakeT += dt * 34;
+        camera.translateX(0.1 * s * Math.sin(shakeT * 1.7));
+        camera.translateY(0.07 * s * Math.sin(shakeT * 2.3));
+        camera.rotateZ(0.012 * s * Math.sin(shakeT * 1.1));
+      }
+    }
     camPos.copy(camera.position);
     streamer.update(camPos);
     env.follow(rig.mode === 'free' ? camPos : cp);
@@ -447,11 +537,15 @@ async function main() {
     renderer.shadowMap.autoUpdate = false;
     renderer.shadowMap.needsUpdate = true;
 
-    // Bloom: a little lamp glow at night; nearly none at midday, where it hazed the horizon on High.
-    bloom.strength = env.night ? 0.3 : env.time === 'day' ? 0.05 : 0.14;
     renderer.info.reset();
     const tr = performance.now();
-    if (PRESETS[quality].bloom) composer.render(dt); else renderer.render(scene, camera);
+    gpuTimer.begin();
+    if (wantPost()) {
+      const { composer } = ensurePost();
+      if (postSize) { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(innerWidth, innerHeight); postSize = ''; }
+      composer.render(dt);
+    } else renderer.render(scene, camera);
+    gpuTimer.end();
     renderMs = performance.now() - tr;
 
     const f = cart.forward(new THREE.Vector3());
@@ -463,6 +557,7 @@ async function main() {
         rc.update(dt, [cp.x, -cp.z], cart.speed, [fw.x, -fw.z]);
         const hits = peds.update(dt, [cp.x, -cp.z], [fw.x, -fw.z], Math.abs(cart.speed), horn.on || siren.on);
         for (let k = 0; k < hits; k++) rc.pedestrianHit();
+        if (hits) { sfx.impact(0.25); jolt(0.3); flashHit(); }
       }
       if (rc.phase === 'finished' || rc.phase === 'idle') peds.stop();
     }
@@ -481,11 +576,32 @@ async function main() {
       bumpCooldown -= dt;
       const jumped = cp.distanceTo(lastPos) > 3; // reset or recovery, not a crash
       lastPos.copy(cp);
-      if (!jumped && rc.phase === 'running' && dt > 0 && dv / dt > 16 && lastVel.length() > 2 && v.length() < lastVel.length() - 1.2 && bumpCooldown <= 0) {
-        rc.collision();
+      if (!jumped && !menuOpen && dt > 0 && dv / dt > 16 && lastVel.length() > 2 && v.length() < lastVel.length() - 1.2 && bumpCooldown <= 0) {
+        // Heard and felt on every drive; scored only during a run.
+        const hard = Math.min(1, (lastVel.length() - v.length()) / 6);
+        sfx.impact(hard); jolt(0.35 + 0.4 * hard); flashHit();
+        if (rc.phase === 'running') rc.collision();
         bumpCooldown = 1.5;
       }
       lastVel.copy(v);
+      // A kerb, speed bump or landing: a sudden change in vertical speed while moving.
+      joltCooldown -= dt;
+      const dvy = Math.abs(lv.y - lastVy);
+      if (!jumped && !menuOpen && dvy > 0.85 && v.length() > 1.5 && joltCooldown <= 0 && bumpCooldown < 1.4) {
+        const k = Math.min(1, (dvy - 0.85) / 2.5);
+        sfx.thud(k); jolt(0.1 + 0.15 * k);
+        joltCooldown = 0.35;
+      }
+      lastVy = lv.y;
+    }
+    // Cart sound, siren ducking, countdown beeps and the arrival chime.
+    cartAudio.update(dt, menuOpen ? 0 : cart.speed, menuOpen ? 0 : di.throttle);
+    mix.setDucked(siren.on || horn.on);
+    if (rc.phase === 'countdown') { const n = Math.ceil(rc.countdown); if (n !== lastCount && n > 0) sfx.beep(); lastCount = n; }
+    if (rc.phase !== lastPhase) {
+      if (lastPhase === 'countdown' && rc.phase === 'running') sfx.beep(true);
+      if (rc.phase === 'finished') sfx.chime();
+      lastPhase = rc.phase; lastCount = 0;
     }
     menus.update([cp.x, -cp.z]);
     if (rc.phase !== 'idle') hud.overlay.trail = rc.trail;
@@ -504,12 +620,16 @@ async function main() {
     }, dt);
 
     frameMs = performance.now() - t0;
+    cpuSum += frameMs;
     fpsFrames++; fpsTime += dt;
     if (fpsTime >= 0.5) {
       fps = fpsFrames / fpsTime;
-      fpsFrames = 0; fpsTime = 0;
-      const change = adaptive.sample(fps, 0.5);
-      if (change) applyQuality(change);
+      const cpuMs = cpuSum / fpsFrames;
+      const best = Array.from(intervals).sort((a, b) => a - b)[6];
+      // Not while the menu covers the view (its destination photos borrow the renderer) or the tab is hidden.
+      const change = menuOpen || document.hidden ? null : adaptive.sample({ fps, cpuMs, gpuMs: gpuTimer.ms, bestIntervalMs: best }, fpsTime);
+      fpsFrames = 0; fpsTime = 0; cpuSum = 0;
+      if (change?.preset) applyQuality(change.preset); else if (change) applyResolution();
       if (hud.perfVisible) {
         const info = renderer.info;
         const mem = (performance as any).memory;
@@ -518,13 +638,15 @@ async function main() {
           ['Frame (CPU)', `${frameMs.toFixed(1)} ms`],
           ['Physics', `${physMs.toFixed(2)} ms`],
           ['Render submit', `${renderMs.toFixed(1)} ms`],
+          ['GPU', gpuTimer.ms === undefined ? 'n/a' : `${gpuTimer.ms.toFixed(1)} ms`],
+          ['Resolution', `${renderer.domElement.width}×${renderer.domElement.height}`],
           ['Draw calls', String(info.render.calls)],
           ['Triangles', (info.render.triangles / 1000).toFixed(0) + 'k'],
           ['Geometries', String(info.memory.geometries)],
           ['Textures', String(info.memory.textures)],
           ['Chunks loaded/vis/detail', `${streamer.stats.loaded}/${streamer.stats.visible}/${streamer.stats.detailVisible}`],
           ['Physics chunks/colliders', `${physics.stats.chunks}/${physics.stats.colliders}`],
-          ['Quality', `${quality}${adaptive.enabled ? ' (auto)' : ''}`],
+          ['Quality', `${quality}${adaptive.enabled ? ` (auto, ${Math.round(adaptive.scale * 100)}%)` : ''}`],
           ...(mem ? [['JS heap', `${(mem.usedJSHeapSize / 1048576).toFixed(0)} MB`] as [string, string]] : []),
         ]);
       }

@@ -1,6 +1,6 @@
 # Building reconstruction plan
 
-Generated 2026-11-07 by `scripts/reconstruction-plan.ts`. Do not edit by hand: change
+Generated 2026-11-10 by `scripts/reconstruction-plan.ts`. Do not edit by hand: change
 `reconstruction/observations.json` (architecture, from photos) and re-run.
 
 **Sources.** Coordinates, footprints, heights and entrances: OpenStreetMap (snapshot 2026-11-01).
@@ -19,7 +19,7 @@ drivable road (weight 2) or walkway (weight 1).
 | 1 | Vega Hall | 1010 | 1 | yes |
 | 2 | Helix Hall | 1004 | 1 | yes |
 | 3 | Sirius Hall | 974 | 2 | yes |
-| 4 | Naveen Jindal School of Management | 970 | 0 | — |
+| 4 | Naveen Jindal School of Management | 970 | 4 | yes |
 | 5 | Andromeda Hall | 960 | 3 | yes |
 | 6 | Canyon Creek Heights North (CH7) | 902 | 3 | yes |
 | 7 | Capella Hall | 850 | 1 | yes |
@@ -139,14 +139,14 @@ drivable road (weight 2) or walkway (weight 1).
 | Coordinates | 32.984979, -96.747206 | high (OSM) |
 | Footprint | 11619 m², ~176 × 90 m oriented box, 71 vertices, 1 courtyard(s) | high (OSM) |
 | Height | 18.3 m, 4 floors — OSM height tag | high |
-| Roof | flat (OSM tag) | |
-| Materials | _unknown: no reference_ | |
-| Windows | _unknown: no reference_ | |
-| Entrances | —; OSM maps 10 (yes, yes/double) | |
-| Features | — | |
-| Not known | architecture (no reference photo) | |
-| References | **none — needs a photo** | |
-| Reconstruction | procedural extrusion with generic facade | |
+| Roof | flat, stepped rectangular masses *(medium)* | |
+| Materials | cream limestone-coloured walls; green-tinted glass *(medium)* | |
+| Windows | long horizontal rows of green-tinted windows between cream wall bands on each floor *(medium)* | |
+| Entrances | main entrance at a curved, glazed rotunda with an entrance plaza *(medium)*; OSM maps 10 (yes, yes/double) | |
+| Features | curved entrance rotunda between rectangular wings *(medium)*; horizontal window rows aligned across the wings *(medium)* | |
+| Not known | the photos come from a user-supplied image search (Building Reconstruction Quality.pdf, 2026-11-10) and are not from the official set: checked only for agreeing with each other; which footprint edges the rotunda occupies (taken from the OSM outline as mapped, not placed); rear and service facades; JSOM II and III additions | |
+| References | 78_JSOM_1.png, 78_JSOM_2.png, 78_JSOM_3.png, 78_JSOM_4.png | |
+| Reconstruction | Blender GLB (`public/models/buildings/naveen_jindal_school_of_management.glb`) | |
 
 ## 5. Andromeda Hall (RHA)
 

@@ -6,6 +6,7 @@
 // creates the lights.
 // Local frame: +z forward, +x left (driver side), +y up, ground at y = 0.
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { blobGeometry, occlusionMaterial } from '../world/occlusion.ts';
 import type { GolfCartConfig } from './config.ts';
@@ -193,6 +194,45 @@ function boxUV(geo: THREE.BufferGeometry, tile: number) {
   geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 }
 
+function isUnder(o: THREE.Object3D, anc: THREE.Object3D) {
+  for (let q: THREE.Object3D | null = o; q; q = q.parent) if (q === anc) return true;
+  return false;
+}
+
+/**
+ * Replaces the meshes under `root` accepted by `keep` with one mesh per material, in
+ * root-local space (shadow flags carried over). Groups whose geometries cannot be
+ * merged (different attribute sets) are left as they are.
+ */
+function mergeByMaterial(root: THREE.Object3D, keep: (o: THREE.Object3D) => boolean) {
+  root.updateMatrixWorld(true);
+  const inv = root.matrixWorld.clone().invert();
+  const groups = new Map<THREE.Material, THREE.Mesh[]>();
+  root.traverse(o => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || Array.isArray(m.material) || !keep(m)) return;
+    if (!groups.has(m.material)) groups.set(m.material, []);
+    groups.get(m.material)!.push(m);
+  });
+  for (const [mat, list] of groups) {
+    if (list.length < 2) continue;
+    const geos = list.map(m => {
+      const g = (m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone()).applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld));
+      for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+      if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+      return g;
+    });
+    const merged = mergeGeometries(geos);
+    if (!merged) continue;
+    const out = new THREE.Mesh(merged, mat);
+    out.castShadow = list.some(m => m.castShadow);
+    out.receiveShadow = list.some(m => m.receiveShadow);
+    out.renderOrder = list[0].renderOrder;
+    for (const m of list) m.removeFromParent();
+    root.add(out);
+  }
+}
+
 export async function loadCartModel(c: GolfCartConfig, url = 'models/uemr_cart.glb'): Promise<CartModel> {
   void c;
   const gltf = await new GLTFLoader().loadAsync(url);
@@ -214,6 +254,26 @@ export async function loadCartModel(c: GolfCartConfig, url = 'models/uemr_cart.g
     mesh.castShadow = !see;
     mesh.receiveShadow = !see;
     if (m.name === 'Seat_Vinyl') { boxUV(mesh.geometry, 0.12); m.map = vinyl; m.color.set(0xffffff); }
+  });
+  // Painted body panels: a glossy clear-coated finish over the white (the plain material
+  // read as matte plastic); rubber and machined metal tuned to read at chase distance.
+  const physical = new Map<THREE.Material, THREE.MeshPhysicalMaterial>();
+  scene.traverse(o => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const m = mesh.material as THREE.MeshStandardMaterial;
+    if (['Body_White', 'Cowl', 'RearBody'].includes(m.name)) {
+      if (!physical.has(m)) {
+        const p = new THREE.MeshPhysicalMaterial({ name: m.name, color: m.color, map: m.map, roughness: 0.42, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.2 });
+        physical.set(m, p);
+        mats.set(m.name, p as unknown as THREE.MeshStandardMaterial);
+      }
+      mesh.material = physical.get(m)!;
+    }
+    if (m.name === 'Tire') { m.color.setRGB(0.028, 0.028, 0.03); m.roughness = 0.92; m.envMapIntensity = 0.3; }
+    if (m.name === 'Rim_Machined' || m.name === 'Steel') { m.metalness = 0.9; m.roughness = 0.22; }
+    if (m.name === 'Frame') { m.roughness = 0.38; }
+    if (m.name === 'Seat_Vinyl') { m.roughness = 0.38; }
   });
   if (!wheelTemplate) throw new Error('cart model has no Wheel node');
   wheelTemplate.removeFromParent();
@@ -253,6 +313,12 @@ export async function loadCartModel(c: GolfCartConfig, url = 'models/uemr_cart.g
   }
   wheels.forEach(g => g.traverse(o => { if ((o as THREE.Mesh).isMesh) o.castShadow = true; }));
 
+  // Draw calls: the body arrives as ~100 meshes; merge the static ones per material
+  // (everything except the LED heads, which get per-head materials below, and the
+  // steering wheel, which turns). Each wheel's parts merge the same way.
+  mergeByMaterial(scene, o => !(steeringWheel && isUnder(o, steeringWheel)) && !/^LED_/.test(((o as THREE.Mesh).material as THREE.Material).name));
+  for (const g of wheels) mergeByMaterial(g.getObjectByName('spin')!, () => true);
+
   // Per-head LED materials and glow sprites (see CartModel.leds).
   const leds: CartModel['leds'] = [];
   const glowTex = glowTexture();
@@ -277,6 +343,28 @@ export async function loadCartModel(c: GolfCartConfig, url = 'models/uemr_cart.g
     glow.visible = false;
     root.add(glow);
     leds.push({ mat, glow, red, zone });
+  }
+
+  // Shadow pass: the body's ~45 parts cast as one merged silhouette on the layer only the
+  // sun's shadow camera draws, instead of one shadow draw call each. Of each wheel, the tyre casts.
+  {
+    const casters: THREE.Mesh[] = [];
+    scene.traverse(o => { const m = o as THREE.Mesh; if (m.isMesh && m.castShadow) casters.push(m); });
+    const parts = casters.map(m => {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', (m.geometry.index ? m.geometry.toNonIndexed() : m.geometry).attributes.position.clone());
+      return g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld));
+    });
+    const merged = parts.length ? mergeGeometries(parts) : null;
+    if (merged) {
+      const proxy = new THREE.Mesh(merged, new THREE.MeshBasicMaterial());
+      proxy.name = 'ShadowProxy';
+      proxy.castShadow = true;
+      proxy.layers.set(1);
+      root.add(proxy);
+      for (const m of casters) m.castShadow = false;
+    }
+    for (const g of wheels) g.traverse(o => { const m = o as THREE.Mesh; if (m.isMesh && (m.material as THREE.Material).name !== 'Tire') m.castShadow = false; });
   }
 
   const frontLight = new THREE.PointLight(0xff2020, 0, 20, 2);

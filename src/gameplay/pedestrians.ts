@@ -51,7 +51,7 @@ export class Pedestrians {
   private static readonly X = new THREE.Vector3(1, 0, 0);
   active = false;
 
-  constructor(data: CampusData, private terrain: Terrain, private count = 30) {
+  constructor(data: CampusData, private terrain: Terrain, private count = 80) {
     // Walks long enough to stroll along: footways, pedestrian streets and paths over 30 m.
     this.walks = data.roads.filter(r => ['footway', 'pedestrian', 'path'].includes(r.cls) && r.fw !== 'crossing' && r.fw !== 'access_aisle')
       .map(r => r.pts).filter(p => len(p) > 30);

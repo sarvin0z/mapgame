@@ -150,7 +150,9 @@ export function baseLevel(outer: Pt[], T: Terrain) {
 }
 
 function foundation(kit: BuildingKit, outer: Pt[], s: Seat) {
-  if (s.base - s.ground > 0.05) addWalls(kit.concrete, outer, s.ground - 0.4, s.base + 0.02, [0.86, 0.84, 0.8], false, 2, 1);
+  // Set 2 cm inside the footprint: on the footprint itself it shared a plane with the bottom
+  // 32 cm of every wall built there, and the two flickered against each other along the wall foot.
+  if (s.base - s.ground > 0.05) addWalls(kit.concrete, insetRing(outer, 0.02) ?? outer, s.ground - 0.4, s.base + 0.02, [0.86, 0.84, 0.8], false, 2, 1);
 }
 
 // ---------------------------------------------------------------- generic body
@@ -244,6 +246,13 @@ export function buildBuilding(b: Building, T: Terrain, styles: Record<string, Fa
   if (!opts.noBands && s.floors > 1) floorBands(kit, wallRing, s, BAND[styleName] ?? [0.85, 0.83, 0.78]);
   parapetRoof(kit, b, outer, holes, s.top, rc, parapet);
   if (flatRoof && b.style !== 'construction' && !opts.noUnits) rooftopUnits(kit, b, outer, s.top);
+  // Base course and cornice: a darker stone water table where the walls meet the ground
+  // and a projecting band under the parapet, so the masses read as built, not extruded.
+  if (flatRoof && !['construction', 'metal', 'metalDark', 'cometsGlass', 'glassPavilion'].includes(b.style) && !opts.wallFrom) {
+    const band = BAND[styleName] ?? [0.85, 0.83, 0.78];
+    ledge(kit.concrete, wallRing, s.base - 0.3, 0.06, 0.95, band.map(c => c * 0.62));
+    ledge(kit.concrete, wallRing, s.top + parapet - 0.42, 0.16, 0.32, band.map(c => Math.min(1, c * 1.06)));
+  }
 }
 
 const BAND: Record<string, number[]> = {

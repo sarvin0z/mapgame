@@ -35,7 +35,7 @@ export type Phase = 'idle' | 'countdown' | 'running' | 'finished';
 
 const REFERENCE_SPEED = 7; // m/s (~15.7 mph): a brisk but legal average for a campus cart
 export const ARRIVAL_M = 6; // close to any side of the building: buildings have several entrances
-const STOP_SPEED = 1.3; // m/s (~3 mph): a rolling stop counts
+const STOP_SPEED = 4.5; // m/s (~10 mph): an emergency cart slows and rolls through a stop sign; it need not stop
 const BUMP_SPEED = 3.6; // m/s (~8 mph) or slower over a speed bump
 /** UT Dallas building codes and common names, searchable in the destination list. */
 const ALIASES: Record<string, string[]> = {
@@ -233,7 +233,7 @@ export class RouteChallenge {
   /**
    * Stop signs: armed within 12 m on the approach (moving along the sign's direction);
    * scored when the cart passes the line — obeyed if its slowest speed on the approach
-   * was a rolling stop or less. Bumps: scored on crossing, by the speed there.
+   * was 10 mph or less (slowed and rolled through). Bumps: scored on crossing, by the speed there.
    */
   private checkControls(pos: Pt, v: number, h: Pt) {
     for (const c of this.controls) {
@@ -250,7 +250,7 @@ export class RouteChallenge {
           this.stopsAll++;
           const ok = c.minSpeed <= STOP_SPEED;
           if (ok) this.stopsOk++;
-          this.flash(ok ? 'Stop sign — good stop' : 'Stop sign — ran it', ok);
+          this.flash(ok ? 'Stop sign — slowed through' : 'Stop sign — too fast', ok);
         }
       } else if (d < 2.5) {
         c.armed = true;

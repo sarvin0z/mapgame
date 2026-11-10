@@ -10,17 +10,19 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 import type { ChunkContent } from './chunks.ts';
 import { CHUNK_SIZE } from './chunks.ts';
 import { DRIVABLE, PATHS, type Building, type Pt, type Road, type Tree } from './campusData.ts';
-import { MeshBuilder, addFlatPolygon, addWalls, addDrapedRibbon, addDrapedPolygon, addDrapedStrip, addDrapedDisc, resample, ribbonEdges, ensureCCW } from './geometry.ts';
+import { releaseAfterUpload, MeshBuilder, addFlatPolygon, addWalls, addDrapedRibbon, addDrapedPolygon, addDrapedStrip, addDrapedDisc, resample, ribbonEdges, ensureCCW } from './geometry.ts';
 import { bumpSolid, stairBlocks, maxInset, insetRing } from './features.ts';
 import { simplify } from './curbs.ts';
 import type { Terrain } from './terrain.ts';
 import * as tex from './textures.ts';
-import { photoTexture } from './photos.ts';
+import { photoTexture, photoNormal } from './photos.ts';
 import { buildExtras, type CarTemplate } from './extras.ts';
 import { buildBuilding, railing, beam, baseLevel, type BuildingKit } from './buildings.ts';
 import { hasModel, slugOf } from './buildingModels.ts';
 import { buildLandmarks } from './landmarks.ts';
 import { pointInRing } from './spatial.ts';
+import { buildLandscape } from './landscape.ts';
+import { taperWidth, inTaper, laneSplit, type Taper } from './roadShape.ts';
 import { occlusionMaterial, lampPoolMaterial, nightUniform, wallSkirt, blob as aoBlob } from './occlusion.ts';
 
 /** Draw order of the depth-less ground layers (later = on top). */
@@ -52,6 +54,8 @@ export interface WorldContext {
   treeNear(p: Pt, r: number): boolean;
   /** Parked-car templates (sedan, SUV, pickup); none until loaded. */
   cars?: CarTemplate[];
+  /** Road ends that narrow into a continuation (see roadTapers in roadShape.ts), by way id. */
+  tapers?: Map<number, Taper[]>;
 }
 
 export function hash(s: string) { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return (h >>> 0) / 4294967295; }
@@ -66,6 +70,7 @@ function toGeometry(mb: MeshBuilder): THREE.BufferGeometry | null {
   g.setAttribute('color', new THREE.Float32BufferAttribute(mb.col, 3));
   g.computeBoundingSphere();
   g.computeBoundingBox();
+  releaseAfterUpload(g);
   return g;
 }
 
@@ -117,6 +122,47 @@ function litWindows(mat: THREE.MeshStandardMaterial) {
     sh.uniforms.uNight = nightUniform;
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', '#include <common>\nuniform float uNight;')
+      // Recessed windows by parallax: glass (ORM roughness < 0.3) sits 18 cm behind the wall
+      // face. The view ray is followed into the recess using the surface's UV derivatives;
+      // where it meets the wall or frame first, the pixel shows the shaded reveal instead.
+      // Faded out by 120 m, where the recess is under a pixel.
+      .replace('#include <map_fragment>', `float revealF = 0.0;
+#ifdef USE_MAP
+  // Derivatives first, in uniform control flow; samples use textureGrad with the
+  // surface's own gradients so the offset UVs do not drop to a blurry mip level.
+  vec2 s0 = dFdx(vMapUv), s1 = dFdy(vMapUv);
+  vec3 q0 = dFdx(-vViewPosition), q1 = dFdy(-vViewPosition);
+  vec2 pUv = vMapUv;
+  #ifdef USE_ROUGHNESSMAP
+  vec2 r0 = dFdx(vRoughnessMapUv), r1 = dFdy(vRoughnessMapUv);
+  {
+    float depth = 0.18 * (1.0 - smoothstep(50.0, 120.0, length(vViewPosition)));
+    float gHere = texture2D(roughnessMap, vRoughnessMapUv).g;
+    float det = s0.x * s1.y - s1.x * s0.y, detR = r0.x * r1.y - r1.x * r0.y;
+    if (depth > 0.001 && gHere < 0.3 && abs(det) > 1e-14 && abs(detR) > 1e-14) {
+      vec3 dPdu = (q0 * s1.y - q1 * s0.y) / det;
+      vec3 dPdv = (q1 * s0.x - q0 * s1.x) / det;
+      vec3 dRdu = (q0 * r1.y - q1 * r0.y) / detR;
+      vec3 dRdv = (q1 * r0.x - q0 * r1.x) / detR;
+      vec3 V = normalize(vViewPosition);
+      vec3 N = normalize(cross(dPdu, dPdv));
+      if (dot(N, V) < 0.0) N = -N;
+      vec3 O = -V * (depth / max(dot(V, N), 0.35));
+      vec2 off = vec2(dot(O, dPdu) / dot(dPdu, dPdu), dot(O, dPdv) / dot(dPdv, dPdv));
+      vec2 offR = vec2(dot(O, dRdu) / dot(dRdu, dRdu), dot(O, dRdv) / dot(dRdv, dRdv));
+      float gThere = textureGrad(roughnessMap, vRoughnessMapUv + offR, r0, r1).g;
+      pUv = vMapUv + off;
+      revealF = step(0.3, gThere);
+    }
+  }
+  #endif
+  vec4 sampledDiffuseColor = textureGrad(map, pUv, s0, s1);
+  sampledDiffuseColor.rgb *= 1.0 - 0.45 * revealF;
+  diffuseColor *= sampledDiffuseColor;
+#endif`)
+      .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
+  roughnessFactor = mix(roughnessFactor, 0.85, revealF);
+  metalnessFactor = mix(metalnessFactor, 0.0, revealF);`)
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
 #ifdef USE_MAP
   if (uNight > 0.0) {
@@ -130,7 +176,33 @@ function litWindows(mat: THREE.MeshStandardMaterial) {
   return mat;
 }
 
-function macroVariation(mat: THREE.MeshStandardMaterial, amount: number, tint: [number, number, number]) {
+/**
+ * Worn paint for road markings: world-space noise at two scales scuffs the paint toward
+ * the asphalt grey and roughens it (tyre-worn crosswalk bars, faded stop lines).
+ */
+function worn(mat: THREE.MeshStandardMaterial) {
+  mat.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWPos;')
+      .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', `#include <common>
+varying vec3 vWPos;
+float whash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float wnoise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(whash(i), whash(i + vec2(1, 0)), f.x), mix(whash(i + vec2(0, 1)), whash(i + vec2(1, 1)), f.x), f.y); }`)
+      .replace('#include <color_fragment>', `#include <color_fragment>
+  float wear = wnoise(vWPos.xz * 0.9) * 0.6 + wnoise(vWPos.xz * 7.0) * 0.4;
+  float scuff = smoothstep(0.42, 0.75, wear);
+  diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.42, 0.42, 0.43), scuff * 0.65);`)
+      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n  roughnessFactor = mix(roughnessFactor, 0.9, scuff);');
+  };
+  mat.customProgramCacheKey = () => 'wornMarking';
+}
+
+function macroVariation(mat: THREE.MeshStandardMaterial, amount: number, tint: [number, number, number], soften = 0) {
+  // The amounts are written into the shader text, so they are part of the program's identity.
+  mat.customProgramCacheKey = () => `macro${amount}|${soften}`;
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uTint = { value: new THREE.Vector3(...tint) };
     sh.vertexShader = sh.vertexShader
@@ -143,13 +215,21 @@ uniform vec3 uTint;
 float vhash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float vnoise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
   return mix(mix(vhash(i), vhash(i + vec2(1, 0)), f.x), mix(vhash(i + vec2(0, 1)), vhash(i + vec2(1, 1)), f.x), f.y); }`)
-      .replace('#include <map_fragment>', `#include <map_fragment>
+      // Past a dozen metres the grain of the photo (grass blades, asphalt aggregate) is finer than
+      // a pixel and only shimmers as the camera moves: the surface eases onto its blurred mip
+      // levels there, and its normal map fades out below, leaving the large-scale variation.
+      .replace('#include <map_fragment>', `float farK = smoothstep(5.0, 45.0, length(vViewPosition));
 #ifdef USE_MAP
+  diffuseColor *= ${soften > 0 ? `mix(texture2D(map, vMapUv, farK * 2.5), texture2D(map, vMapUv, 5.0), ${soften.toFixed(2)})` : 'texture2D(map, vMapUv, farK * 2.5)'};
   vec3 macro = texture2D(map, vMapUv * 0.137).rgb;
   diffuseColor.rgb *= mix(vec3(1.0), macro / max(vec3(0.05), vec3(dot(macro, vec3(0.333)))), 0.35);
 #endif
   float n = vnoise(vWPos.xz * 0.025) * 0.6 + vnoise(vWPos.xz * 0.11) * 0.4;
-  diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * uTint, smoothstep(0.35, 0.75, n) * ${amount.toFixed(2)});`);
+  diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * uTint, smoothstep(0.35, 0.75, n) * ${amount.toFixed(2)});`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+#ifdef USE_NORMALMAP_TANGENTSPACE
+  normal = normalize(mix(normal, nonPerturbedNormal, farK * 0.9));
+#endif`);
   };
 }
 
@@ -254,9 +334,11 @@ export class CampusMaterials {
     // Photo lawn tile is 3 m; lawn UVs run 6 m per unit.
     const grass = photoTexture('lawn', 2) ?? tex.grassTexture();
     // Tinted toward a watered, lush green (the texture alone reads as late-summer dry turf).
-    const lawn = grass instanceof THREE.CanvasTexture ? new THREE.Color(0.8, 0.98, 0.66) : new THREE.Color(0.8, 0.8, 0.66);
-    this.terrain = new THREE.MeshStandardMaterial({ map: grass, color: lawn, roughness: 0.95 });
-    macroVariation(this.terrain, 0.55, [1.25, 1.08, 0.78]);
+    const lawn = grass instanceof THREE.CanvasTexture ? new THREE.Color(0.74, 0.86, 0.6) : new THREE.Color(0.72, 0.76, 0.6);
+    const turfN = photoNormal('lawn', 2.2, 2);
+    this.terrain = new THREE.MeshStandardMaterial({ map: grass, color: lawn, roughness: 0.95, ...(turfN ? { normalMap: turfN, normalScale: new THREE.Vector2(0.45, 0.45) } : {}) });
+    // Turf also has its blade-level contrast eased everywhere: at full strength a mown lawn read as a noisy carpet.
+    macroVariation(this.terrain, 0.55, [1.25, 1.08, 0.78], 0.4);
     this.roof = new THREE.MeshStandardMaterial({ map: tex.roofTexture(), vertexColors: true, roughness: 0.9 });
     this.shingle = new THREE.MeshStandardMaterial({ map: tex.shingleTexture(), vertexColors: true, roughness: 0.95 });
     const chain = tex.chainLinkTexture();
@@ -266,6 +348,8 @@ export class CampusMaterials {
     }
     // Fin screen: see-through between the fins.
     Object.assign(this.facades.garageFins, { alphaTest: 0.5, side: THREE.DoubleSide });
+    // Asphalt tint: the photo's own albedo (~0.11 linear) under the earlier 0xb4 tint came to ~0.05,
+    // blacker than fresh tar; sun-aged road and lot asphalt measures 0.08-0.12, lots the lighter.
     // Photo asphalt is a 4 m tile: lots run 6 m per UV unit, roads 8 m; photo sidewalk is one 1.5 m panel per path UV unit.
     const asphaltLot = photoTexture('asphalt', 1.5), asphaltRoad = photoTexture('asphalt', 2), pavers = photoTexture('pavers');
     const asphalt = tex.asphaltTexture(), concrete = tex.concreteTexture(), paving = tex.pavingTexture(), dirt = tex.dirtTexture();
@@ -274,21 +358,22 @@ export class CampusMaterials {
       grass: flat({ map: grass, color: lawn }),
       pitch: flat({ map: grass, color: lawn }),
       dirt: flat({ map: dirt }),
-      parking: flat({ map: asphaltLot ?? asphalt, ...(asphaltLot ? { color: 0xb4b4b4 } : {}) }),
+      parking: flat({ map: asphaltLot ?? asphalt, ...(asphaltLot ? { color: 0xdcdcda, normalMap: photoNormal('asphalt', 1.6, 1.5)!, normalScale: new THREE.Vector2(0.2, 0.2) } : {}) }),
       plaza: flat({ map: paving }),
       // Ripples: a scrolling normal map (see waterTime); deep tint from the vertex colour.
       water: flat({ color: 0xffffff, roughness: 0.04, metalness: 0.0, envMapIntensity: 5, normalMap: tex.waterNormals(), normalScale: new THREE.Vector2(0.35, 0.35), depthWrite: true }),
-      path: flat({ map: pavers ?? concrete, roughness: 0.9 }),
-      road: flat({ map: asphaltRoad ?? asphalt, roughness: 0.9, ...(asphaltRoad ? { color: 0xb4b4b4 } : {}) }),
+      path: flat({ map: pavers ?? concrete, roughness: 0.9, ...(pavers ? { normalMap: photoNormal('pavers', 4)!, normalScale: new THREE.Vector2(0.8, 0.8) } : {}) }),
+      road: flat({ map: asphaltRoad ?? asphalt, roughness: 0.9, ...(asphaltRoad ? { color: 0xd2d2d0, normalMap: photoNormal('asphalt', 1.6, 2)!, normalScale: new THREE.Vector2(0.2, 0.2) } : {}) }),
       promenade: flat({ map: tex.promenadeTexture(), roughness: 0.85 }),
       pitchSurface: flat({ roughness: 0.8 }),
       marking: flat({ roughness: 0.55 }),
     };
-    macroVariation(this.layers.grass, 0.5, [1.25, 1.08, 0.78]);
+    macroVariation(this.layers.grass, 0.5, [1.25, 1.08, 0.78], 0.4);
     macroVariation(this.layers.road, 0.35, [0.82, 0.82, 0.84]);
 
     macroVariation(this.layers.parking, 0.35, [0.85, 0.85, 0.86]);
     macroVariation(this.layers.path, 0.3, [0.9, 0.88, 0.84]);
+    worn(this.layers.marking);
   }
 }
 
@@ -456,6 +541,10 @@ export interface BuiltChunk {
   farOnly: THREE.Group;
   detail: THREE.Group;
   near: THREE.Group;
+  /** Far ground paint (roads, lots, pitches draped on the 8 m grid): shown with `coarse` out to the preset's ground distance. */
+  ground: THREE.Group;
+  /** Tree crowns in ~40 m cells (children carry userData.cell [x, y] and lod 'full' | 'lite'), switched per cell by distance. */
+  trees: THREE.Group;
 }
 
 const tq = new THREE.Quaternion(), ts = new THREE.Vector3(), tp = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
@@ -471,8 +560,8 @@ export function addMesh(group: THREE.Group, mb: MeshBuilder, mat: THREE.Material
 }
 
 /** Builds a chunk in one go (tests, warm start). */
-export function buildChunk(c: ChunkContent, mats: CampusMaterials, ctx: WorldContext): BuiltChunk {
-  const it = buildChunkSteps(c, mats, ctx);
+export function buildChunk(c: ChunkContent, mats: CampusMaterials, ctx: WorldContext, full = true): BuiltChunk {
+  const it = buildChunkSteps(c, mats, ctx, full);
   for (let r = it.next(); ; r = it.next()) if (r.done) return r.value;
 }
 
@@ -481,8 +570,30 @@ export function buildChunk(c: ChunkContent, mats: CampusMaterials, ctx: WorldCon
  * streamer may pause and continue on a later frame, so building never stalls
  * a frame for long.
  */
-export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: WorldContext): Generator<void, BuiltChunk, void> {
-  const groups = { base: new THREE.Group(), coarse: new THREE.Group(), farOnly: new THREE.Group(), detail: new THREE.Group(), near: new THREE.Group(), mid: new THREE.Group() };
+/** The groups a chunk only shows close up (within the detail range); a far chunk is built without them. */
+export const CLOSE_GROUPS = ['detail', 'near', 'mid', 'trees'] as const;
+
+/** Frees a chunk group's own geometry (shared templates and building models are left alone) and empties it. */
+export function disposeGroup(g: THREE.Group) {
+  g.traverse((o: THREE.Object3D) => {
+    // Instanced prop geometries are shared between chunks; only free per-chunk ones.
+    if (o instanceof THREE.InstancedMesh) o.dispose();
+    // Building models share geometry with their loaded template; never dispose those.
+    else if (o instanceof THREE.Mesh && !o.userData.shared) o.geometry.dispose();
+  });
+  g.clear();
+}
+
+/**
+ * `full` = false builds the far form of a chunk: only what is drawn beyond the detail range
+ * (buildings, coarse terrain and its ground paint, tree blobs, water). The close-up groups
+ * are four fifths of a chunk's geometry (2 m terrain and the surfaces draped on it,
+ * markings, curbs, trees, furniture), and with every chunk in view built in full they came
+ * to over a gigabyte for content hundreds of metres away. The streamer rebuilds a chunk in
+ * full as the camera approaches.
+ */
+export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: WorldContext, full = true): Generator<void, BuiltChunk, void> {
+  const groups = { base: new THREE.Group(), coarse: new THREE.Group(), farOnly: new THREE.Group(), detail: new THREE.Group(), near: new THREE.Group(), mid: new THREE.Group(), ground: new THREE.Group(), trees: new THREE.Group() };
   for (const [k, g] of Object.entries(groups)) g.name = `chunk ${c.cx},${c.cy} ${k}`;
   const { base, coarse, farOnly, detail, near, mid } = groups;
   const T = ctx.terrain;
@@ -490,13 +601,14 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   const rnd = (seed: number) => hash(`${c.cx},${c.cy},${seed}`);
 
   // --- Terrain ---
-  for (const [group, lod] of [[near, 1], [coarse, 2]] as const) {
+  for (const [group, lod] of [[near, 1], [coarse, 4]] as const) {
+    if (!full && lod === 1) continue;
     const mesh = new THREE.Mesh(T.buildMesh(x0, y0, x0 + CHUNK_SIZE, y0 + CHUNK_SIZE, lod), mats.terrain);
     mesh.receiveShadow = true;
     mesh.renderOrder = LAYER.terrain;
     // The 4 m mesh cuts corners the 2 m-draped roads and walks follow; sinking it keeps
     // it from poking through them at distance.
-    if (lod === 2) mesh.position.y = -0.35;
+    if (lod > 1) mesh.position.y = -0.35;
     group.add(mesh);
   }
 
@@ -520,6 +632,8 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
       const st = AREA_STYLE[a.kind];
       // Lawns and parks look the same as the terrain's own grass; drawing them again only adds overdraw.
       if (!st || a.kind === 'grass' || a.kind === 'park') continue;
+      // A far chunk needs none of the 2 m drape except its water, which is drawn at every distance.
+      if (isNear && !full && st.layer !== 'water') continue;
       if (st.layer === 'water') {
         // Water lies level (the banks rise above it), at the lower fifth of the shore heights.
         if (!isNear) continue;
@@ -533,10 +647,14 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     if (isNear) for (const w of c.waterways) addDrapedRibbon(lb('water', LAYER.water), w.pts, w.w, src, LIFT.water, AREA_STYLE.water.color, 6);
     let nr = 0;
     for (const r of c.roads) {
+      if (isNear && !full) break;
       if (++nr % 40 === 0) yield;
       // Round caps and joins make ways that meet at junctions and bends read as one surface.
       if (r.promenade) addDrapedRibbon(lb('promenade', LAYER.path), r.pts, r.w, src, LIFT.path + 0.002, [1, 1, 1], 3, r.w / 3, 'all');
-      else if (DRIVABLE.has(r.cls)) addDrapedRibbon(lb('road', LAYER.road), r.pts, r.w, src, LIFT.road, r.cls === 'construction' ? [1.2, 1.1, 1.0] : [1, 1, 1], 8, r.w / 8, 'all');
+      else if (DRIVABLE.has(r.cls)) {
+        const tp = ctx.tapers?.get(r.id);
+        addDrapedRibbon(lb('road', LAYER.road), r.pts, r.w, src, LIFT.road, r.cls === 'construction' ? [1.2, 1.1, 1.0] : [1, 1, 1], 8, r.w / 8, 'all', tp ? p => taperWidth(tp, r.w, p) : undefined);
+      }
       else if (PATHS.has(r.cls) && r.cls !== 'steps' && r.fw !== 'crossing' && r.fw !== 'access_aisle' && !ctx.isStub(r)) {
         // Walks are drawn only off the roadway: where a mapped sidewalk strays onto the pavement
         // (road widths are estimates), the road surface wins.
@@ -544,7 +662,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
         for (const piece of pieces) addDrapedRibbon(lb('path', LAYER.path), piece, r.w, src, LIFT.path, PATH_COLOR[r.cls] ?? PATH_COLOR.default, 1.5, r.w / 1.5, 'all');
       }
     }
-    for (const [k, { mb, order }] of layers) addMesh(k === 'water' && isNear ? base : isNear ? near : k === 'path' || k === 'promenade' ? mid : coarse, mb, mats.layers[k], { order });
+    for (const [k, { mb, order }] of layers) addMesh(k === 'water' && isNear ? base : isNear ? near : k === 'path' || k === 'promenade' ? mid : groups.ground, mb, mats.layers[k], { order });
     yield;
   }
   addMesh(detail, islands, mats.curb);
@@ -562,9 +680,11 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     },
   };
   let nb = 0;
-  const ao = new MeshBuilder();
+  const ao = new MeshBuilder(), apron = new MeshBuilder();
   for (const b of c.buildings) {
-    if (b.style !== 'canopy') wallSkirt(ao, b.outer, T);
+    // No contact shading under a raised structure (a skybridge): it has no walls at the ground, and
+    // the skirt painted a dark band across the plaza beneath it.
+    if (b.style !== 'canopy' && !b.minH) wallSkirt(ao, b.outer, T);
     if (hasModel(ctx.models, b)) {
       // Reconstructed model: centroid of the footprint, seated at the ground-floor level.
       const m = ctx.models!.get(slugOf(b.modelName ?? b.name!))!.clone();
@@ -572,6 +692,9 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
       const lv = baseLevel(ring, T);
       m.position.set(cx, lv.base, -cy);
       base.add(m);
+      // Paving under the whole footprint: the models are open at the ground (arcades, recessed
+      // ground floors, glazed lobbies), and the lawn showed under and inside them.
+      if (!b.minH) addDrapedPolygon(apron, ring, [], T, LIFT.path + 0.004, [0.96, 0.95, 0.93], 1.5);
       // Foundation from the lowest ground to the ground floor, so no model ever floats on a slope.
       // (left open under any canopy drawn over the footprint: an arcade the cart drives through).
       const over = ctx.buildings.filter(cp => cp.style === 'canopy' && cp.outer.some(p => pointInRing(p, ring)));
@@ -600,6 +723,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   addMesh(base, kit.timber, mats.timber, { cast: true });
   addMesh(detail, kit.numbers, mats.numbers);
   addMesh(base, kit.stone, mats.stoneV, { cast: true });
+  addMesh(base, apron, mats.layers.path, { order: LAYER.path });
   const hvac = kit.hvac;
   const S = getShared();
   if (hvac.length) detail.add(instanced(S.hvac, mats.hvac, hvac.length, (i, m) => {
@@ -619,15 +743,18 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     if (!DRIVABLE.has(r.cls) || r.cls === 'construction') continue;
     const major = ['secondary', 'tertiary', 'unclassified', 'secondary_link', 'tertiary_link'].includes(r.cls);
     const jr = r.w / 2 + 2.5;
+    // The centre line divides the directions, not the pavement: with two lanes one way and one the
+    // other it sits a sixth of the width off the middle, and the arrows and stop bars follow it.
+    const split = laneSplit(r);
     if (!r.oneway && major && r.w >= 6.5 && !r.noLines) {
-      for (const piece of clear(r.pts, jr)) for (const off of [-0.12, 0.12]) addDrapedRibbon(marks.get('y')!, offsetLine(piece, off), 0.1, T, LIFT.marking, YELLOW, 4);
+      for (const piece of clear(r.pts, jr)) for (const off of [-0.12, 0.12]) addDrapedRibbon(marks.get('y')!, offsetLine(piece, split.line + off), 0.1, T, LIFT.marking, YELLOW, 4);
     }
     const lanes = r.lanes ?? 0;
     if (r.oneway && lanes >= 2 && r.cls !== 'service') for (const piece of clear(r.pts, jr)) for (let k = 1; k < lanes; k++) dashes(marks.get('w')!, offsetLine(piece, -r.w / 2 + r.w * k / lanes), T, WHITE);
     // Lane-use arrows from turn:lanes, placed along the whole way (not the chunk piece).
     const full = r.full ?? r.pts;
-    if (r.turnF) laneArrows(marks.get('w')!, full, r.w, r.turnF, r.oneway ? r.lanes ?? 1 : r.lanesF ?? 1, r.oneway ? 0 : r.lanesB ?? 1, T, avoid, owns, paved);
-    if (r.turnB) laneArrows(marks.get('w')!, [...full].reverse(), r.w, r.turnB, r.lanesB ?? 1, r.lanesF ?? 1, T, avoid, owns, paved);
+    if (r.turnF) laneArrows(marks.get('w')!, full, r.w, r.turnF, r.oneway ? r.lanes ?? 1 : split.f, r.oneway ? 0 : split.b, split.line, T, avoid, owns, paved);
+    if (r.turnB) laneArrows(marks.get('w')!, [...full].reverse(), r.w, r.turnB, split.b, split.f, -split.line, T, avoid, owns, paved);
   }
   for (const cr of c.crossings) {
     // Continental crosswalk: 0.6 m bars parallel to the traffic on the road being crossed, 1.2 m
@@ -661,10 +788,18 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     // the whole width of a one-way road, the right half of a two-way one.
     if (ctx.inParking(s.p)) continue;
     const [dx, dy] = s.dir, nx = -dy, ny = dx;
-    const oneway = nearestRoad(c.roads, s.p)?.oneway;
+    const road = nearestRoad(c.roads, s.p), oneway = road?.oneway;
     const side = s.fwd >= 0 ? -1 : 1; // right of travel
-    const from = oneway ? -(s.w / 2 - 0.3) : 0.2;
-    const a: Pt = [s.p[0] + nx * from * side, s.p[1] + ny * from * side], b: Pt = [s.p[0] + nx * (s.w / 2 - 0.3) * side, s.p[1] + ny * (s.w / 2 - 0.3) * side];
+    // From the centre line (wherever the lane split puts it) to the kerb. The line's offset is measured
+    // to the left of the way's own direction; the stop's `dir` may run either way along it.
+    let line = 0;
+    if (road && !oneway) {
+      const i = Math.max(1, Math.min(road.pts.length - 1, Math.round(road.pts.length / 2)));
+      const wx = road.pts[i][0] - road.pts[i - 1][0], wy = road.pts[i][1] - road.pts[i - 1][1];
+      line = laneSplit(road).line * (wx * dx + wy * dy >= 0 ? 1 : -1);
+    }
+    const from = oneway ? -(s.w / 2 - 0.3) * side : line + 0.2 * side;
+    const a: Pt = [s.p[0] + nx * from, s.p[1] + ny * from], b: Pt = [s.p[0] + nx * (s.w / 2 - 0.3) * side, s.p[1] + ny * (s.w / 2 - 0.3) * side];
     addDrapedRibbon(marks.get('w')!, [a, b], 0.45, T, LIFT.marking, WHITE, 4);
   }
   // Stop and yield signs on the right of the approaching lane, facing the driver.
@@ -714,7 +849,10 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     if (m.w > 2) addDrapedRibbon(medGrass, m.pts, m.w - 0.5, T, 0.185, [0.95, 1.05, 0.9], 6, 1);
   }
   addMesh(base, medGrass, mats.layers.grass, { order: LAYER.marking + 2 });
-  for (const line of c.curbs) {
+  // No curbs across a flared road end (see inTaper): they were laid out for the old outline.
+  const nearTapers = [...(ctx.tapers?.values() ?? [])].flat().filter(t => Math.abs(t.p[0] - c.center[0]) < CHUNK_SIZE && Math.abs(t.p[1] - c.center[1]) < CHUNK_SIZE);
+  const curbLines = !nearTapers.length ? c.curbs : c.curbs.flatMap(l => (l.some(p => nearTapers.some(t => Math.hypot(p[0] - t.p[0], p[1] - t.p[1]) < 60)) ? trimNear(l, p => inTaper(nearTapers, p)) : [l]));
+  for (const line of curbLines) {
     addDrapedStrip(curb, line, 0.16, 0.15, T, 0, [0.78, 0.77, 0.74]);
     if (line.length < 2) continue;
     const m = Math.floor(line.length / 2), a = line[Math.max(0, m - 1)], b = line[Math.min(line.length - 1, m)];
@@ -820,13 +958,25 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
       const list = byKind[kind];
       if (!list.length) continue;
       detail.add(instanced(S.trees[kind].trunk, mats.bark, list.length, placeTree(list), true));
-      // Full crowns near the camera, light crowns farther out; the shadow pass always
-      // uses the light crown, on a layer only the sun's shadow camera renders.
-      for (const [geo, group, cast] of [[S.trees[kind].leaves, near, false], [S.trees[kind].lite, mid, false], [S.trees[kind].lite, detail, true]] as const) {
-        const leaves = instanced(geo, mats.leaves, list.length, placeTree(list), cast);
-        list.forEach((t, i) => leaves.setColorAt(i, crown(t)));
-        if (cast) leaves.layers.set(SHADOW_ONLY_LAYER);
-        group.add(leaves);
+      // The shadow pass always uses the light crown, on a layer only the sun's shadow camera renders.
+      const sh = instanced(S.trees[kind].lite, mats.leaves, list.length, placeTree(list), true);
+      list.forEach((t, i) => sh.setColorAt(i, crown(t)));
+      sh.layers.set(SHADOW_ONLY_LAYER);
+      detail.add(sh);
+      // Visible crowns per 40 m cell: full crowns near the camera, light ones beyond
+      // (the streamer picks per cell, so only trees close by carry the full card count).
+      const cells = new Map<string, Tree[]>();
+      for (const t of list) { const k = Math.floor(t[0] / 80) + ',' + Math.floor(t[1] / 80); if (!cells.has(k)) cells.set(k, []); cells.get(k)!.push(t); }
+      for (const cl of cells.values()) {
+        const cx = cl.reduce((s, t) => s + t[0], 0) / cl.length, cy = cl.reduce((s, t) => s + t[1], 0) / cl.length;
+        for (const [geo, lod] of [[S.trees[kind].leaves, 'full'], [S.trees[kind].lite, 'lite']] as const) {
+          const leaves = instanced(geo, mats.leaves, cl.length, placeTree(cl), false);
+          cl.forEach((t, i) => leaves.setColorAt(i, crown(t)));
+          leaves.userData.cell = [cx, cy];
+          leaves.userData.lod = lod;
+          leaves.visible = false;
+          groups.trees.add(leaves);
+        }
       }
     }
     // Far away every tree is the same low-poly blob: one draw call per chunk.
@@ -842,6 +992,9 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     addMesh(detail, pits, mats.layers.dirt, { order: LAYER.marking + 1 });
     for (const t of c.trees) aoBlob(ao, t[0], t[1], t[3] * 0.3, t[3] * 0.3, 0, T, 0.45, 14, t[3] * 0.8);
   }
+  // Shrub beds along building walls (landscape.ts).
+  buildLandscape(c, ctx, mats, detail, groups.trees, getShared().trees.round.lite);
+  yield;
   // One occlusion mesh per chunk: wall skirts and tree shadows.
   addMesh(detail, ao, mats.occlusion, { receive: false, order: LAYER.marking + 2 });
 
@@ -869,8 +1022,9 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   put(c.bins, S.bin, mats.metal, near, false, 9);
 
   yield;
-  yield* buildExtras(c, ctx, mats, { base, detail, near });
+  yield* buildExtras(c, ctx, mats, { base, detail, near, cells: groups.trees });
   buildLandmarks(c, ctx, mats, { base, detail, near }, ctx.buildings);
+  if (!full) for (const k of CLOSE_GROUPS) disposeGroup(groups[k]);
   return groups;
 }
 
@@ -986,13 +1140,13 @@ function arrowOutline(turn: number): Pt[] {
  * `owns` the arrow point draws it. `oppLanes` > 0 means a two-way road (this direction's lanes
  * are right of the centreline).
  */
-function laneArrows(mb: MeshBuilder, pts: Pt[], w: number, turns: string, lanes: number, oppLanes: number, T: Terrain, avoid: Pt[], owns: (p: Pt) => boolean, paved: (p: Pt) => boolean) {
+function laneArrows(mb: MeshBuilder, pts: Pt[], w: number, turns: string, lanes: number, oppLanes: number, line: number, T: Terrain, avoid: Pt[], owns: (p: Pt) => boolean, paved: (p: Pt) => boolean) {
   const spec = turns.split('|');
   const n = Math.max(lanes, spec.length);
   if (pts.length < 2 || n < 1) return;
-  // The centre line is drawn on the geometric centre, so on a two-way road this direction's
-  // lanes share the right half of the width.
-  const lw = oppLanes ? w / 2 / n : w / n;
+  // Every lane is the same width; this direction's lanes lie to the right of the centre line, which is
+  // `line` to the left of the middle (see laneSplit).
+  const lw = w / (n + oppLanes);
   let len = 0;
   for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
   const at = (d: number) => {
@@ -1014,7 +1168,7 @@ function laneArrows(mb: MeshBuilder, pts: Pt[], w: number, turns: string, lanes:
   const { p, u } = r, left: Pt = [-u[1], u[0]];
   spec.forEach((s, i) => {
     // Lane centre, measured to the left of the way's centreline.
-    const off = oppLanes ? -lw * (i + 0.5) : w / 2 - lw * (i + 0.5);
+    const off = oppLanes ? line - lw * (i + 0.5) : w / 2 - lw * (i + 0.5);
     const kinds = new Set(s.split(';').map(k => k.trim()).filter(Boolean).map(k => (/left/.test(k) ? -1 : /right/.test(k) ? 1 : 0)));
     if (s.trim() === '' || s.trim() === 'none') return;
     for (const turn of kinds) {

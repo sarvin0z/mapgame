@@ -3,7 +3,9 @@
 <head>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E%E2%9C%B1%3C/text%3E%3C/svg%3E" />
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#14110f" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>UTD EMS Cart Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -179,7 +181,9 @@
         <label>Deploy from <select id="start-select"><option value="uv11">UEMR apartment · UV Building 11</option><option value="sg">Safety and Grounds</option></select></label>
         <label>Time of day <select id="time-select"><option value="golden">Golden hour</option><option value="day">Midday</option><option value="night">Night</option></select></label>
         <label>Graphics <select id="quality-select"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+        <label>Volume <input type="range" id="volume" min="0" max="100" value="80" /></label>
         <label class="switch"><input type="checkbox" id="show-target" /><i></i>Show the destination on the map and compass</label>
+        <label class="switch"><input type="checkbox" id="shake" checked /><i></i>Camera shake on impacts</label>
       </div>
     </section>
 
@@ -196,7 +200,7 @@
         <tr><td><kbd>M</kbd> <kbd>P</kbd> <kbd>G</kbd></td><td>Minimap, performance, graphics quality</td></tr>
         <tr><td><kbd>Esc</kbd> <kbd>F1</kbd></td><td>Dispatch; controls</td></tr>
       </table>
-      <p class="note">A run scores route efficiency (40%), pace (30%), staying on roads and walks (15%) and traffic (15%: a rolling stop at stop signs, under 8 mph over speed bumps). Each pedestrian contact costs 50 points and each collision 100; the horn and siren clear people from your path. Arrive within 6 m of any wall of the building, or inside the lot. The best route and the destination beam cost 10% each.</p>
+      <p class="note">A run scores route efficiency (40%), pace (30%), staying on roads and walks (15%) and traffic (15%: slowing to 10 mph or less through stop signs, under 8 mph over speed bumps). Each pedestrian contact costs 50 points and each collision 100; the horn and siren clear people from your path. Arrive within 6 m of any wall of the building, or inside the lot. The best route and the destination beam cost 10% each.</p>
     </section>
   </div>
 

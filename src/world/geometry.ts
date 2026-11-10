@@ -195,18 +195,25 @@ function faceUp(a: number[], b: number[], c: number[]): number[] {
 }
 
 /** A ribbon that follows the terrain exactly (cut along the ground's triangles). */
-export function addDrapedRibbon(mb: MeshBuilder, pts: Pt[], width: number, terrain: HeightSource, lift: number, color: number[], uvScale = 4, uAcross = 1, round: 'none' | 'joins' | 'all' = 'none') {
+export function addDrapedRibbon(mb: MeshBuilder, pts: Pt[], width: number, terrain: HeightSource, lift: number, color: number[], uvScale = 4, uAcross = 1, round: 'none' | 'joins' | 'all' = 'none', widthAt?: (p: Pt) => number) {
   if (pts.length < 2) return;
   if (round !== 'none') {
     // Round caps and joins, so ways that meet at an angle or end at a junction leave no notch.
     for (let i = 0; i < pts.length; i++) {
       const end = i === 0 || i === pts.length - 1;
       if (end ? round !== 'all' : turnAngle(pts, i) < 0.35) continue;
-      addDrapedDisc(mb, pts[i], width / 2, terrain, lift, color, uvScale);
+      addDrapedDisc(mb, pts[i], (widthAt ? widthAt(pts[i]) : width) / 2, terrain, lift, color, uvScale);
     }
   }
-  const rp = resample(pts, 4);
+  // `widthAt` narrows the ribbon locally (a road tapering into a narrower continuation); sampled every 2 m there.
+  const rp = resample(pts, widthAt ? 2 : 4);
   const { left, right } = ribbonEdges(rp, width);
+  if (widthAt) for (let i = 0; i < rp.length; i++) {
+    const k = widthAt(rp[i]) / width;
+    if (k === 1) continue;
+    left[i] = [rp[i][0] + (left[i][0] - rp[i][0]) * k, rp[i][1] + (left[i][1] - rp[i][1]) * k];
+    right[i] = [rp[i][0] + (right[i][0] - rp[i][0]) * k, rp[i][1] + (right[i][1] - rp[i][1]) * k];
+  }
   let dist = 0;
   for (let i = 0; i < rp.length - 1; i++) {
     const seg = Math.hypot(rp[i + 1][0] - rp[i][0], rp[i + 1][1] - rp[i][1]);
@@ -333,5 +340,20 @@ export function addDrapedDisc(mb: MeshBuilder, c: Pt, r: number, terrain: Height
     const p1: Pt = [c[0] + Math.cos(a0) * r, c[1] + Math.sin(a0) * r], p2: Pt = [c[0] + Math.cos(a1) * r, c[1] + Math.sin(a1) * r];
     const tri: Pt[] = [c, p1, p2];
     drapeTriangle(mb, tri, tri.map(p => [p[0] / uvScale, p[1] / uvScale]), terrain, lift, color);
+  }
+}
+
+/**
+ * Drops a geometry's JavaScript-side vertex arrays once they have been copied to the GPU.
+ * Chunk meshes are never read back or edited after they are built, so the copy only held
+ * memory: about as much again as the GPU's own. Bounds are computed first, since
+ * culling needs them and could not compute them afterwards. Not for geometry that is
+ * shared, cloned or merged later.
+ */
+export function releaseAfterUpload(g: { attributes: Record<string, unknown>; boundingSphere: unknown; boundingBox: unknown; computeBoundingSphere(): void; computeBoundingBox(): void }) {
+  if (!g.boundingSphere) g.computeBoundingSphere();
+  if (!g.boundingBox) g.computeBoundingBox();
+  for (const a of Object.values(g.attributes) as { onUpload?: (cb: () => void) => unknown; array: unknown }[]) {
+    a.onUpload?.(function (this: { array: unknown }) { this.array = null; });
   }
 }

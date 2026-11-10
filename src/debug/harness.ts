@@ -16,6 +16,8 @@ interface Ctx {
   renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; sun: THREE.DirectionalLight; sunDir: THREE.Vector3;
   /** Renders the current frame through post-processing at w x h; false when post-processing is off. */
   post?: (w: number, h: number) => boolean;
+  /** Runs one frame of the real game loop at clock time `now` (ms) without scheduling another. */
+  frame?: (now: number) => void;
 }
 
 export function installHarness(c: Ctx) {
@@ -31,7 +33,11 @@ export function installHarness(c: Ctx) {
     },
     /** Steps physics for `secs` at 1/120 s with a controller; returns motion statistics. */
     sim(secs: number, ctl: (t: number, v: number) => DriverInput = () => idle) {
-      c.cart.mapKeys = () => idle; // keyboard input off while scripted
+      // Keyboard input is off while scripted, and handed back afterwards: left replaced, it
+      // silently disabled driving for anyone who then played in the same tab.
+      const mapKeys = c.cart.mapKeys;
+      c.cart.mapKeys = () => idle;
+      try {
       const dt = 1 / 120, n = Math.round(secs / dt);
       const rec = { maxPitch: 0, maxRoll: 0, maxVertG: 0, minWheels: 4, samples: [] as [number, number][], end: [0, 0] as Pt, up: 1 };
       let lastVy = c.cart.body.linvel().y;
@@ -57,6 +63,7 @@ export function installHarness(c: Ctx) {
       const r = c.cart.body.rotation(); q.set(r.x, r.y, r.z, r.w);
       rec.up = +new T(0, 1, 0).applyQuaternion(q).y.toFixed(3);
       return rec;
+      } finally { c.cart.mapKeys = mapKeys; }
     },
     /** Renders one 1280x800 frame from pos toward look and saves it as data/preview/<name>.png. */
     async capture(name: string, pos: THREE.Vector3, look: THREE.Vector3) {
@@ -217,6 +224,64 @@ export function installHarness(c: Ctx) {
     const gy = c.terrain.heightAt(cen[0], cen[1]);
     return h.capture(shot, new T(ex, gy + up, -ey), new T(cen[0], gy + Math.min(b.h * 0.4, 8), -cen[1]));
   };
-  const hx = Object.assign(h, { measure, profile, compare, flicker, orbit });
+  /**
+   * Gameplay view: puts the cart on the way segment nearest map point t (optionally only
+   * ways of the given classes, optionally facing the other way) and captures the chase
+   * camera's view of it. Returns the cart position.
+   */
+  const chase = async (name: string, t: Pt, cls: string[] | null = null, flip = false) => {
+    let best: { d: number; m: Pt; u: Pt } | null = null;
+    for (const r of c.data.roads) {
+      if (cls && !cls.includes(r.cls)) continue;
+      for (let i = 0; i < r.pts.length - 1; i++) {
+        const a = r.pts[i], b = r.pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        if (L < 3) continue;
+        const m: Pt = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], d = Math.hypot(m[0] - t[0], m[1] - t[1]);
+        if (!best || d < best.d) best = { d, m, u: [(b[0] - a[0]) / L, (b[1] - a[1]) / L] };
+      }
+    }
+    if (!best) return null;
+    h.place(best.m, flip ? [-best.u[0], -best.u[1]] : best.u, 0);
+    h.sim(0.5);
+    await h.captureCart(name, [0, 2.4, -6.2], [0, 1.3, 10]);
+    return best.m;
+  };
+  /**
+   * Full-frame cost at w x h from the current camera, synchronised with the GPU: the shadow
+   * pass plus either the post chain (`post`) or a plain render. Restores the canvas size.
+   */
+  const frame = (w = 1920, hh = 1080, n = 8, post = true, shadow = true) => {
+    const gl = c.renderer.getContext(), px = new Uint8Array(4);
+    const size = c.renderer.getSize(new THREE.Vector2()), pr = c.renderer.getPixelRatio(), aspect = c.camera.aspect;
+    c.renderer.setPixelRatio(1); c.renderer.setSize(w, hh, false);
+    c.camera.aspect = w / hh; c.camera.updateProjectionMatrix();
+    let calls = 0, tris = 0;
+    const one = () => {
+      c.renderer.info.reset();
+      c.renderer.shadowMap.needsUpdate = shadow;
+      if (!post || !c.post?.(w, hh)) c.renderer.render(c.scene, c.camera);
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      calls = c.renderer.info.render.calls; tris = c.renderer.info.render.triangles;
+    };
+    one(); one();
+    const t0 = performance.now();
+    for (let i = 0; i < n; i++) one();
+    const ms = (performance.now() - t0) / n;
+    c.renderer.setPixelRatio(pr); c.renderer.setSize(size.x, size.y, false);
+    c.camera.aspect = aspect; c.camera.updateProjectionMatrix();
+    return { ms: +ms.toFixed(1), calls, ktris: Math.round(tris / 1000) };
+  };
+  /**
+   * Runs the real game loop (input, physics, camera, streaming, render) for `secs` at `fps`
+   * on a made-up clock. For checks while the page is in the background, where the browser
+   * does not run animation frames at all.
+   */
+  let clock = performance.now();
+  const pump = (secs: number, fps = 60) => {
+    const n = Math.round(secs * fps);
+    for (let i = 0; i < n; i++) c.frame?.(clock += 1000 / fps);
+    return n;
+  };
+  const hx = Object.assign(h, { measure, profile, compare, flicker, orbit, chase, frame, pump });
   (window as unknown as { __h: typeof hx }).__h = hx;
 }

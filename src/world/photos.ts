@@ -32,6 +32,40 @@ export function photoTexture(name: PhotoName, repeatU = 1, repeatV = repeatU): T
 }
 
 /**
+ * A tangent-space normal map from a loaded photo, its luminance taken as height
+ * (Sobel filter at 512 px): gives asphalt aggregate, paver joints and turf a lit
+ * relief under a low sun. Same repeat as the matching photoTexture.
+ */
+export function photoNormal(name: PhotoName, strength: number, repeatU = 1, repeatV = repeatU): THREE.Texture | null {
+  const img = photos.get(name);
+  if (!img) return null;
+  const N = 512, src = document.createElement('canvas');
+  src.width = src.height = N;
+  const g = src.getContext('2d')!;
+  g.drawImage(img, 0, 0, N, N);
+  const d = g.getImageData(0, 0, N, N).data;
+  const h = new Float32Array(N * N);
+  for (let i = 0; i < N * N; i++) h[i] = (d[i * 4] * 0.3 + d[i * 4 + 1] * 0.59 + d[i * 4 + 2] * 0.11) / 255;
+  const at = (x: number, y: number) => h[((y + N) % N) * N + ((x + N) % N)];
+  const out = g.createImageData(N, N);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const dx = (at(x + 1, y - 1) + 2 * at(x + 1, y) + at(x + 1, y + 1)) - (at(x - 1, y - 1) + 2 * at(x - 1, y) + at(x - 1, y + 1));
+    const dy = (at(x - 1, y + 1) + 2 * at(x, y + 1) + at(x + 1, y + 1)) - (at(x - 1, y - 1) + 2 * at(x, y - 1) + at(x + 1, y - 1));
+    let nx = -dx * strength, ny = dy * strength, nz = 1;
+    const l = Math.hypot(nx, ny, nz);
+    nx /= l; ny /= l; nz /= l;
+    const i = (y * N + x) * 4;
+    out.data[i] = (nx * 0.5 + 0.5) * 255; out.data[i + 1] = (ny * 0.5 + 0.5) * 255; out.data[i + 2] = (nz * 0.5 + 0.5) * 255; out.data[i + 3] = 255;
+  }
+  g.putImageData(out, 0, 0);
+  const t = new THREE.CanvasTexture(src);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(repeatU, repeatV);
+  t.anisotropy = 8;
+  return t;
+}
+
+/**
  * Fills a facade canvas (one bay by one storey) with a brick photo. One photo
  * tile is 8 courses, about 0.55 m of modular brick; the tile count is rounded
  * so the bay repeats seamlessly. Returns false if the photo is not loaded.

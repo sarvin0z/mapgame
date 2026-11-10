@@ -128,11 +128,34 @@ export class GolfCart {
     this.vc.updateVehicle(dt);
   }
 
-  /** Sync the visual model with the physics state; call once per rendered frame. */
-  syncVisual(dt: number, quality: { pointLights: boolean }) {
+  private prevT = new THREE.Vector3();
+  private prevQ = new THREE.Quaternion();
+  private curQ = new THREE.Quaternion();
+
+  /** Records the pose before a physics step, for `syncVisual` to blend from. */
+  snapshot() {
     const t = this.body.translation(), q = this.body.rotation();
-    this.model.root.position.set(t.x, t.y, t.z);
-    this.model.root.quaternion.set(q.x, q.y, q.z, q.w);
+    this.prevT.set(t.x, t.y, t.z);
+    this.prevQ.set(q.x, q.y, q.z, q.w);
+  }
+
+  /**
+   * Sync the visual model with the physics state; call once per rendered frame.
+   * Physics runs in fixed 1/120 s steps, so a rendered frame lands between two of them:
+   * `alpha` (0..1) is how far past the last step it is, and the model is drawn at the pose
+   * blended from the step before. Without it the cart moves by one, two or three steps per
+   * frame as the two clocks drift, which shows as a fine judder of the whole view.
+   */
+  syncVisual(dt: number, quality: { pointLights: boolean }, alpha = 1) {
+    const t = this.body.translation(), q = this.body.rotation();
+    const root = this.model.root;
+    root.position.set(t.x, t.y, t.z);
+    root.quaternion.set(q.x, q.y, q.z, q.w);
+    // Not across a reset or recovery (the cart jumped), where blending would streak it through the world.
+    if (alpha < 1 && this.prevT.distanceToSquared(root.position) < 1) {
+      root.position.lerpVectors(this.prevT, root.position, alpha);
+      root.quaternion.copy(this.prevQ).slerp(this.curQ.set(q.x, q.y, q.z, q.w), alpha);
+    }
     for (let i = 0; i < 4; i++) {
       const g = this.model.wheels[i];
       const c = this.vc.wheelChassisConnectionPointCs(i)!;
@@ -147,6 +170,9 @@ export class GolfCart {
     if (sw && this.model.steeringRest) sw.quaternion.copy(this.model.steeringRest).multiply(this.steerQ.setFromAxisAngle(this.yAxis, -this.steerCenter * 9));
     this.updateLights(dt, quality.pointLights);
   }
+
+  /** LED halo strength: full at night; by day a flash is only a small bright point. */
+  glowLevel = 1;
 
   private updateLights(dt: number, pointLights: boolean) {
     const m = this.model;
@@ -168,6 +194,7 @@ export class GolfCart {
         : l.zone === 'rear' ? (l.red ? b : a) : (l.red ? a : b);
       l.mat.emissiveIntensity = on * (l.zone === 'side' ? 10 : 22);
       l.glow.visible = on > 0;
+      (l.glow.material as THREE.SpriteMaterial).opacity = this.glowLevel;
     }
     const rb = a || b;
     m.frontLight.color.setRGB(a ? 1 : 0.1, 0.08, b ? 1 : 0.1);

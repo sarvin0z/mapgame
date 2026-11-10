@@ -8,8 +8,11 @@
 //  the horn's band-pass, with a short slap-back echo off nearby buildings.
 //  Horn: a momentary car horn press, about a second: the usual pair of
 //  disc horns (about 420 and 510 Hz) as buzzy, clipped tones.
-let shared: AudioContext | null = null;
-const ctx = () => (shared ??= new AudioContext());
+import { audioContext as ctx } from './mix.ts';
+
+/** Where the siren and horn play: the mix's emergency bus (see mix.ts), set once at start-up. */
+let output: AudioNode | null = null;
+export function setEmergencyOutput(node: AudioNode) { output = node; }
 
 function speakerChain(c: AudioContext, gain: number, drive = 4) {
   const shaper = c.createWaveShaper();
@@ -20,7 +23,7 @@ function speakerChain(c: AudioContext, gain: number, drive = 4) {
   const peak = c.createBiquadFilter(); peak.type = 'peaking'; peak.frequency.value = 1400; peak.gain.value = 7; peak.Q.value = 0.9;
   const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3800; lp.Q.value = 0.5;
   const out = c.createGain(); out.gain.value = gain;
-  shaper.connect(hp).connect(peak).connect(lp).connect(out).connect(c.destination);
+  shaper.connect(hp).connect(peak).connect(lp).connect(out).connect(output ?? c.destination);
   // Slap-back echo off nearby walls.
   const echo = c.createDelay(0.5); echo.delayTime.value = 0.11;
   const eg = c.createGain(); eg.gain.value = 0.22;
