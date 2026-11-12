@@ -28,7 +28,7 @@ import { Input } from './input.ts';
 import { CameraRig } from './camera/cameraRig.ts';
 import { Environment, type TimeOfDay } from './graphics/environment.ts';
 import { nightUniform } from './world/occlusion.ts';
-import { PRESETS, ORDER, AdaptiveQuality, GpuTimer, detectPreset, pixelRatioFor, type QualityName } from './graphics/quality.ts';
+import { PRESETS, ORDER, QUALITY_LABEL, AdaptiveQuality, GpuTimer, detectPreset, pixelRatioFor, type QualityName } from './graphics/quality.ts';
 import { Hud } from './ui/hud.ts';
 import { Menus } from './ui/menus.ts';
 import { RouteChallenge } from './gameplay/routeChallenge.ts';
@@ -36,12 +36,18 @@ import { Pedestrians } from './gameplay/pedestrians.ts';
 import { Siren, Horn, setEmergencyOutput } from './audio/siren.ts';
 import { AudioMix, CartAudio, Sfx } from './audio/mix.ts';
 import { unproject } from './geo/projection.ts';
+import { Loading, probeGpu } from './ui/loading.ts';
 
 // The colour grade is compiled into every material (see grade.ts), so it must be in place before any shader is built.
 installInlineGrade();
 
-const loading = document.getElementById('loading')!;
-const setLoading = (t: string) => { loading.querySelector('p')!.textContent = t; };
+const loading = new Loading();
+const setLoading = (t: string) => loading.text(t);
+/**
+ * Lets the browser paint the loading bar between long synchronous build steps. Animation
+ * frames stop in a background tab, so a timer also resolves it: loading carries on there.
+ */
+const paint = () => new Promise<void>(r => { let done = false; const go = () => { if (!done) { done = true; r(); } }; requestAnimationFrame(() => setTimeout(go, 0)); setTimeout(go, 60); });
 
 /**
  * Spawn on the drivable road nearest to a named building, facing along the road.
@@ -75,9 +81,28 @@ function findSpawn(data: CampusData, terrain: Terrain, landmark: string) {
 async function main() {
   setLoading('Loading campus map data…');
   const params = new URLSearchParams(location.search);
-  const [data, terrain, R, cartModel, cars, models] = await Promise.all([loadCampus(), Terrain.load(), initRapier(), loadCartModel(DEFAULT_CART), loadCars().catch(() => []), loadPhotos().then(() => loadBuildingModels())]);
-  const solids = await loadBuildingSolids();
+  // The device's own starting preset, from a throwaway context, so the quality choice can
+  // show it under Auto while the campus downloads.
+  const touch = matchMedia('(pointer: coarse)').matches;
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  const guessed = detectPreset({
+    gpu: probeGpu(), touch,
+    memoryGB: nav.deviceMemory, cores: nav.hardwareConcurrency, minScreen: Math.min(screen.width, screen.height),
+  });
+  const urlQuality = params.get('quality') as QualityName | null;
+  // A ?quality= URL skips the choice (automated checks and shared links).
+  const fromUrl = !!urlQuality && ORDER.includes(urlQuality);
+  if (fromUrl) loading.skipChoice();
+  const choiceP = fromUrl ? Promise.resolve(urlQuality!) : loading.chooseQuality(guessed);
+  const L = loading;
+  const [data, terrain, R, cartModel, cars, models, solids] = await Promise.all([
+    L.track(loadCampus(), 3), L.track(Terrain.load(), 3), L.track(initRapier(), 2), L.track(loadCartModel(DEFAULT_CART), 2),
+    L.track(loadCars().catch(() => []), 1), L.track(loadPhotos().then(() => loadBuildingModels()), 4), L.track(loadBuildingSolids(), 1),
+  ]);
+  setLoading('Choose graphics quality, then Start');
+  const choice = await choiceP;
   setLoading('Building campus…');
+  await paint();
   const chunks = partition(data);
   const tm = terrain.meta;
   ensureChunks(chunks, tm.x0, tm.y0, tm.x0 + (tm.nx - 1) * tm.step, tm.y0 + (tm.ny - 1) * tm.step);
@@ -138,8 +163,13 @@ async function main() {
   // nearly coplanar facade layers at a distance. Without EXT_clip_control, fall back to log depth.
   // Multisampling is skipped on phone-class screens of 2x density and up: the pixels are already
   // finer than the eye resolves at arm's length, and MSAA is the dearest thing a tile-based GPU does.
-  const touch = matchMedia('(pointer: coarse)').matches;
-  const antialias = !(touch && devicePixelRatio >= 2);
+  // Elsewhere only a Very low start skips it. It is fixed for the life of the context, so a
+  // session that starts on Low must have it: without it Low showed stair-stepped edges, and
+  // Auto kept them after stepping up. On entry-level laptop graphics it costs 10-15% at
+  // Low's 1.3 M pixels.
+  // ?msaa=0|1 forces it, for measuring.
+  const startPreset: QualityName = choice === 'auto' ? guessed : choice;
+  const antialias = params.has('msaa') ? params.get('msaa') !== '0' : !(touch && devicePixelRatio >= 2) && startPreset !== 'verylow';
   let renderer = new THREE.WebGLRenderer({ antialias, powerPreference: 'high-performance', reversedDepthBuffer: true });
   if (!renderer.capabilities.reversedDepthBuffer) {
     renderer.dispose();
@@ -164,18 +194,13 @@ async function main() {
   // Not the cart: its clear polycarbonate windshield, boosted, flashed white across the open cabin as the cart moved.
   for (const m of models.values()) boostTree(m);
 
-  // Starting preset: the URL's, or a guess from the device that the adaptive controller then corrects.
+  // Starting preset: the player's choice at startup (or the URL's), or under Auto the guess
+  // from the device, which the adaptive controller then corrects to hold 60 fps.
   const gl = renderer.getContext() as WebGL2RenderingContext;
-  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-  const nav = navigator as Navigator & { deviceMemory?: number };
-  const guessed = detectPreset({
-    gpu: dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '', touch,
-    memoryGB: nav.deviceMemory, cores: nav.hardwareConcurrency, minScreen: Math.min(screen.width, screen.height),
-  });
-  let quality: QualityName = (params.get('quality') as QualityName) ?? guessed;
-  if (!ORDER.includes(quality)) quality = guessed;
+  let quality: QualityName = startPreset;
   const adaptive = new AdaptiveQuality(quality);
-  if (params.has('quality')) adaptive.enabled = false;
+  adaptive.enabled = choice === 'auto';
+  (document.getElementById('quality-select') as HTMLSelectElement).value = choice;
   const gpuTimer = new GpuTimer(gl);
 
   const streamer = new WorldStreamer(chunks, mats, ctx, { viewDistance: PRESETS[quality].viewDistance, detailDistance: PRESETS[quality].detailDistance, nearDistance: PRESETS[quality].nearDistance, treeFullDistance: PRESETS[quality].treeFullDistance, groundDistance: PRESETS[quality].groundDistance });
@@ -230,6 +255,19 @@ async function main() {
       vol.addEventListener('input', () => { mix.setVolume(+vol.value / 100); store('volume', vol.value); });
     }
   }
+  // Mute: the HUD's sound button, N, and the Settings switch all set the one master mute.
+  const muteBox = document.getElementById('mute') as HTMLInputElement;
+  const setMuted = (m: boolean) => { mix.setMuted(m); muteBox.checked = m; store('muted', m ? '1' : '0'); };
+  setMuted(stored('muted', '0') === '1');
+  muteBox.addEventListener('change', () => setMuted(muteBox.checked));
+  // Steering sensitivity, 50-200%: the rate the wheels turn, and on the touch stick how far
+  // it must be pushed for full lock.
+  const sens = document.getElementById('steer-sens') as HTMLInputElement;
+  const sensOut = document.getElementById('steer-sens-val')!;
+  let steerSens = 1;
+  const setSens = (v: number) => { steerSens = v / 100; sensOut.textContent = `${v}%`; sens.value = String(v); };
+  setSens(Math.min(200, Math.max(50, Number(stored('steer-sens', '100')) || 100)));
+  sens.addEventListener('input', () => { setSens(+sens.value); store('steer-sens', sens.value); });
   // Impact feedback (see docs/GRAPHICS.md "Feedback"): a decaying camera shake, scaled to the
   // event and switchable off in Settings. It offsets the drawn view only, after the camera
   // rig has placed it, and never the cart.
@@ -282,6 +320,7 @@ async function main() {
       hud.toast(si.of > 1 ? `Gauntlet: ${si.of} stops · first ${rc.dest!.name}` : `Respond to ${rc.dest!.name}`);
     },
     quality: q => {
+      store('quality-choice', q);
       if (q === 'auto') { adaptive.enabled = true; applyResolution(); return; }
       adaptive.enabled = false; adaptive.current = q as QualityName; applyQuality(q as QualityName); applyResolution();
     },
@@ -408,9 +447,12 @@ async function main() {
   }
   applyQuality(quality);
 
-  hud.onChip = id => input.onAction(id === 'lights' ? 'lights' : id === 'siren' ? 'siren' : id === 'horn' ? 'horn' : id === 'headlights' ? 'headlights' : id === 'location' ? 'location' : 'camera');
+  hud.onChip = id => input.onAction(id === 'lights' ? 'lights' : id === 'siren' ? 'siren' : id === 'horn' ? 'horn' : id === 'headlights' ? 'headlights' : id === 'location' ? 'location' : id === 'mute' ? 'mute' : 'camera');
+  // The on-screen Menu button: dispatch and settings without a keyboard.
+  document.getElementById('menu-btn')!.addEventListener('click', () => menus.open());
   input.onAction = a => {
     switch (a) {
+      case 'mute': setMuted(!mix.muted); break;
       case 'camera': rig.cycle(); break;
       case 'lights': cart.lightsOn = !cart.lightsOn; break;
       case 'headlights': cart.headlightsOn = !cart.headlightsOn; break;
@@ -427,6 +469,8 @@ async function main() {
         const next = ORDER[(ORDER.indexOf(quality) + 1) % ORDER.length];
         adaptive.current = next;
         applyQuality(next);
+        (document.getElementById('quality-select') as HTMLSelectElement).value = next;
+        hud.toast(`Graphics: ${QUALITY_LABEL[next]}`, 1.5);
         break;
       }
     }
@@ -441,8 +485,11 @@ async function main() {
   });
 
   setLoading('Streaming nearby chunks…');
+  loading.set(loading.afterAssets + 0.12);
+  await paint();
   streamer.warm(spawn.pos);
-  loading.remove();
+  setLoading('Ready');
+  loading.finish();
   menus.open();
 
   const FIXED = physics.world.timestep;
@@ -466,6 +513,17 @@ async function main() {
   (window as any).__sim = sim;
   if (import.meta.env.DEV) {
     const { installHarness } = await import('./debug/harness.ts');
+    // 3D-Agentation-Editor (dev only): Shift+M, click the scene, type a note. Notes go to the
+    // receiver (node ~/.claude/skills/3D-Agentation-Editor/server.mjs, run from the project root)
+    // and land in .scenemark/notes.json with a screenshot, for the agent to act on.
+    const { attachSceneMark } = await import('./dev/scenemark.js');
+    attachSceneMark({
+      renderer, scene, camera,
+      render: () => { if (wantPost()) ensurePost().composer.render(0.016); else renderer.render(scene, camera); },
+      ignore: o => o === beacon || beacon.children.includes(o as THREE.Mesh),
+      // Marking pauses driving input: menuOpen stops the cart taking keys.
+      onModeChange: active => { menuOpen = active || menus.isOpen; },
+    });
 
     installHarness({
       data, cart, physics, streamer, rig, terrain, renderer, scene, camera, sun: env.sun, sunDir: env.sunDir,
@@ -490,10 +548,15 @@ async function main() {
 
     const driving = rig.mode !== 'free' && !menuOpen && rc.phase !== 'countdown' && rc.phase !== 'finished';
     const k = input.keys;
-    const fwd = driving ? input.axis([], ['KeyW', 'ArrowUp']) : 0;
-    // Held brake while the cart is not under the player's control (menus, countdown).
-    const back = driving ? input.axis([], ['KeyS', 'ArrowDown']) : (rig.mode !== 'free' ? 0 : 0);
-    const steer = driving ? input.axis(['KeyD', 'ArrowRight'], ['KeyA', 'ArrowLeft']) : (k.has('ArrowLeft') ? 1 : 0) - (k.has('ArrowRight') ? 1 : 0);
+    // Keyboard, or the touch stick when a finger holds it: up drives, down brakes then
+    // reverses, sideways steers (scaled by the steering sensitivity, so a higher setting
+    // reaches full lock with less of a push).
+    const st = input.stick;
+    const fwd = driving ? Math.max(input.axis([], ['KeyW', 'ArrowUp']), st.active ? Math.max(0, st.y) : 0) : 0;
+    const back = driving ? Math.max(input.axis([], ['KeyS', 'ArrowDown']), st.active ? Math.max(0, -st.y) : 0) : 0;
+    const stickSteer = st.active ? Math.max(-1, Math.min(1, -st.x * steerSens)) : 0;
+    const steer = driving ? (input.axis(['KeyD', 'ArrowRight'], ['KeyA', 'ArrowLeft']) || stickSteer) : (k.has('ArrowLeft') ? 1 : 0) - (k.has('ArrowRight') ? 1 : 0);
+    cart.steerSensitivity = steerSens;
     const di = cart.mapKeys(fwd, back, steer, k.has('Space') || (!driving && rig.mode !== 'free'));
 
     acc += dt;
@@ -617,6 +680,8 @@ async function main() {
     hud.update({
       speedMS: cart.speed, gear: cart.gear, x: cp.x, z: cp.z, heading: -Math.atan2(f.x, -f.z),
       lights: cart.lightsOn, siren: siren.on, horn: horn.on, headlights: cart.headlightsOn, camera: rig.mode, lat: ll.lat, lon: ll.lon,
+      muted: mix.muted,
+      dest: rc.dest && (rc.phase === 'running' || rc.phase === 'countdown') ? { name: rc.dest.name, left: rc.distanceLeft([cp.x, -cp.z]) } : undefined,
     }, dt);
 
     frameMs = performance.now() - t0;
@@ -669,5 +734,5 @@ function makeBeacon() {
 
 main().catch(e => {
   console.error(e);
-  setLoading('Failed to start: ' + (e as Error).message);
+  loading.fail('Failed to start: ' + (e as Error).message + '. Reload the page to try again.');
 });

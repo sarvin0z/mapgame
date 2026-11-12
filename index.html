@@ -32,7 +32,12 @@
     <symbol id="i-route" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/></g></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.4-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z" fill="currentColor"/></symbol>
     <symbol id="i-lights" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18v-6a5 5 0 0 1 10 0v6"/><path d="M5 18h14v3H5zM12 2v2M4.2 5.2l1.4 1.4M19.8 5.2l-1.4 1.4"/></g></symbol>
-    <symbol id="i-siren" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></g></symbol>
+    <symbol id="i-siren" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18v-5a4 4 0 0 1 8 0v5"/><path d="M6 18h12v3H6zM12 3v2M3.5 10a8.5 8.5 0 0 1 2.2-4.6M20.5 10a8.5 8.5 0 0 0-2.2-4.6"/></g></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></g></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></g></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.2 17.5a9 9 0 1 1 15.6 0"/><path d="M12 14l4.5-4.5"/><circle cx="12" cy="14" r="1.2" fill="currentColor"/></g></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3.5c2.5 0 4 1.7 5.5 5s3 5 5.5 5H20M17 14l3 3-3 3"/><path d="M3 17h3.5c1.3 0 2.3-.5 3.1-1.3M14.4 8.3c.8-.8 1.8-1.3 3.1-1.3H20M17 4l3 3-3 3"/></g></symbol>
     <symbol id="i-horn" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h3l9 5V5L6 10z"/><path d="M18 12h3"/></g></symbol>
     <symbol id="i-headlights" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6C6 6 4 9 4 12s2 6 7 6z"/><path d="M14 8h7M14 12h7M14 16h7"/></g></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></g></symbol>
@@ -44,12 +49,31 @@
   <div id="vignette"></div>
 
   <div id="loading">
-    <div class="wordmark"><span class="mono"><img src="brand/utd-monogram.svg" alt="" onerror="this.remove()" /><b>UTD</b></span><span><strong>UTD EMS</strong><small>Campus Response Simulator</small></span></div>
-    <div class="bar"><i></i></div>
-    <p>Starting…</p>
+    <div class="load-main">
+      <div class="wordmark"><span class="mono"><img src="brand/utd-monogram.svg" alt="" onerror="this.remove()" /><b>UTD</b></span><span><strong>UTD EMS</strong><small>Campus Response Simulator</small></span></div>
+      <div class="load-progress">
+        <div class="bar" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="load-bar"><i></i></div>
+        <div class="load-row"><p id="load-text">Starting…</p><b id="load-pct">0%</b></div>
+      </div>
+      <fieldset class="quality-pick" id="quality-pick">
+        <legend>Graphics quality</legend>
+        <div class="seg" role="radiogroup" aria-label="Graphics quality">
+          <button role="radio" data-q="auto" aria-checked="true"><b>Auto</b><small id="auto-note">Holds 60 fps</small></button>
+          <button role="radio" data-q="high" aria-checked="false"><b>High</b><small>Shadows, bloom</small></button>
+          <button role="radio" data-q="medium" aria-checked="false"><b>Medium</b><small>Balanced</small></button>
+          <button role="radio" data-q="low" aria-checked="false"><b>Low</b><small>No shadows</small></button>
+          <button role="radio" data-q="verylow" aria-checked="false"><b>Very low</b><small>Older devices</small></button>
+        </div>
+        <button class="primary" id="load-start" disabled><svg><use href="#i-play" /></svg><span>Loading…</span></button>
+      </fieldset>
+    </div>
+    <p class="credit">Created by Sarvinoz Hasanova</p>
   </div>
 
   <div id="hud">
+    <button id="menu-btn" aria-label="Open the menu (Esc)"><svg><use href="#i-menu" /></svg><span>Menu</span></button>
+    <div id="place" class="touch-only" aria-live="polite"><svg><use href="#i-pin" /></svg><b id="place-name">—</b><span id="place-dist" hidden></span></div>
+    <div id="mspeed" class="touch-only" aria-label="Speed"><svg><use href="#i-gauge" /></svg><b id="mspeed-value">0</b><small>MPH</small><i id="mspeed-gear" hidden>R</i></div>
     <div id="unit" class="glass">
       <span class="mono sm"><img src="brand/utd-monogram.svg" alt="" onerror="this.remove()" /><b>UTD</b></span>
       <span><strong>UTD EMS</strong><small><i class="dot" id="unit-dot"></i><span id="unit-state">Available</span></small></span>
@@ -99,7 +123,8 @@
 
     <div id="first-tip" class="glass" role="dialog" aria-label="Driving controls" hidden>
       <b>Driving the cart</b>
-      <p><kbd>W</kbd> accelerate, <kbd>S</kbd> brake and reverse, <kbd>A</kbd> <kbd>D</kbd> steer, <kbd>Space</kbd> park brake. <kbd>H</kbd> siren, <kbd>B</kbd> horn, <kbd>L</kbd> lights. <kbd>Esc</kbd> opens dispatch, <kbd>F1</kbd> all controls.</p>
+      <p class="keys-only"><kbd>W</kbd> accelerate, <kbd>S</kbd> brake and reverse, <kbd>A</kbd> <kbd>D</kbd> steer, <kbd>Space</kbd> park brake. <kbd>H</kbd> siren, <kbd>B</kbd> horn, <kbd>L</kbd> lights, <kbd>N</kbd> mute. <kbd>Esc</kbd> opens dispatch, <kbd>F1</kbd> all controls.</p>
+      <p class="touch-only">Push the stick up to drive, down to brake and reverse, sideways to steer. The buttons on the right work the sound, lights, siren, horn and headlights. <b>Menu</b> opens dispatch and settings.</p>
       <p class="sub">The call card counts down to the arrival zone: within 6 m of any wall of the building, or inside the lot. Turn on "Show the destination" in Settings for a pin on the compass and map.</p>
       <button class="ghost small" id="first-tip-ok">Got it</button>
     </div>
@@ -109,10 +134,10 @@
 
   <div id="perf" class="glass" hidden></div>
 
-  <!-- Touch driving controls (shown on touch screens only). -->
+  <!-- Touch driving: one analog stick (shown on touch screens only). Up drives, down brakes
+       then reverses, sideways steers; the further from centre, the more of each. -->
   <div id="touch" hidden>
-    <div class="tpad left"><button data-key="ArrowLeft" aria-label="Steer left"><svg><use href="#i-back" /></svg></button><button data-key="ArrowRight" aria-label="Steer right" class="flip"><svg><use href="#i-back" /></svg></button></div>
-    <div class="tpad right"><button data-key="ArrowDown">Brake</button><button data-key="ArrowUp">Gas</button></div>
+    <div id="joystick" role="application" aria-label="Driving stick: up to drive, down to brake, sideways to steer"><div class="joy-base"></div><div class="joy-knob" id="joy-knob"></div></div>
   </div>
 
   <!-- Dispatch: the main and pause menu. -->
@@ -136,6 +161,7 @@
         <button role="tab" class="on" data-tab="calls">Open calls</button>
         <button role="tab" data-tab="locations">Any location</button>
         <button role="tab" data-tab="gauntlet">Multi-call</button>
+        <button class="ghost small" data-action="random-pick" id="random-pick" title="Pick a random call"><svg><use href="#i-shuffle" /></svg>Random</button>
         <button class="ghost small" data-action="reroll" id="reroll"><svg><use href="#i-retry" /></svg>New calls</button>
       </div>
       <div class="tabpanel" data-tab="calls"><div id="calls"></div></div>
@@ -180,21 +206,26 @@
       <div class="settings">
         <label>Deploy from <select id="start-select"><option value="uv11">UEMR apartment · UV Building 11</option><option value="sg">Safety and Grounds</option></select></label>
         <label>Time of day <select id="time-select"><option value="golden">Golden hour</option><option value="day">Midday</option><option value="night">Night</option></select></label>
-        <label>Graphics <select id="quality-select"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+        <label>Graphics <select id="quality-select"><option value="auto">Auto (holds 60 fps)</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option><option value="verylow">Very low</option></select></label>
         <label>Volume <input type="range" id="volume" min="0" max="100" value="80" /></label>
+        <label class="switch"><input type="checkbox" id="mute" /><i></i>Mute all sound</label>
+        <label class="range-row">Steering sensitivity <span class="range"><input type="range" id="steer-sens" min="50" max="200" step="5" value="100" aria-describedby="steer-sens-val" /><output id="steer-sens-val" for="steer-sens">100%</output></span></label>
         <label class="switch"><input type="checkbox" id="show-target" /><i></i>Show the destination on the map and compass</label>
         <label class="switch"><input type="checkbox" id="shake" checked /><i></i>Camera shake on impacts</label>
       </div>
+      <p class="credit-line">Created by Sarvinoz Hasanova</p>
     </section>
 
     <section class="board view" data-view="controls" hidden id="help">
       <header><h1>Controls</h1><p>The cart buttons beside the speedometer can be clicked too.</p></header>
+      <p class="touch-only touch-help">On a touch screen, the stick at the bottom left drives: push up to accelerate, down to brake and then reverse, sideways to steer. The round buttons beside the map mute the sound and work the lights, siren, horn and headlights. Steering sensitivity is in Settings.</p>
       <table>
         <tr><td><kbd>W</kbd> <kbd>↑</kbd></td><td>Accelerate (brake when reversing)</td></tr>
         <tr><td><kbd>S</kbd> <kbd>↓</kbd></td><td>Brake, then reverse when stopped</td></tr>
         <tr><td><kbd>A</kbd> <kbd>D</kbd></td><td>Steer</td></tr>
         <tr><td><kbd>Space</kbd></td><td>Park brake</td></tr>
         <tr><td><kbd>L</kbd> <kbd>H</kbd> <kbd>B</kbd> <kbd>K</kbd></td><td>Emergency lights, siren, horn, headlights</td></tr>
+        <tr><td><kbd>N</kbd></td><td>Mute or unmute all sound</td></tr>
         <tr><td><kbd>I</kbd> <kbd>C</kbd></td><td>Location card; camera (chase, driver, free)</td></tr>
         <tr><td><kbd>R</kbd> <kbd>⌫</kbd></td><td>Flip upright; return to start</td></tr>
         <tr><td><kbd>M</kbd> <kbd>P</kbd> <kbd>G</kbd></td><td>Minimap, performance, graphics quality</td></tr>

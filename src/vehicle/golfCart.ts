@@ -17,6 +17,8 @@ export class GolfCart {
   gear: Gear = 'F';
   speed = 0; // signed forward m/s
   steerCenter = 0; // current center steer angle (rad)
+  /** Player's steering sensitivity from Settings (1 = default); scales the steering rate. */
+  steerSensitivity = 1;
   lightsOn = true;
   headlightsOn = false;
   braking = false;
@@ -108,7 +110,8 @@ export class GolfCart {
     // turn would exceed ~0.58 g sideways (the cart tips near 0.7 g).
     const latLimit = v > 0.5 ? Math.atan((0.58 * 9.81 * cfg.wheelbaseM) / (v * v)) : this.maxCenter;
     const target = input.steer * Math.min(this.maxCenter, latLimit);
-    const rate = (Math.sign(target - this.steerCenter) === Math.sign(this.steerCenter) || target === 0 ? 1.8 : 1) * cfg.steerRateRadS;
+    // Steering sensitivity (Settings, 0.5-2): how fast the wheels turn toward the commanded angle.
+    const rate = (Math.sign(target - this.steerCenter) === Math.sign(this.steerCenter) || target === 0 ? 1.8 : 1) * cfg.steerRateRadS * this.steerSensitivity;
     this.steerCenter += Math.max(-rate * dt, Math.min(rate * dt, target - this.steerCenter));
     const [l, r] = ackermann(cfg, this.steerCenter);
     this.vc.setWheelSteering(0, l);

@@ -54,14 +54,49 @@ kbd { display: inline-block; min-width: 22px; padding: 1px 6px 2px; border-radiu
 .mono.sm b { font-size: 13px; }
 
 /* ------------------------------------------------------------ loading */
-#loading { position: fixed; inset: 0; z-index: 50; display: grid; place-content: center; justify-items: center; gap: 22px; background: radial-gradient(circle at 50% 40%, #1d1712, #0b0a09 70%); }
-#loading p { margin: 0; color: var(--muted); font-size: 13px; }
-.bar { width: 260px; height: 3px; border-radius: 3px; background: rgba(255, 240, 220, 0.1); overflow: hidden; }
-.bar i { display: block; width: 40%; height: 100%; background: var(--orange); animation: load 1.2s linear infinite; }
-@keyframes load { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+/* The bar fills with real progress (downloads, then the campus build); the percentage beside
+   it is the same number. The graphics choice sits below and can be made while it loads. */
+#loading { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; overflow: auto; overscroll-behavior: contain;
+  padding: calc(24px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom));
+  background: radial-gradient(circle at 50% 40%, #1d1712, #0b0a09 70%); transition: opacity 300ms var(--ease-out); }
+#loading.done { opacity: 0; pointer-events: none; }
+.load-main { display: grid; justify-items: center; gap: 28px; width: min(580px, 100%); }
+.load-progress { display: grid; gap: 10px; width: min(380px, 100%); }
+.bar { width: 100%; height: 4px; border-radius: 4px; background: rgba(255, 240, 220, 0.1); overflow: hidden; }
+.bar i { display: block; width: 100%; height: 100%; border-radius: 4px; background: var(--orange); transform: scaleX(0); transform-origin: left center; transition: transform 240ms linear; }
+.load-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+#load-text { margin: 0; color: var(--muted); font-size: 13px; }
+#load-pct { font: 700 16px/1 var(--display); color: var(--fg); font-variant-numeric: tabular-nums; }
+#loading.failed #load-text { color: #ffd9d4; }
+#loading.failed .bar i { background: var(--red); }
+.quality-pick { width: 100%; margin: 0; padding: 0; border: 0; min-width: 0; }
+.quality-pick legend { float: left; width: 100%; margin: 0 0 12px; padding: 0; text-align: center; font: 600 15px var(--display); color: var(--fg); }
+.seg { clear: both; display: grid; grid-template-columns: repeat(auto-fit, minmax(98px, 1fr)); gap: 6px; }
+.seg button { display: grid; gap: 3px; padding: 11px 8px; border-radius: var(--r-item); background: var(--raise); border: 1px solid var(--line); text-align: center;
+  transition-property: background-color, border-color, opacity, scale; transition-duration: 150ms; transition-timing-function: ease-out; }
+.seg button b { font: 700 16px/1.1 var(--display); color: var(--fg); }
+.seg button small { font-size: 11.5px; line-height: 1.3; color: var(--muted); }
+.seg button[aria-checked="true"] { background: rgba(232, 117, 0, 0.14); border-color: var(--orange); }
+.seg button[aria-checked="true"] small { color: #ffc999; }
+.seg button:not(:disabled):active { scale: 0.96; }
+.seg button:disabled { cursor: default; }
+#loading.chosen .seg button:not([aria-checked="true"]) { opacity: 0.45; }
+@media (hover: hover) { .seg button:not(:disabled):not([aria-checked="true"]):hover { background: var(--raise-hi); } }
+#load-start { display: flex; width: min(300px, 100%); margin: 18px auto 0; }
+#load-start:disabled { opacity: 0.6; }
+.credit { position: absolute; right: calc(16px + env(safe-area-inset-right)); bottom: calc(12px + env(safe-area-inset-bottom)); margin: 0; font-size: 11.5px; color: var(--faint); letter-spacing: 0.01em; }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 
 /* ------------------------------------------------------------ HUD */
-#unit { position: fixed; left: 20px; top: 18px; display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 12px; pointer-events: none; }
+/* The Menu button: dispatch and settings from the game screen, for players without Esc. */
+#menu-btn { position: fixed; left: 20px; top: 18px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 110px; height: 53px; padding: 0 18px 0 14px;
+  border-radius: 12px; background: var(--orange); color: #fff; font: 700 17px/1 var(--display); letter-spacing: 0.04em; text-transform: uppercase; box-shadow: var(--shadow);
+  transition-property: background-color, scale; transition-duration: 150ms; transition-timing-function: ease-out; }
+#menu-btn svg { width: 22px; height: 22px; }
+#menu-btn:active { scale: 0.96; }
+@media (hover: hover) { #menu-btn:hover { background: var(--orange-hi); } }
+.touch-only { display: none; }
+#unit { position: fixed; left: 140px; top: 18px; display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 12px; pointer-events: none; }
 #unit strong { display: block; font: 700 16px/1.1 var(--display); }
 #unit small { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; margin-top: 2px; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(63, 178, 127, 0.18); }
@@ -174,7 +209,10 @@ body.menu-open #hud { opacity: 0; pointer-events: none; }
 .tabs [role="tab"].on { color: var(--fg); }
 .tabs [role="tab"].on::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--orange); }
 @media (hover: hover) { .tabs [role="tab"]:not(.on):hover { color: var(--fg); } }
-.tabs .small { margin-left: auto; margin-bottom: 6px; }
+.tabs .small { margin-bottom: 6px; white-space: nowrap; }
+#random-pick { margin-left: auto; }
+#reroll { margin-left: 6px; }
+#random-pick[hidden] + #reroll { margin-left: auto; }
 .tabpanel { min-height: 0; overflow: auto; overscroll-behavior: contain; margin: 0 -8px; padding: 0 8px 4px; }
 
 /* A call: photo of the destination rendered from the game, call type, place, distance and drive time. */
@@ -257,6 +295,10 @@ body.menu-open #hud { opacity: 0; pointer-events: none; }
 select { appearance: none; background: rgba(0, 0, 0, 0.3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23b0a89e' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center / 16px;
   color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 34px 9px 12px; font: inherit; font-size: 14px; }
 select option { background: #1b1815; }
+.settings .range { display: flex; align-items: center; gap: 12px; }
+.settings output { min-width: 4.5ch; text-align: right; font: 600 14px var(--display); color: var(--fg); font-variant-numeric: tabular-nums; }
+.credit-line { margin: auto 0 0; padding-top: 24px; color: var(--faint); font-size: 12.5px; }
+.touch-help { max-width: 70ch; margin: 16px 0 0; color: #ddd6cc; font-size: 14px; line-height: 1.55; }
 #help table { margin-top: 20px; border-collapse: collapse; }
 #help td { padding: 7px 18px 7px 0; font-size: 14px; color: #ddd6cc; border-bottom: 1px solid var(--line); }
 #help td:first-child { white-space: nowrap; }
@@ -360,37 +402,99 @@ select option { background: #1b1815; }
   #location { display: none; }
 }
 
-/* Touch driving controls: two thumb pads at the bottom corners, above the safe area. */
-#touch { position: fixed; inset: auto 0 0 0; pointer-events: none; z-index: 5; }
-#touch .tpad { position: absolute; bottom: calc(18px + env(safe-area-inset-bottom)); display: flex; gap: 12px; pointer-events: auto; }
-#touch .left { left: calc(16px + env(safe-area-inset-left)); bottom: calc(160px + env(safe-area-inset-bottom)); }
-#touch .right { right: calc(16px + env(safe-area-inset-right)); bottom: calc(190px + env(safe-area-inset-bottom)); }
-#touch button { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--line); background: var(--ground-soft);
-  color: var(--fg); font: 700 14px var(--display); touch-action: none; user-select: none; -webkit-user-select: none; }
-#touch button svg { width: 26px; height: 26px; }
-#touch button.flip svg { rotate: 180deg; }
-#touch button.on { background: var(--orange); border-color: var(--orange); color: var(--orange-ink); }
-
-/* Phones held sideways, the natural way to drive: the viewport is only ~360-430 px tall, so the
-   thumb pads take the bottom corners, the dash shrinks to the bottom centre between them and the
-   minimap moves up under the unit badge. Keyboard hints are dropped (there is no keyboard). */
-@media (max-height: 500px) and (pointer: coarse) {
-  #touch .left { bottom: calc(14px + env(safe-area-inset-bottom)); }
-  #touch .right { bottom: calc(14px + env(safe-area-inset-bottom)); }
-  #touch button { width: 68px; height: 68px; }
-  #dash { right: auto; left: 50%; bottom: 16px; translate: -50% 0; transform: scale(0.72); transform-origin: bottom center; }
-  #minimap-wrap { left: calc(16px + env(safe-area-inset-left)); top: 78px; bottom: auto; width: 104px; height: 104px; }
-  #unit { left: calc(16px + env(safe-area-inset-left)); top: 12px; }
-  #callcard { top: 12px; right: calc(16px + env(safe-area-inset-right)); width: 280px; padding: 10px 12px; }
-  #compass { width: min(220px, 27vw); }
-  #location { display: none; }
-  #first-tip { bottom: 12px; max-height: calc(100vh - 24px); overflow: auto; }
-  #toast { bottom: 96px; }
-  #attribution { right: auto; left: 50%; translate: -50% 0; white-space: nowrap; font-size: 9px; }
+/* ------------------------------------------------------------ touch screens
+   Phones, tablets and iPads (any coarse pointer) get the touch layout: Menu top left, the
+   place band top centre, the map with a column of round cart buttons top right, the stick
+   bottom left and the speed bottom right. Nothing else covers the road. */
+#touch { position: fixed; left: calc(24px + env(safe-area-inset-left)); bottom: calc(22px + env(safe-area-inset-bottom)); z-index: 5;
+  transition: opacity 200ms ease-out; }
+body.menu-open #touch { opacity: 0; pointer-events: none; }
+#joystick { position: relative; width: 168px; height: 168px; touch-action: none; user-select: none; -webkit-user-select: none; }
+#joystick::before { content: ''; position: absolute; inset: -28px; } /* a thumb landing just outside still catches */
+.joy-base { position: absolute; inset: 0; border-radius: 50%; background: rgba(18, 16, 14, 0.74); border: 1px solid var(--line); box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.joy-knob { position: absolute; left: 50%; top: 50%; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 50%; background: var(--orange);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 8px 18px -6px rgba(0, 0, 0, 0.6); pointer-events: none; }
+/* Springs back to centre on release (ease-out, the knob is already moving); follows the thumb with no lag while held. */
+@media (prefers-reduced-motion: no-preference) {
+  .joy-knob { transition: transform 220ms var(--ease-out), scale 150ms ease-out; }
+  .joy-knob.held { transition: scale 150ms ease-out; }
 }
+.joy-knob.held { scale: 0.96; background: var(--orange-hi); }
+
 @media (pointer: coarse) {
-  #hint { display: none; }
+  #hint, #unit, #compass, #callcard, #location, #speedo, #gear-strip { display: none; }
   html, body { overscroll-behavior: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  #first-tip .keys-only { display: none; }
+  #first-tip p.touch-only, p.touch-help { display: block; }
+  #first-tip { bottom: calc(210px + env(safe-area-inset-bottom)); }
+
+  #menu-btn { left: calc(16px + env(safe-area-inset-left)); top: calc(12px + env(safe-area-inset-top)); height: 48px; width: auto; padding: 0 22px 0 16px; border-radius: 24px; font-size: 18px; }
+
+  #place { position: fixed; left: 50%; top: calc(12px + env(safe-area-inset-top)); translate: -50% 0; display: flex; align-items: center; gap: 10px;
+    height: 48px; max-width: calc(100vw - 2 * (16px + 196px)); padding: 0 20px 0 16px; border-radius: 24px; pointer-events: none;
+    background: var(--ground); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); box-shadow: var(--shadow); }
+  #place svg { width: 22px; height: 22px; color: var(--orange-hi); }
+  #place-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 18px/1 var(--display); }
+  #place-dist { flex: none; padding-left: 10px; border-left: 1px solid var(--line); font: 600 16px/1 var(--display); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  #minimap-wrap { left: auto; right: calc(16px + 46px + 10px + env(safe-area-inset-right)); top: calc(12px + env(safe-area-inset-top)); bottom: auto; width: 112px; height: 112px; border-radius: 18px; }
+  #minimap, #minimap-wrap .ring { border-radius: 18px; }
+
+  #dash { display: contents; }
+  #status { position: fixed; right: calc(16px + env(safe-area-inset-right)); top: calc(12px + env(safe-area-inset-top)); display: flex; flex-direction: column; gap: 8px; margin: 0; }
+  #status button { width: 46px; height: 44px; border-radius: 16px; background: var(--ground); color: var(--fg); }
+  #status button svg { width: 22px; height: 22px; }
+  #status button.on { color: var(--orange-ink); }
+  #status [data-id="location"] { display: none; }
+
+  #mspeed { position: fixed; right: calc(16px + env(safe-area-inset-right)); bottom: calc(18px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 10px;
+    height: 66px; padding: 0 24px 0 18px; border-radius: 33px; pointer-events: none;
+    background: var(--ground); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); box-shadow: var(--shadow); }
+  #mspeed svg { width: 38px; height: 38px; color: var(--orange); }
+  #mspeed b { min-width: 2ch; text-align: right; font: 700 42px/1 var(--display); font-variant-numeric: tabular-nums; }
+  #mspeed small { font: 700 17px/1 var(--display); letter-spacing: 0.06em; }
+  #mspeed i { font: 700 13px/1 var(--display); font-style: normal; padding: 4px 7px; border-radius: 6px; background: var(--orange); color: var(--orange-ink); }
+
+  #event { top: calc(70px + env(safe-area-inset-top)); }
+  #toast { bottom: calc(100px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); text-align: center; }
+  #attribution { right: auto; left: 50%; translate: -50% 0; max-width: calc(100vw - 2 * 220px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px; }
+}
+
+/* Phones held sideways (the natural way to drive, ~360-430 px tall): a smaller stick, and the
+   camera button drops so the button column clears the speed pill. */
+@media (pointer: coarse) and (max-height: 500px) {
+  #joystick { width: 140px; height: 140px; }
+  .joy-knob { width: 66px; height: 66px; margin: -33px 0 0 -33px; }
+  #touch { left: calc(20px + env(safe-area-inset-left)); bottom: calc(14px + env(safe-area-inset-bottom)); }
+  #status [data-id="camera"] { display: none; }
+  #status { gap: 6px; }
+  #status button { height: 42px; }
+  #minimap-wrap { width: 96px; height: 96px; }
+  #mspeed { height: 58px; bottom: calc(14px + env(safe-area-inset-bottom)); }
+  #mspeed b { font-size: 36px; }
+  #first-tip { bottom: calc(84px + env(safe-area-inset-bottom)); left: auto; right: calc(16px + 72px); translate: none; width: min(420px, calc(100vw - 200px)); max-height: calc(100vh - 110px); overflow: auto; }
+}
+
+/* Phones held upright: the place band drops below the Menu button and the map moves down the
+   right side, above the speed pill. */
+@media (pointer: coarse) and (orientation: portrait) {
+  #place { left: calc(16px + env(safe-area-inset-left)); translate: none; top: calc(70px + env(safe-area-inset-top)); max-width: calc(100vw - 32px - 56px); }
+  #minimap-wrap { right: calc(16px + env(safe-area-inset-right)); top: auto; bottom: calc(100px + env(safe-area-inset-bottom)); width: 124px; height: 124px; }
+  #event { top: calc(128px + env(safe-area-inset-top)); }
+  #attribution { max-width: calc(100vw - 32px); bottom: calc(2px + env(safe-area-inset-bottom)); }
+  /* Narrow: the stick and the speed pill share the bottom edge. */
+  #joystick { width: 148px; height: 148px; }
+  .joy-knob { width: 70px; height: 70px; margin: -35px 0 0 -35px; }
+  #touch { left: calc(18px + env(safe-area-inset-left)); }
+  #mspeed { padding: 0 20px 0 14px; gap: 8px; }
+}
+
+/* Tablets and iPads: room for a larger stick. */
+@media (pointer: coarse) and (min-width: 900px) and (min-height: 600px) {
+  #joystick { width: 190px; height: 190px; }
+  .joy-knob { width: 88px; height: 88px; margin: -44px 0 0 -44px; }
+  #minimap-wrap { width: 140px; height: 140px; }
 }
 
 /* Impact flash: the vignette closes in red for a moment when the cart hits something. */

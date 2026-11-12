@@ -70,32 +70,18 @@ function noiseBuffer(c: AudioContext, seconds: number, brown = false) {
 }
 
 /**
- * The cart itself. It is electric, so it is quiet: what a driver mostly hears is the tyres
- * on the pavement and the air in the open cab, with a soft, pure-toned motor and gear whine
- * underneath that follows road speed and lifts a little under load. There is no engine note
- * and nothing at all at a standstill.
+ * The cart itself. It is electric, so it is quiet: what a driver hears is the tyres on the
+ * pavement and the air in the open cab, both following road speed, and nothing at all at a
+ * standstill. The synthesized motor and gear whine and the constant outdoor air bed were
+ * removed at the user's request (2026-11-11): they read as a background whirring.
  */
 export class CartAudio {
-  private motor: OscillatorNode[] = [];
-  private motorGain: GainNode;
-  private motorTone: BiquadFilterNode;
   private tyreGain: GainNode;
   private tyreTone: BiquadFilterNode;
   private windGain: GainNode;
-  private load = 0;
 
   constructor(private mix: AudioMix) {
     const c = mix.ctx, out = mix.bus('vehicle');
-    this.motorTone = c.createBiquadFilter(); this.motorTone.type = 'lowpass'; this.motorTone.frequency.value = 900; this.motorTone.Q.value = 0.7;
-    this.motorGain = c.createGain(); this.motorGain.gain.value = 0;
-    this.motorTone.connect(this.motorGain).connect(out);
-    // Mostly sine and triangle: a sawtooth's harmonics are what made it sound like a combustion engine.
-    for (const [type, level] of [['sawtooth', 0.06], ['triangle', 0.3], ['sine', 0.55]] as const) {
-      const o = c.createOscillator(); o.type = type; o.frequency.value = 40;
-      const g = c.createGain(); g.gain.value = level;
-      o.connect(g).connect(this.motorTone); o.start();
-      this.motor.push(o);
-    }
     const noise = c.createBufferSource(); noise.buffer = noiseBuffer(c, 2.5); noise.loop = true; noise.start();
     this.tyreTone = c.createBiquadFilter(); this.tyreTone.type = 'bandpass'; this.tyreTone.frequency.value = 400; this.tyreTone.Q.value = 0.6;
     this.tyreGain = c.createGain(); this.tyreGain.gain.value = 0;
@@ -104,24 +90,11 @@ export class CartAudio {
     const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5500;
     this.windGain = c.createGain(); this.windGain.gain.value = 0;
     noise.connect(hp).connect(lp).connect(this.windGain).connect(out);
-    // Outdoor air: a very quiet low bed, so silence at a standstill is not digital silence.
-    const air = c.createBufferSource(); air.buffer = noiseBuffer(c, 4, true); air.loop = true; air.start();
-    const airLp = c.createBiquadFilter(); airLp.type = 'lowpass'; airLp.frequency.value = 500;
-    air.connect(airLp).connect(mix.bus('ambience'));
   }
 
-  /** `speed` m/s (signed), `throttle` 0..1, `grounded` false while the wheels are off the ground. */
-  update(dt: number, speed: number, throttle: number, grounded = true) {
+  /** `speed` m/s (signed), `throttle` 0..1 (unused since the motor whine went), `grounded` false while the wheels are off the ground. */
+  update(_dt: number, speed: number, _throttle: number, grounded = true) {
     const c = this.mix.ctx, t = c.currentTime, v = Math.abs(speed), f = Math.min(1, v / 10);
-    this.load += (throttle - this.load) * (1 - Math.exp(-dt * 6));
-    // Motor: about 55 Hz at a crawl to 430 Hz at the governed top speed; the gear whine sits an octave and a fifth above.
-    const base = 55 + v * 37.5;
-    this.motor[0].frequency.setTargetAtTime(base, t, 0.04);
-    this.motor[1].frequency.setTargetAtTime(base * 3.01, t, 0.04);
-    this.motor[2].frequency.setTargetAtTime(base * 0.5, t, 0.04);
-    this.motorTone.frequency.setTargetAtTime(500 + v * 110 + this.load * 350, t, 0.05);
-    const moving = v > 0.15 || this.load > 0.05 ? 1 : 0;
-    this.motorGain.gain.setTargetAtTime(moving * (0.02 + 0.07 * this.load + 0.05 * f), t, 0.08);
     this.tyreTone.frequency.setTargetAtTime(320 + v * 70, t, 0.08);
     this.tyreGain.gain.setTargetAtTime(grounded ? 0.5 * Math.pow(f, 1.4) : 0, t, 0.08);
     this.windGain.gain.setTargetAtTime(0.22 * f * f, t, 0.15);

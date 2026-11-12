@@ -455,7 +455,9 @@ function villageExtras(b: Building, outer: Pt[], s: Seat, kit: BuildingKit) {
 /** Number atlas layout (see textures.numberAtlas): 9 columns x 8 rows, numbers 1..72. */
 const NUMBER_COLS = 9, NUMBER_ROWS = 8, NUMBER_CELLS = NUMBER_COLS * NUMBER_ROWS;
 function numberPlaque(mb: MeshBuilder, e: { a: Pt; u: Pt; n: Pt }, along: number, y: number, num: number) {
-  const size = 1.6, out = 0.06;
+  // 0.14 m proud of the wall: the storey ledges on Village walls project 0.06 m, and a plaque at
+  // that same depth sat coplanar with any ledge crossing it, so the two faces z-fought (flickered).
+  const size = 1.6, out = 0.14;
   const c: Pt = [e.a[0] + e.u[0] * along + e.n[0] * out, e.a[1] + e.u[1] * along + e.n[1] * out];
   const p0: Pt = [c[0] - e.u[0] * size / 2, c[1] - e.u[1] * size / 2], p1: Pt = [c[0] + e.u[0] * size / 2, c[1] + e.u[1] * size / 2];
   const k = num - 1, col = k % NUMBER_COLS, row = Math.floor(k / NUMBER_COLS);

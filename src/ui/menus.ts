@@ -84,6 +84,7 @@ export class Menus {
       if (a === 'free') { this.close(); hooks.free(); }
       if (a === 'start' && this.selected) this.startCall(this.selected);
       if (a === 'reroll') this.newCalls();
+      if (a === 'random-pick') this.randomPick();
       if (a === 'retry') { this.close(); hooks.start(this.lastDest ?? rc.result?.legs.map(l => l.name), this.lastStops); }
       if (a === 'next') { this.newCalls(); this.startCall(this.calls[0]); }
       if (a === 'dispatch') { this.result.hidden = true; this.open(); }
@@ -154,7 +155,37 @@ export class Menus {
     for (const b of this.menu.querySelectorAll<HTMLElement>('[role="tab"]')) { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-selected', String(b.dataset.tab === t)); }
     for (const p of this.menu.querySelectorAll<HTMLElement>('.tabpanel')) p.hidden = p.dataset.tab !== t;
     $('reroll').hidden = t !== 'calls';
+    $('random-pick').hidden = t === 'gauntlet';
+    $('random-pick').title = t === 'locations' ? (this.picking ? 'Add a random stop' : 'Pick a random location') : 'Pick a random call';
+    this.tabNow = t;
     if (t === 'locations') this.renderList();
+  }
+  private tabNow = 'calls';
+
+  /**
+   * Random pick. Open calls: one of the listed calls other than the selected one. Any
+   * location: a random destination among those the search shows (all of them with no
+   * search), made into a call in the brief, or added as the next stop while building a
+   * multi-call list. On a narrow screen the brief sits below the list, so it is brought into view.
+   */
+  private randomPick() {
+    if (this.tabNow === 'calls') {
+      const others = this.calls.filter(c => c !== this.selected);
+      const c = others.length ? pick(others) : this.calls[0];
+      if (c) this.select(c);
+    } else if (this.tabNow === 'locations') {
+      const q = this.search.value.trim().toLowerCase();
+      const pool = this.rc.destinations.filter(d => !q || d.name.toLowerCase().includes(q) || locationCode(d.name).toLowerCase() === q || (d.aliases ?? []).some(a => a.toLowerCase().includes(q)));
+      if (!pool.length) return;
+      const d = pick(pool);
+      if (this.picking) {
+        if (this.stops[this.stops.length - 1] !== d.name && this.stops.length < 10) this.stops.push(d.name);
+        this.renderStops();
+        return;
+      }
+      this.select(this.makeCall(d));
+    }
+    if (matchMedia('(max-width: 1100px)').matches) $('brief').scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
 
   private updateDeploy() { $('deploy-label').textContent = this.startKey === 'sg' ? 'Safety and Grounds' : 'the UEMR apartment'; }

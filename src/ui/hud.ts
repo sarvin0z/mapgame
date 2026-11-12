@@ -111,24 +111,42 @@ export class Hud {
     return c;
   }
 
-  update(o: { speedMS: number; gear: string; x: number; z: number; heading: number; lights: boolean; siren: boolean; horn: boolean; headlights: boolean; camera: string; lat: number; lon: number }, dt: number) {
+  private mSpeed = $('mspeed-value');
+  private mGear = $('mspeed-gear');
+  private placeName = $('place-name');
+  private placeDist = $('place-dist');
+  private shownPlace = '';
+  private nearest = '';
+
+  update(o: { speedMS: number; gear: string; x: number; z: number; heading: number; lights: boolean; siren: boolean; horn: boolean; headlights: boolean; camera: string; lat: number; lon: number; muted: boolean; dest?: { name: string; left: number } }, dt: number) {
     const mph = Math.abs(o.speedMS) * 2.23694;
-    this.speedEl.textContent = mph.toFixed(0);
+    const mphText = mph.toFixed(0);
+    this.speedEl.textContent = mphText;
+    this.mSpeed.textContent = mphText;
+    this.mGear.hidden = o.gear !== 'R';
     this.arc.setAttribute('stroke-dasharray', `${(Math.min(1, mph / 25) * 100).toFixed(1)} 100`);
     for (const s of this.gears) s.classList.toggle('on', s.dataset.g === o.gear);
     const loc = !this.locCard.hidden;
-    const st = `${o.lights}${o.siren}${o.horn}${o.headlights}${o.camera}${loc}`;
+    const st = `${o.lights}${o.siren}${o.horn}${o.headlights}${o.camera}${loc}${o.muted}`;
     if (st !== this.lastStatus) {
       this.lastStatus = st;
       // Icon buttons; the state is carried by colour and aria-pressed, the name by the label.
-      const chip = (id: string, label: string, on: boolean, key: string) =>
-        `<button data-id="${id}" class="${on ? 'on' : ''}" aria-pressed="${on}" aria-label="${label} (${key})" title="${label} · ${key}"><svg><use href="#i-${id === 'location' ? 'pin' : id}" /></svg></button>`;
+      const chip = (id: string, label: string, on: boolean, key: string, icon = id) =>
+        `<button data-id="${id}" class="${on ? 'on' : ''}" aria-pressed="${on}" aria-label="${label} (${key})" title="${label} · ${key}"><svg><use href="#i-${icon}" /></svg></button>`;
       this.statusEl.innerHTML = [
+        // Sound first: on touch screens these stand in a column beside the map, sound at the top.
+        chip('mute', o.muted ? 'Sound off' : 'Sound on', o.muted, 'N', o.muted ? 'mute' : 'sound'),
         chip('lights', 'Emergency lights', o.lights, 'L'), chip('siren', 'Siren', o.siren, 'H'), chip('horn', 'Horn', o.horn, 'B'),
-        chip('headlights', 'Headlights', o.headlights, 'K'), chip('location', 'Location card', loc, 'I'),
+        chip('headlights', 'Headlights', o.headlights, 'K'), chip('location', 'Location card', loc, 'I', 'pin'),
         `<button data-id="camera" aria-label="Camera: ${o.camera} (C)" title="Camera: ${o.camera} · C"><svg><use href="#i-camera" /></svg></button>`,
       ].join('');
     }
+    // Touch layout's place band: the destination and the distance left while responding,
+    // otherwise the building the cart is at.
+    const place = o.dest ? o.dest.name : this.nearest || 'UT Dallas';
+    if (place !== this.shownPlace) { this.shownPlace = place; this.placeName.textContent = place; }
+    this.placeDist.hidden = !o.dest;
+    if (o.dest) this.placeDist.textContent = o.dest.left > 400 ? (o.dest.left / 1609.34).toFixed(2) + ' mi' : Math.round(o.dest.left) + ' m';
     // Compass: bearing of travel (clockwise from north), and the destination's bearing when shown.
     const bearing = ((-o.heading * 180 / Math.PI) % 360 + 360) % 360;
     this.compassStrip.style.transform = `translateX(${-bearing * Hud.PX_PER_DEG}px)`;
@@ -152,6 +170,7 @@ export class Hud {
         if (d < bd) { bd = d; best = n.name; }
       }
       this.locName.textContent = best;
+      this.nearest = bd < 60 ? best : '';
       this.locSub.textContent = `${bd === 0 ? 'Inside' : bd < 25 ? 'Beside' : `${Math.round(bd)} m from`} · ${o.lat.toFixed(5)}°, ${o.lon.toFixed(5)}°`;
     }
     if (this.toastTimer > 0) { this.toastTimer -= dt; if (this.toastTimer <= 0) this.toastEl.hidden = true; }

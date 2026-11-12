@@ -10,16 +10,19 @@ function run(a: AdaptiveQuality, s: FrameSample, secs: number) {
 
 describe('starting preset from the device', () => {
   const laptop = { touch: false, memoryGB: 8, cores: 8, minScreen: 900 };
-  it('starts integrated graphics in the middle and discrete cards on high', () => {
+  it('starts integrated graphics in the middle, entry-level graphics low and discrete cards on high', () => {
     expect(detectPreset({ ...laptop, gpu: 'ANGLE (AMD, AMD Radeon(TM) 840M Graphics (0x00001114) Direct3D11 vs_5_0 ps_5_0, D3D11)' })).toBe('medium');
-    expect(detectPreset({ ...laptop, gpu: 'ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11)' })).toBe('medium');
+    // Entry-level laptop graphics start on Low so Auto opens at 60 fps (Auto steps up when there is headroom).
+    expect(detectPreset({ ...laptop, gpu: 'ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11)' })).toBe('low');
+    expect(detectPreset({ ...laptop, gpu: 'ANGLE (NVIDIA, NVIDIA GeForce MX230 Direct3D11 vs_5_0 ps_5_0, D3D11)' })).toBe('low');
     expect(detectPreset({ ...laptop, gpu: 'ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 Direct3D11 vs_5_0 ps_5_0, D3D11)' })).toBe('high');
     expect(detectPreset({ ...laptop, gpu: 'ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)' })).toBe('high');
   });
   it('starts phones, weak machines and software renderers low', () => {
     expect(detectPreset({ gpu: 'Adreno (TM) 610', touch: true, memoryGB: 4, cores: 8, minScreen: 393 })).toBe('low');
     expect(detectPreset({ gpu: 'Adreno (TM) 740', touch: true, memoryGB: 8, cores: 8, minScreen: 412 })).toBe('medium');
-    expect(detectPreset({ ...laptop, gpu: 'ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device), SwiftShader driver)' })).toBe('low');
+    expect(detectPreset({ ...laptop, gpu: 'ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device), SwiftShader driver)' })).toBe('verylow');
+    expect(detectPreset({ gpu: 'Mali-G52', touch: true, memoryGB: 3, cores: 8, minScreen: 360 })).toBe('verylow');
     expect(detectPreset({ ...laptop, memoryGB: 4, gpu: 'Intel(R) HD Graphics 4000' })).toBe('low');
   });
 });
@@ -35,6 +38,16 @@ describe('render resolution', () => {
     const phone = pixelRatioFor(PRESETS.low, 1, 844, 390, 3);
     expect(phone).toBe(1);
     expect(pixelRatioFor(PRESETS.low, 0.6, 844, 390, 3)).toBeCloseTo(0.6);
+  });
+  it('keeps a 1080p window sharp on the low presets', () => {
+    // Low: over three quarters of a 1080p window (it was 0.69x, stretched, with no antialiasing).
+    expect(pixelRatioFor(PRESETS.low, 1, 1920, 1080, 1)).toBeGreaterThan(0.78);
+    // Very low: about two thirds, not about half.
+    expect(pixelRatioFor(PRESETS.verylow, 1, 1920, 1080, 1)).toBeGreaterThanOrEqual(0.65);
+    // Whatever the preset and scale, never under half the window's pixels each way.
+    expect(pixelRatioFor(PRESETS.verylow, 0.6, 3840, 2160, 1)).toBe(0.5);
+    // A window on a display under 1x is not drawn above its own pixels.
+    expect(pixelRatioFor(PRESETS.verylow, 0.6, 3840, 2160, 0.4)).toBe(0.4);
   });
 });
 
@@ -72,6 +85,19 @@ describe('adaptive quality', () => {
     // High cannot be held: back to medium, and the next attempt takes at least twice as long.
     expect(run(a, { fps: 40, cpuMs: 22, gpuMs: 14, bestIntervalMs: 16.7 }, 10)[0]).toEqual({ preset: 'medium' });
     expect(run(a, easy, 20)).toEqual([]);
+  });
+  it('steps the preset down before taking resolution under 0.8x', () => {
+    const a = new AdaptiveQuality('medium');
+    const changes = run(a, { fps: 40, cpuMs: 6, gpuMs: 24, bestIntervalMs: 16.7 }, 40);
+    // Two resolution steps (0.9, 0.8), then Low and Very low; no scale under 0.8 at 40 fps.
+    expect(changes.slice(0, 4)).toEqual([{ scale: 0.9 }, { scale: 0.8 }, { preset: 'low' }, { preset: 'verylow' }]);
+    expect(changes.length).toBe(4);
+    expect(a.scale).toBe(0.8);
+  });
+  it('gives up the rest of the resolution only on the lowest preset when far below target', () => {
+    const a = new AdaptiveQuality('verylow');
+    const changes = run(a, { fps: 22, cpuMs: 6, gpuMs: 44, bestIntervalMs: 16.7 }, 40);
+    expect(changes.map(c => c.scale)).toEqual([0.9, 0.8, 0.7, 0.6]);
   });
   it('does nothing when switched off', () => {
     const a = new AdaptiveQuality('high');

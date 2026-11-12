@@ -46,6 +46,15 @@ Rule: orange marks only what to act on or what is being followed. Never use it f
   - call card (type, place and code, time, to go, driven, stop label, off-network warning) top right;
   - circular minimap bottom left;
   - 44px icon control buttons, the speedometer with an orange arc, and D/R gear tiles, bottom right.
+- **Menu button:** an orange button labelled MENU with a menu icon, at the top left on every device; it opens dispatch.
+- **Touch layout (any coarse pointer):**
+  - Menu as a 48px pill top left;
+  - a place band top centre (pin, place name, and distance left while responding);
+  - the map as a rounded square, beside a column of 46×44 cart buttons (sound, lights, siren, horn, headlights) top right;
+  - an analog stick bottom left (an orange knob on a dark glass base) that springs back to centre over 220ms on release;
+  - a speed pill bottom right (gauge icon, MPH, and an R tile in reverse).
+  - The desktop unit badge, compass, call card and speedometer are not shown.
+- **Loading:** the wordmark, a 4px progress bar with the percentage beside it, the graphics choice (five options and a Start button), and a credit line in faint 11.5px at the bottom right.
 - **Result:** a stats table, a grade ring that fills to the score, a performance checklist (green check or red miss), the route map, and actions (Back to dispatch, Retry, Next call).
 
 ## Icons

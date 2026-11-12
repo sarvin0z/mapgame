@@ -1,6 +1,6 @@
 // Graphics presets, a first guess at the right one for the device, and an adaptive
 // controller that moves render resolution and preset to hold the frame rate.
-export type QualityName = 'low' | 'medium' | 'high';
+export type QualityName = 'verylow' | 'low' | 'medium' | 'high';
 
 export interface QualityPreset {
   name: QualityName;
@@ -21,19 +21,38 @@ export interface QualityPreset {
 }
 
 export const PRESETS: Record<QualityName, QualityPreset> = {
-  low: { name: 'low', pixelRatioCap: 1, maxPixelsM: 1.0, shadows: false, shadowMapSize: 0, viewDistance: 700, detailDistance: 260, nearDistance: 120, groundDistance: 420, pointLights: false, bloom: false, treeFullDistance: 45 },
+  // Very low: for old phones and entry-level laptop graphics. Under a megapixel even at
+  // 1080p (about 0.66x resolution there), a short view, near detail only close by, no shadows.
+  // Its savings come from the short view and the missing shadows more than from resolution:
+  // at 0.6 M pixels a 1080p window was drawn at 0.54x and stretched, which read as pixelated.
+  verylow: { name: 'verylow', pixelRatioCap: 0.75, maxPixelsM: 0.9, shadows: false, shadowMapSize: 0, viewDistance: 480, detailDistance: 170, nearDistance: 80, groundDistance: 280, pointLights: false, bloom: false, treeFullDistance: 28 },
+  // Low draws 1.3 M pixels (0.79x of a 1080p window), multisampled. At 1.0 M it drew 0.69x
+  // with no antialiasing, which read as pixelated. Measured on Intel UHD: multisampling adds
+  // 10-15% at this size and the extra pixels about 20%; under Auto the controller's 0.8x
+  // step (0.83 M pixels) brings the cost back to what the old Low was, still antialiased.
+  low: { name: 'low', pixelRatioCap: 1, maxPixelsM: 1.3, shadows: false, shadowMapSize: 0, viewDistance: 700, detailDistance: 260, nearDistance: 120, groundDistance: 420, pointLights: false, bloom: false, treeFullDistance: 45 },
   medium: { name: 'medium', pixelRatioCap: 1.25, maxPixelsM: 1.7, shadows: true, shadowMapSize: 1024, viewDistance: 1100, detailDistance: 420, nearDistance: 200, groundDistance: 600, pointLights: true, bloom: false, treeFullDistance: 70 },
   high: { name: 'high', pixelRatioCap: 2, maxPixelsM: 4.2, shadows: true, shadowMapSize: 2048, viewDistance: 1400, detailDistance: 480, nearDistance: 200, groundDistance: 750, pointLights: true, bloom: true, treeFullDistance: 95 },
 };
-export const ORDER: QualityName[] = ['low', 'medium', 'high'];
+export const ORDER: QualityName[] = ['verylow', 'low', 'medium', 'high'];
+/** Names shown in the menus. */
+export const QUALITY_LABEL: Record<QualityName, string> = { verylow: 'Very low', low: 'Low', medium: 'Medium', high: 'High' };
 
 /** Render-resolution scale steps the adaptive controller moves through (1 = the preset's full resolution). */
 export const SCALES = [0.6, 0.7, 0.8, 0.9, 1];
+/**
+ * The lowest scale the controller takes while a cheaper preset is still available (0.8: with
+ * multisampling the stretch is hard to see). Below it the picture turns visibly soft, so the
+ * steps under it are a last resort, used only on the lowest preset when the game is unplayably slow.
+ */
+export const COMFORT_SCALE_INDEX = SCALES.indexOf(0.8);
+/** Lowest ratio of drawn to CSS pixels on any device, whatever the budget and scale say. */
+export const MIN_PIXEL_RATIO = 0.5;
 
 /** Device pixel ratio to render at for a preset, a resolution scale and a window size in CSS pixels. */
 export function pixelRatioFor(p: QualityPreset, scale: number, cssW: number, cssH: number, dpr: number): number {
   const budget = Math.sqrt((p.maxPixelsM * 1e6) / Math.max(1, cssW * cssH));
-  return Math.max(0.4, Math.min(dpr, p.pixelRatioCap, budget) * scale);
+  return Math.max(Math.min(dpr, MIN_PIXEL_RATIO), Math.min(dpr, p.pixelRatioCap, budget) * scale);
 }
 
 export interface DeviceInfo {
@@ -54,10 +73,17 @@ export interface DeviceInfo {
  */
 export function detectPreset(d: DeviceInfo): QualityName {
   const gpu = d.gpu.toLowerCase();
-  if (/swiftshader|llvmpipe|software|basic render/.test(gpu)) return 'low';
+  if (/swiftshader|llvmpipe|software|basic render/.test(gpu)) return 'verylow';
   const phone = d.touch && d.minScreen < 820;
-  if (phone) return (d.memoryGB ?? 4) >= 6 && (d.cores ?? 4) >= 8 ? 'medium' : 'low';
+  if (phone) {
+    // Budget phones (3 GB or less, 4 cores or fewer, older Mali/Adreno/PowerVR) start at Very low.
+    if ((d.memoryGB ?? 4) <= 3 || (d.cores ?? 8) <= 4 || /mali-[gt]?[4-7]\d\b|adreno \(tm\) [3-5]\d\d|powervr/.test(gpu)) return 'verylow';
+    return (d.memoryGB ?? 4) >= 6 && (d.cores ?? 4) >= 8 ? 'medium' : 'low';
+  }
   if ((d.memoryGB ?? 8) <= 4 || (d.cores ?? 8) <= 2) return 'low';
+  // Entry-level laptop graphics (Intel UHD/HD/Iris, GeForce MX) hold 60 fps on Low, not Medium;
+  // Auto steps up from there when frames are comfortably inside budget.
+  if (/intel.*(uhd|hd graphics|iris)|geforce (mx|gt) ?\d/.test(gpu)) return 'low';
   // Discrete cards and Apple silicon; everything else (Intel, AMD APUs, mobile GPUs on tablets) is treated as integrated.
   if (/(rtx|gtx|quadro|geforce|radeon (rx|pro)|rx \d{3,4}|arc\(tm\) a\d|apple m\d)/.test(gpu) && !/geforce (mx|gt) ?\d/.test(gpu)) return 'high';
   if (d.touch) return 'medium';
@@ -78,7 +104,9 @@ export interface FrameSample {
 export interface QualityChange { preset?: QualityName; scale?: number }
 
 /**
- * Holds the frame rate by trading resolution first, then the preset.
+ * Holds the frame rate by trading a little resolution first (down to 0.8x), then the preset,
+ * and the rest of the resolution only on the lowest preset when the frame rate is under 60%
+ * of the target.
  *
  * The target is the display's own rate, capped at 60: a browser held to 30 Hz (a power
  * saver, an embedded view, a 30 Hz monitor) is not "slow", and chasing 60 there used to
@@ -125,9 +153,12 @@ export class AdaptiveQuality {
       // A step up that could not be held: back off, and wait twice as long before trying again.
       if (this.sinceUp < 12) this.upWait = Math.min(240, this.upWait * 2);
       const gpuBound = measured ? s.gpuMs! > s.cpuMs : s.cpuMs < budget * 0.6;
-      if (gpuBound && this.scaleIndex > 0) change = { scale: SCALES[--this.scaleIndex] };
+      const floor = COMFORT_SCALE_INDEX;
+      if (gpuBound && this.scaleIndex > floor) change = { scale: SCALES[--this.scaleIndex] };
       else if (i > 0) change = { preset: (this.current = ORDER[i - 1]) };
-      else if (this.scaleIndex > 0) change = { scale: SCALES[--this.scaleIndex] };
+      else if (this.scaleIndex > floor) change = { scale: SCALES[--this.scaleIndex] };
+      // Nothing cheaper is left: give up sharpness only when the game is otherwise unplayable.
+      else if (this.scaleIndex > 0 && s.fps < targetFps * 0.6) change = { scale: SCALES[--this.scaleIndex] };
     } else if (this.highFor > this.upWait) {
       if (this.scaleIndex < SCALES.length - 1) change = { scale: SCALES[++this.scaleIndex] };
       else if (i < ORDER.length - 1) change = { preset: (this.current = ORDER[i + 1]) };
