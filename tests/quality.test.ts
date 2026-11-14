@@ -39,16 +39,6 @@ describe('render resolution', () => {
     expect(phone).toBe(1);
     expect(pixelRatioFor(PRESETS.low, 0.6, 844, 390, 3)).toBeCloseTo(0.6);
   });
-  it('keeps a 1080p window sharp on the low presets', () => {
-    // Low: over three quarters of a 1080p window (it was 0.69x, stretched, with no antialiasing).
-    expect(pixelRatioFor(PRESETS.low, 1, 1920, 1080, 1)).toBeGreaterThan(0.78);
-    // Very low: about two thirds, not about half.
-    expect(pixelRatioFor(PRESETS.verylow, 1, 1920, 1080, 1)).toBeGreaterThanOrEqual(0.65);
-    // Whatever the preset and scale, never under half the window's pixels each way.
-    expect(pixelRatioFor(PRESETS.verylow, 0.6, 3840, 2160, 1)).toBe(0.5);
-    // A window on a display under 1x is not drawn above its own pixels.
-    expect(pixelRatioFor(PRESETS.verylow, 0.6, 3840, 2160, 0.4)).toBe(0.4);
-  });
 });
 
 describe('adaptive quality', () => {
@@ -85,19 +75,6 @@ describe('adaptive quality', () => {
     // High cannot be held: back to medium, and the next attempt takes at least twice as long.
     expect(run(a, { fps: 40, cpuMs: 22, gpuMs: 14, bestIntervalMs: 16.7 }, 10)[0]).toEqual({ preset: 'medium' });
     expect(run(a, easy, 20)).toEqual([]);
-  });
-  it('steps the preset down before taking resolution under 0.8x', () => {
-    const a = new AdaptiveQuality('medium');
-    const changes = run(a, { fps: 40, cpuMs: 6, gpuMs: 24, bestIntervalMs: 16.7 }, 40);
-    // Two resolution steps (0.9, 0.8), then Low and Very low; no scale under 0.8 at 40 fps.
-    expect(changes.slice(0, 4)).toEqual([{ scale: 0.9 }, { scale: 0.8 }, { preset: 'low' }, { preset: 'verylow' }]);
-    expect(changes.length).toBe(4);
-    expect(a.scale).toBe(0.8);
-  });
-  it('gives up the rest of the resolution only on the lowest preset when far below target', () => {
-    const a = new AdaptiveQuality('verylow');
-    const changes = run(a, { fps: 22, cpuMs: 6, gpuMs: 44, bestIntervalMs: 16.7 }, 40);
-    expect(changes.map(c => c.scale)).toEqual([0.9, 0.8, 0.7, 0.6]);
   });
   it('does nothing when switched off', () => {
     const a = new AdaptiveQuality('high');

@@ -163,13 +163,10 @@ async function main() {
   // nearly coplanar facade layers at a distance. Without EXT_clip_control, fall back to log depth.
   // Multisampling is skipped on phone-class screens of 2x density and up: the pixels are already
   // finer than the eye resolves at arm's length, and MSAA is the dearest thing a tile-based GPU does.
-  // Elsewhere only a Very low start skips it. It is fixed for the life of the context, so a
-  // session that starts on Low must have it: without it Low showed stair-stepped edges, and
-  // Auto kept them after stepping up. On entry-level laptop graphics it costs 10-15% at
-  // Low's 1.3 M pixels.
-  // ?msaa=0|1 forces it, for measuring.
+  // Low and Very low skip it everywhere: on entry-level laptop graphics at 1080p it is the
+  // difference between holding 60 fps and not.
   const startPreset: QualityName = choice === 'auto' ? guessed : choice;
-  const antialias = params.has('msaa') ? params.get('msaa') !== '0' : !(touch && devicePixelRatio >= 2) && startPreset !== 'verylow';
+  const antialias = !(touch && devicePixelRatio >= 2) && (startPreset === 'medium' || startPreset === 'high');
   let renderer = new THREE.WebGLRenderer({ antialias, powerPreference: 'high-performance', reversedDepthBuffer: true });
   if (!renderer.capabilities.reversedDepthBuffer) {
     renderer.dispose();
