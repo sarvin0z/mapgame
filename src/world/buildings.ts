@@ -150,9 +150,7 @@ export function baseLevel(outer: Pt[], T: Terrain) {
 }
 
 function foundation(kit: BuildingKit, outer: Pt[], s: Seat) {
-  // Set 2 cm inside the footprint: on the footprint itself it shared a plane with the bottom
-  // 32 cm of every wall built there, and the two flickered against each other along the wall foot.
-  if (s.base - s.ground > 0.05) addWalls(kit.concrete, insetRing(outer, 0.02) ?? outer, s.ground - 0.4, s.base + 0.02, [0.86, 0.84, 0.8], false, 2, 1);
+  if (s.base - s.ground > 0.05) addWalls(kit.concrete, outer, s.ground - 0.4, s.base + 0.02, [0.86, 0.84, 0.8], false, 2, 1);
 }
 
 // ---------------------------------------------------------------- generic body
@@ -246,13 +244,6 @@ export function buildBuilding(b: Building, T: Terrain, styles: Record<string, Fa
   if (!opts.noBands && s.floors > 1) floorBands(kit, wallRing, s, BAND[styleName] ?? [0.85, 0.83, 0.78]);
   parapetRoof(kit, b, outer, holes, s.top, rc, parapet);
   if (flatRoof && b.style !== 'construction' && !opts.noUnits) rooftopUnits(kit, b, outer, s.top);
-  // Base course and cornice: a darker stone water table where the walls meet the ground
-  // and a projecting band under the parapet, so the masses read as built, not extruded.
-  if (flatRoof && !['construction', 'metal', 'metalDark', 'cometsGlass', 'glassPavilion'].includes(b.style) && !opts.wallFrom) {
-    const band = BAND[styleName] ?? [0.85, 0.83, 0.78];
-    ledge(kit.concrete, wallRing, s.base - 0.3, 0.06, 0.95, band.map(c => c * 0.62));
-    ledge(kit.concrete, wallRing, s.top + parapet - 0.42, 0.16, 0.32, band.map(c => Math.min(1, c * 1.06)));
-  }
 }
 
 const BAND: Record<string, number[]> = {
@@ -455,9 +446,7 @@ function villageExtras(b: Building, outer: Pt[], s: Seat, kit: BuildingKit) {
 /** Number atlas layout (see textures.numberAtlas): 9 columns x 8 rows, numbers 1..72. */
 const NUMBER_COLS = 9, NUMBER_ROWS = 8, NUMBER_CELLS = NUMBER_COLS * NUMBER_ROWS;
 function numberPlaque(mb: MeshBuilder, e: { a: Pt; u: Pt; n: Pt }, along: number, y: number, num: number) {
-  // 0.14 m proud of the wall: the storey ledges on Village walls project 0.06 m, and a plaque at
-  // that same depth sat coplanar with any ledge crossing it, so the two faces z-fought (flickered).
-  const size = 1.6, out = 0.14;
+  const size = 1.6, out = 0.06;
   const c: Pt = [e.a[0] + e.u[0] * along + e.n[0] * out, e.a[1] + e.u[1] * along + e.n[1] * out];
   const p0: Pt = [c[0] - e.u[0] * size / 2, c[1] - e.u[1] * size / 2], p1: Pt = [c[0] + e.u[0] * size / 2, c[1] + e.u[1] * size / 2];
   const k = num - 1, col = k % NUMBER_COLS, row = Math.floor(k / NUMBER_COLS);
