@@ -331,9 +331,12 @@ async function main() {
 
   function applyQuality(name: QualityName) {
     const p = PRESETS[name];
+    const shadowsChanged = renderer.shadowMap.enabled !== p.shadows;
     quality = name;
-    renderer.setPixelRatio(Math.min(devicePixelRatio, p.pixelRatioCap));
-    composer.setPixelRatio(Math.min(devicePixelRatio, p.pixelRatioCap));
+    // Changing the pixel ratio resizes the canvas, which shows a black frame; only do it
+    // when the ratio actually changes.
+    const pr = Math.min(devicePixelRatio, p.pixelRatioCap);
+    if (renderer.getPixelRatio() !== pr) { renderer.setPixelRatio(pr); composer.setPixelRatio(pr); }
     renderer.shadowMap.enabled = p.shadows;
     env.sun.castShadow = p.shadows;
     if (p.shadows && env.sun.shadow.mapSize.x !== p.shadowMapSize) {
@@ -351,7 +354,9 @@ async function main() {
     camera.updateProjectionMatrix();
     env.setViewDistance(p.viewDistance);
     bloom.enabled = p.bloom;
-    scene.traverse(o => { if ((o as THREE.Mesh).material) ((o as THREE.Mesh).material as THREE.Material).needsUpdate = true; });
+    // Recompiling every shader drew black frames until each program was rebuilt; it is
+    // only needed when shadows are switched on or off.
+    if (shadowsChanged) scene.traverse(o => { if ((o as THREE.Mesh).material) ((o as THREE.Mesh).material as THREE.Material).needsUpdate = true; });
   }
   applyQuality(quality);
 
@@ -416,8 +421,6 @@ async function main() {
   let fpsFrames = 0, fpsTime = 0, fps = 60, frameMs = 0, physMs = 0, renderMs = 0;
   let physTimer = 0;
   let shadowFrame = 0;
-  /** Dynamic-resolution state: smoothed frame time (ms), render scale, cooldown (s). */
-  let dynAvg = 16, dynScale = 1, dynCool = 3;
   const bakedAt = new THREE.Vector3(Infinity, 0, 0);
   const camPos = new THREE.Vector3();
   const tmp = new THREE.Vector3();
@@ -505,23 +508,6 @@ async function main() {
     const tr = performance.now();
     if (PRESETS[quality].bloom) composer.render(dt); else renderer.render(scene, camera);
     renderMs = performance.now() - tr;
-    // Dynamic resolution: the game is fill-bound on integrated GPUs (full screen at high
-    // DPI was ~2x the cost of a 2/3 window), so the render scale tracks the frame time:
-    // down when frames run over ~19 ms, back up when there is headroom (0.6x to 1x).
-    {
-      dynAvg = dynAvg * 0.92 + dt * 1000 * 0.08;
-      dynCool -= dt;
-      if (dynCool <= 0) {
-        const next = dynAvg > 19.5 ? Math.max(0.6, dynScale - 0.1) : dynAvg < 14.5 ? Math.min(1, dynScale + 0.05) : dynScale;
-        if (next !== dynScale) {
-          dynScale = next;
-          const pr = Math.min(devicePixelRatio, PRESETS[quality].pixelRatioCap) * dynScale;
-          renderer.setPixelRatio(pr);
-          composer.setPixelRatio(pr);
-          dynCool = 1.2;
-        }
-      }
-    }
 
     const f = cart.forward(new THREE.Vector3());
     const ll = unproject(cp.x, -cp.z);
@@ -577,7 +563,8 @@ async function main() {
     if (fpsTime >= 0.5) {
       fps = fpsFrames / fpsTime;
       fpsFrames = 0; fpsTime = 0;
-      const change = adaptive.sample(fps, 0.5);
+      // Judged only while driving: on the menu the horizon is still streaming in.
+      const change = menuOpen ? null : adaptive.sample(fps, 0.5);
       if (change) applyQuality(change);
       if (hud.perfVisible) {
         const info = renderer.info;

@@ -21,7 +21,7 @@ export interface QualityPreset {
 export const PRESETS: Record<QualityName, QualityPreset> = {
   low: { name: 'low', pixelRatioCap: 0.8, shadows: true, shadowMapSize: 2048, shadowExtent: 110, viewDistance: 700, detailDistance: 240, nearDistance: 120, pointLights: false, bloom: false, treeFullDistance: 45 },
   medium: { name: 'medium', pixelRatioCap: 1, shadows: true, shadowMapSize: 2048, shadowExtent: 130, viewDistance: 1000, detailDistance: 340, nearDistance: 180, pointLights: true, bloom: false, treeFullDistance: 70 },
-  high: { name: 'high', pixelRatioCap: 1, shadows: true, shadowMapSize: 4096, shadowExtent: 160, viewDistance: 1300, detailDistance: 420, nearDistance: 200, pointLights: true, bloom: true, treeFullDistance: 95 },
+  high: { name: 'high', pixelRatioCap: 1.25, shadows: true, shadowMapSize: 2048, shadowExtent: 160, viewDistance: 1300, detailDistance: 420, nearDistance: 200, pointLights: true, bloom: false, treeFullDistance: 95 },
 };
 export const ORDER: QualityName[] = ['low', 'medium', 'high'];
 
