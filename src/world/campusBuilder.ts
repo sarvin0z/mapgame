@@ -551,7 +551,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     if (isNear) for (const w of c.waterways) addDrapedRibbon(lb('water', LAYER.water), w.pts, w.w, src, LIFT.water, AREA_STYLE.water.color, 6);
     let nr = 0;
     for (const r of c.roads) {
-      if (++nr % 40 === 0) yield;
+      if (++nr % 15 === 0) yield;
       // Round caps and joins make ways that meet at junctions and bends read as one surface.
       if (r.promenade) addDrapedRibbon(lb('promenade', LAYER.path), r.pts, r.w, src, LIFT.path + 0.002, [1, 1, 1], 3, r.w / 3, 'all');
       else if (DRIVABLE.has(r.cls)) addDrapedRibbon(lb('road', LAYER.road), r.pts, r.w, src, LIFT.road, r.cls === 'construction' ? [1.2, 1.1, 1.0] : [1, 1, 1], 8, r.w / 8, 'all');
@@ -605,7 +605,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
       continue;
     }
     buildBuilding(b, T, mats.styles, kit);
-    if (++nb % 12 === 0) yield;
+    if (++nb % 4 === 0) yield;
   }
   for (const [style, mb] of walls) addMesh(base, mb, mats.facades[style] ?? mats.facades.precast, { cast: true });
   addMesh(base, kit.roofs, mats.roof, { cast: true });
@@ -635,6 +635,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
       c.trees.forEach((t, i) => { const v = hash(`${t[0]}c${t[1]}`); blob.setColorAt(i, (v < 0.78 ? col.setHSL(0.22 + v * 0.05, 0.42, 0.33 + v * 0.06) : v < 0.93 ? col.setHSL(0.13 + (v - 0.78), 0.45, 0.36) : col.setHSL(0.07, 0.3, 0.3)).multiplyScalar(0.55)); });
       farOnly.add(blob);
     }
+    for (const g of Object.values(groups)) yield* batchByMaterial(g);
     return groups;
   }
 
@@ -913,7 +914,65 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   yield;
   yield* buildExtras(c, ctx, mats, { base, detail, near, cells: groups.trees });
   buildLandmarks(c, ctx, mats, { base, detail, near }, ctx.buildings);
+  for (const g of Object.values(groups)) yield* batchByMaterial(g);
   return groups;
+}
+
+/**
+ * Draw-call batching: merges the plain meshes under `g` that share a material (and
+ * draw order, shadow flags and vertex layout) into one mesh, in g's frame. A chunk's
+ * building models arrive as ~10 meshes per building and the ground, walls and props as
+ * one mesh per layer per builder pass; after this each material draws once per group.
+ * Instanced meshes (trees, cars, props) and per-cell LOD meshes are left as they are.
+ */
+export function* batchByMaterial(g: THREE.Group): Generator<void, void, void> {
+  g.updateMatrixWorld(true);
+  const inv = g.matrixWorld.clone().invert();
+  const buckets = new Map<string, THREE.Mesh[]>();
+  g.traverse(o => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || (m as THREE.InstancedMesh).isInstancedMesh || Array.isArray(m.material) || m.userData.cell || !m.visible) return;
+    const geo = m.geometry;
+    if (geo.morphAttributes && Object.keys(geo.morphAttributes).length) return;
+    if (!geo.attributes.position || (geo.attributes.position as THREE.BufferAttribute).array === null) return;
+    const layout = Object.entries(geo.attributes).map(([k, a]) => k + a.itemSize + (a.normalized ? 'n' : '')).sort().join(',');
+    const key = [m.material.uuid, m.renderOrder, m.castShadow, m.receiveShadow, m.layers.mask, layout, !!geo.index].join('|');
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key)!.push(m);
+  });
+  for (const list of buckets.values()) {
+    if (list.length < 2) continue;
+    const geos = list.map(m => {
+      const src = m.geometry.clone();
+      return src.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld));
+    });
+    const merged = mergeGeometries(geos);
+    for (const x of geos) x.dispose();
+    if (!merged) continue;
+    merged.computeBoundingSphere();
+    merged.computeBoundingBox();
+    if (import.meta.env.PROD) {
+      for (const a of Object.values(merged.attributes)) (a as THREE.BufferAttribute).onUpload(function (this: { array: unknown }) { this.array = null; });
+    }
+    const first = list[0];
+    const out = new THREE.Mesh(merged, first.material);
+    out.name = (first.material as THREE.Material).name || first.name;
+    out.castShadow = first.castShadow;
+    out.receiveShadow = first.receiveShadow;
+    out.renderOrder = first.renderOrder;
+    out.layers.mask = first.layers.mask;
+    for (const m of list) {
+      m.removeFromParent();
+      // Chunk-built geometry is owned here; model geometry is shared with its template.
+      if (!m.userData.shared) m.geometry.dispose();
+    }
+    g.add(out);
+    yield;
+  }
+  // Model groups left empty after merging.
+  const empties: THREE.Object3D[] = [];
+  g.traverse(o => { if (o !== g && !(o as THREE.Mesh).isMesh && o.children.length === 0) empties.push(o); });
+  for (const o of empties) o.removeFromParent();
 }
 
 function treeKind(t: Tree): TreeKind {

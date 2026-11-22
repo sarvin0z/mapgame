@@ -17,7 +17,7 @@ const TIMES: Record<TimeOfDay, {
   hemi: [number, number, number]; fog: number; turbidity: number; rayleigh: number; mie: number; env: number; exposure: number;
 }> = {
   // Golden hour: a low sun in the west-south-west, as on a Dallas autumn evening.
-  golden: { elev: 21, azim: 242, color: 0xffc285, intensity: 4.6, hemi: [0xa8c0e4, 0x5c4632, 0.42], fog: 0xe2d2bc, turbidity: 3.2, rayleigh: 3.0, mie: 0.0025, env: 0.22, exposure: 0.95 },
+  golden: { elev: 8, azim: 262, color: 0xffa860, intensity: 4.4, hemi: [0x8c98e0, 0x5a4636, 1.05], fog: 0xc0a4b8, turbidity: 3.0, rayleigh: 3.6, mie: 0.0035, env: 0.42, exposure: 0.98 },
   day: { elev: 52, azim: 200, color: 0xfff3e2, intensity: 4.0, hemi: [0xc4dafa, 0x6b6150, 0.5], fog: 0xd8e3ee, turbidity: 2.6, rayleigh: 1.6, mie: 0.0025, env: 0.2, exposure: 0.9 },
   night: { elev: 38, azim: 140, skySun: -9, color: 0x9fb4e0, intensity: 0.85, hemi: [0x40548a, 0x221d17, 0.85], fog: 0x101826, turbidity: 2, rayleigh: 1.2, mie: 0.002, env: 0.6, exposure: 1.45 },
 };
@@ -45,7 +45,30 @@ export class Environment {
     this.sky.material.fragmentShader = this.sky.material.fragmentShader.replace('( 760.0 * sundisc )', '( 10.0 * sundisc )');
     // A deeper, more saturated blue overhead (the stock output reads pale after filmic tone mapping).
     this.sky.material.fragmentShader = this.sky.material.fragmentShader.replace('gl_FragColor = vec4( texColor, 1.0 );',
-      'float skyL = dot(texColor, vec3(0.2126, 0.7152, 0.0722)); gl_FragColor = vec4(max(mix(vec3(skyL), texColor, 1.25), 0.0) * 0.82 + nightGlow * vec3(0.012, 0.02, 0.045), 1.0);');
+      `float skyL = dot(clearSky, vec3(0.2126, 0.7152, 0.0722));
+      vec3 sd = normalize(vWorldPosition - cameraPosition);
+      float hgt = clamp(sd.y, 0.0, 1.0);
+      float sunward = clamp(dot(normalize(sd.xz + 1e-5), normalize(vSunDirection.xz + 1e-5)) * 0.5 + 0.5, 0.0, 1.0);
+      vec3 horizonC = mix(vec3(0.95, 0.52, 0.55), vec3(1.0, 0.62, 0.26), pow(sunward, 2.0));
+      vec3 bandC = vec3(1.0, 0.42, 0.62);
+      vec3 topC = vec3(0.3, 0.36, 1.0);
+      vec3 art = mix(horizonC, bandC, smoothstep(0.02, 0.14, hgt));
+      art = mix(art, topC, smoothstep(0.08, 0.38, hgt));
+      art /= max(0.05, dot(art, vec3(0.2126, 0.7152, 0.0722)));
+      // Clear sky steered to the sunset gradient; the clouds (their difference from the clear
+      // sky) are added back on top, lit warm pink-orange, brighter toward the sun.
+      vec3 graded = mix(max(mix(vec3(skyL), clearSky, 1.25), 0.0), skyL * art * mix(1.05, 0.8, smoothstep(0.1, 0.6, hgt)), sunsetGrade);
+      vec3 cloudPart = texColor - clearSky;
+      float cloudL = dot(cloudPart, vec3(0.2126, 0.7152, 0.0722));
+      graded += cloudL * mix(vec3(1.25, 0.62, 0.7), vec3(1.5, 0.8, 0.45), sunward) * 2.2 + cloudPart * 0.3;
+      gl_FragColor = vec4(graded * 0.82 + nightGlow * vec3(0.012, 0.02, 0.045), 1.0);`);
+    this.sky.material.fragmentShader = 'uniform float sunsetGrade;\n' + this.sky.material.fragmentShader
+      .replace('vec3 texColor = ( Lin + L0 ) * 0.04 + sundiscColor + vec3( 0.0, 0.0003, 0.00075 );',
+        'vec3 texColor = ( Lin + L0 ) * 0.04 + sundiscColor + vec3( 0.0, 0.0003, 0.00075 );\nvec3 clearSky = texColor;');
+    this.sky.material.uniforms.sunsetGrade = { value: 0.82 };
+    // Scattered cirrus that the low sun lights pink and orange.
+    for (const [k, v] of [['cloudCoverage', 0.5], ['cloudDensity', 0.55], ['cloudScale', 0.00016], ['cloudElevation', 0.6]] as const)
+      if (this.sky.material.uniforms[k]) this.sky.material.uniforms[k].value = v;
     // Night: a deep navy floor so the sky is not pure black (moonlit haze).
     this.sky.material.fragmentShader = 'uniform float nightGlow;\n' + this.sky.material.fragmentShader;
     this.sky.material.uniforms.nightGlow = { value: 0 };
@@ -157,8 +180,8 @@ export class Environment {
 
   setViewDistance(d: number) {
     const fog = this.scene.fog as THREE.Fog;
-    fog.far = d * 1.05;
-    fog.near = d * 0.45;
+    fog.far = d * 1.25;
+    fog.near = d * 0.6;
   }
 
   /** Centres the shadow camera on `focus`, snapped to whole shadow-map texels so shadow edges don't crawl as the cart moves. */

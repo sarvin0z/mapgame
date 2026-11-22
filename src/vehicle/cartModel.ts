@@ -6,6 +6,7 @@
 // creates the lights.
 // Local frame: +z forward, +x left (driver side), +y up, ground at y = 0.
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { blobGeometry, occlusionMaterial } from '../world/occlusion.ts';
 import type { GolfCartConfig } from './config.ts';
@@ -193,6 +194,41 @@ function boxUV(geo: THREE.BufferGeometry, tile: number) {
   geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 }
 
+function isUnder(o: THREE.Object3D, anc: THREE.Object3D) {
+  for (let q: THREE.Object3D | null = o; q; q = q.parent) if (q === anc) return true;
+  return false;
+}
+
+/** Replaces the meshes under `root` accepted by `keep` with one mesh per material (root-local). */
+function mergeByMaterial(root: THREE.Object3D, keep: (o: THREE.Object3D) => boolean) {
+  root.updateMatrixWorld(true);
+  const inv = root.matrixWorld.clone().invert();
+  const groups = new Map<THREE.Material, THREE.Mesh[]>();
+  root.traverse(o => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || Array.isArray(m.material) || !keep(m)) return;
+    if (!groups.has(m.material)) groups.set(m.material, []);
+    groups.get(m.material)!.push(m);
+  });
+  for (const [mat, list] of groups) {
+    if (list.length < 2) continue;
+    const geos = list.map(m => {
+      const g = (m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone()).applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld));
+      for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+      if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+      return g;
+    });
+    const merged = mergeGeometries(geos);
+    if (!merged) continue;
+    const out = new THREE.Mesh(merged, mat);
+    out.castShadow = list.some(m => m.castShadow);
+    out.receiveShadow = list.some(m => m.receiveShadow);
+    out.renderOrder = list[0].renderOrder;
+    for (const m of list) m.removeFromParent();
+    root.add(out);
+  }
+}
+
 export async function loadCartModel(c: GolfCartConfig, url = 'models/uemr_cart.glb'): Promise<CartModel> {
   void c;
   const gltf = await new GLTFLoader().loadAsync(url);
@@ -252,6 +288,10 @@ export async function loadCartModel(c: GolfCartConfig, url = 'models/uemr_cart.g
     wheels.push(g);
   }
   wheels.forEach(g => g.traverse(o => { if ((o as THREE.Mesh).isMesh) o.castShadow = true; }));
+  // Draw calls: the GLB has ~100 meshes. Merge the static ones per material; the LED heads
+  // (per-head materials below) and the turning steering wheel stay separate.
+  mergeByMaterial(scene, o => !(steeringWheel && isUnder(o, steeringWheel)) && !/^LED_/.test(((o as THREE.Mesh).material as THREE.Material).name));
+  for (const g of wheels) mergeByMaterial(g.getObjectByName('spin')!, () => true);
 
   // Per-head LED materials and glow sprites (see CartModel.leds).
   const leds: CartModel['leds'] = [];

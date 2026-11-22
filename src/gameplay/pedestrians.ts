@@ -15,6 +15,8 @@ interface Walker {
   mode: Mode;
   way: Pt[]; len: number; s: number; dir: 1 | -1; speed: number; lane: number;
   dodge: number; dodgeT: number; target: number; hitCooldown: number; phase: number;
+  /** Distance culling state (see Pedestrians.ANIM_M / HIDE_M). */
+  hidden?: boolean; lazy?: number;
   shirt: THREE.Color; pants: THREE.Color; skin: THREE.Color; hair: THREE.Color; gear: THREE.Color;
 }
 
@@ -177,12 +179,32 @@ export class Pedestrians {
         w.hitCooldown = 3;
         w.dodgeT = 2; w.target = (side >= 0 ? 1 : -1) * 2.5;
       }
-      this.pose(i, w, pos, u);
+      // Distance culling: full walking animation within 55 m of the cart; beyond that the
+      // pose is only refreshed occasionally (position kept roughly right); beyond 110 m
+      // the person is hidden (instance scaled to zero) and not posed at all.
+      const far = Math.hypot(rx, ry);
+      if (far > Pedestrians.HIDE_M) {
+        if (!w.hidden) { this.hide(i); w.hidden = true; }
+      } else if (far <= Pedestrians.ANIM_M || w.hidden || (w.lazy = (w.lazy ?? 0) + dt) > 0.5) {
+        w.lazy = 0; w.hidden = false;
+        this.pose(i, w, pos, u);
+      }
     }
     const n = this.walkers.length;
     for (const im of [this.torso, this.head, this.hair, this.bike, this.board]) { im.count = n; im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true; }
     for (const im of [this.legs, this.wheels]) { im.count = n * 2; im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true; }
     return hits;
+  }
+
+  /** Walking animation runs within this distance of the cart (m); beyond, poses refresh twice a second. */
+  static readonly ANIM_M = 55;
+  /** People farther than this from the cart are hidden (m). */
+  static readonly HIDE_M = 110;
+
+  /** Hides every instance belonging to walker i. */
+  private hide(i: number) {
+    for (const im of [this.torso, this.head, this.hair, this.bike, this.board]) this.put(im, i, null, this.q);
+    for (const k of [0, 1]) { this.put(this.legs, i * 2 + k, null, this.q); this.put(this.wheels, i * 2 + k, null, this.q); }
   }
 
   /** Writes instance k of `im` at world position p with rotation q (or hides it far below). */

@@ -321,10 +321,11 @@ async function main() {
 
   // Post-processing (bloom for emergency lights) on high quality only.
   // Multisampled half-float target so the post chain keeps MSAA and HDR highlights.
-  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth, innerHeight, { type: THREE.HalfFloatType, samples: 4 }));
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth, innerHeight, { type: THREE.HalfFloatType, samples: 2 }));
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.16, 0.3, 4.0); // sun glare, lamp glow and the emergency LEDs
-  composer.addPass(bloom);
+  // Bloom (strength ~0.14 at golden hour, barely visible) cost a full mip chain per frame; left out.
+  bloom.enabled = false;
   composer.addPass(new OutputPass());
   composer.addPass(gradePass());
 
@@ -415,6 +416,8 @@ async function main() {
   let fpsFrames = 0, fpsTime = 0, fps = 60, frameMs = 0, physMs = 0, renderMs = 0;
   let physTimer = 0;
   let shadowFrame = 0;
+  /** Dynamic-resolution state: smoothed frame time (ms), render scale, cooldown (s). */
+  let dynAvg = 16, dynScale = 1, dynCool = 3;
   const bakedAt = new THREE.Vector3(Infinity, 0, 0);
   const camPos = new THREE.Vector3();
   const tmp = new THREE.Vector3();
@@ -481,6 +484,7 @@ async function main() {
     rig.update(cart, dt, now / 1000);
     camPos.copy(camera.position);
     streamer.update(camPos);
+    streamer.uploadNext(renderer, camera);
     // Baked sun shadows: the cart and pedestrians cast none (they have contact shadows),
     // so the map only changes when the area around the player does. It is re-rendered
     // when the player has moved a third of its width from where it was baked, or the
@@ -501,6 +505,23 @@ async function main() {
     const tr = performance.now();
     if (PRESETS[quality].bloom) composer.render(dt); else renderer.render(scene, camera);
     renderMs = performance.now() - tr;
+    // Dynamic resolution: the game is fill-bound on integrated GPUs (full screen at high
+    // DPI was ~2x the cost of a 2/3 window), so the render scale tracks the frame time:
+    // down when frames run over ~19 ms, back up when there is headroom (0.6x to 1x).
+    {
+      dynAvg = dynAvg * 0.92 + dt * 1000 * 0.08;
+      dynCool -= dt;
+      if (dynCool <= 0) {
+        const next = dynAvg > 19.5 ? Math.max(0.6, dynScale - 0.1) : dynAvg < 14.5 ? Math.min(1, dynScale + 0.05) : dynScale;
+        if (next !== dynScale) {
+          dynScale = next;
+          const pr = Math.min(devicePixelRatio, PRESETS[quality].pixelRatioCap) * dynScale;
+          renderer.setPixelRatio(pr);
+          composer.setPixelRatio(pr);
+          dynCool = 1.2;
+        }
+      }
+    }
 
     const f = cart.forward(new THREE.Vector3());
     const ll = unproject(cp.x, -cp.z);

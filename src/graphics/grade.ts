@@ -14,11 +14,11 @@ export function gradePass() {
         vec3 c = texture2D(tDiffuse, vUv).rgb;
         vec3 g = c;
         float l = dot(g, vec3(0.2126, 0.7152, 0.0722));
-        g = mix(vec3(l), g, 1.08);                                   // saturation
-        g = mix(g, g * g * (3.0 - 2.0 * g), 0.3);                    // contrast S-curve
-        g += mix(vec3(-0.014, -0.002, 0.018), vec3(0.03, 0.012, -0.02), smoothstep(0.1, 0.8, l)); // split tone
+        g = mix(vec3(l), g, 1.04);                                   // saturation
+        g = mix(g, g * g * (3.0 - 2.0 * g), 0.24);                    // contrast S-curve
+        g += mix(vec3(-0.012, -0.004, 0.02), vec3(0.022, 0.008, -0.016), smoothstep(0.1, 0.8, l)); // split tone
         vec2 d = vUv - 0.5;
-        g *= 1.0 - 0.16 * smoothstep(0.35, 0.85, length(d * vec2(1.25, 1.0))); // vignette
+        g *= 1.0 - 0.12 * smoothstep(0.35, 0.85, length(d * vec2(1.25, 1.0))); // vignette
         gl_FragColor = vec4(mix(c, clamp(g, 0.0, 1.0), strength), 1.0);
       }`,
   }));
