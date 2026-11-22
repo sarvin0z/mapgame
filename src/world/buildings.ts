@@ -96,12 +96,13 @@ function ledge(mb: MeshBuilder, ring: Pt[], y: number, depth: number, t: number,
 }
 
 function edges(ring: Pt[]) {
-  const r = ensureCCW(ring), out: { a: Pt; b: Pt; len: number; u: Pt; n: Pt }[] = [];
+  const r = ensureCCW(ring), out: { a: Pt; b: Pt; len: number; u: Pt; n: Pt; acc: number }[] = [];
+  let acc = 0;
   for (let i = 0; i < r.length; i++) {
     const a = r[i], b = r[(i + 1) % r.length], len = Math.hypot(b[0] - a[0], b[1] - a[1]);
-    if (len < 0.05) continue;
-    const u: Pt = [(b[0] - a[0]) / len, (b[1] - a[1]) / len];
-    out.push({ a, b, len, u, n: [u[1], -u[0]] }); // n: outward normal of a CCW ring
+    // `acc`: distance around the ring to this edge's start, as addWalls lays the facade texture.
+    if (len >= 0.05) { const u: Pt = [(b[0] - a[0]) / len, (b[1] - a[1]) / len]; out.push({ a, b, len, u, n: [u[1], -u[0]], acc }); } // n: outward normal of a CCW ring
+    acc += len;
   }
   return out;
 }
@@ -438,15 +439,31 @@ function villageExtras(b: Building, outer: Pt[], s: Seat, kit: BuildingKit) {
   for (const e of walls) {
     // Centred on the wall, or beside the breezeway opening where the wall has one.
     const o = bw?.openings?.find(q => Math.hypot(q.a[0] - e.a[0], q.a[1] - e.a[1]) < 0.5 && Math.abs(q.len - e.len) < 0.5);
-    const along = o && o.end + 1.6 < o.len - 0.9 ? o.end + 1.6 : e.len / 2;
-    numberPlaque(kit.numbers, e, along, wallTop - 1.4, num);
+    const want = o && o.end + 1.6 < o.len - 0.9 ? o.end + 1.6 : e.len / 2;
+    // The facade repeats one window per bay, centred, so the plain brick between windows is at
+    // each bay boundary. Snap the plaque onto the nearest one (clear of any breezeway opening),
+    // so it never covers a window.
+    const bay = 4.4; // the villageStone facade bay (textures.ts)
+    let along = want, best = Infinity;
+    for (let k = Math.ceil(e.acc / bay); k * bay <= e.acc + e.len; k++) {
+      const t = k * bay - e.acc;
+      if (t < 0.9 || t > e.len - 0.9 || (o && t < o.end + 0.9)) continue;
+      if (Math.abs(t - want) < best) { best = Math.abs(t - want); along = t; }
+    }
+    // Vertically: centred in the top storey, between its floor band (as `pitched` lays the bands)
+    // and the eaves, and sized to fit there, so no band or trim crosses it.
+    const storeys = b.levels ?? Math.max(1, Math.round((b.h - 1.5) / 3.0));
+    const lo = storeys > 1 ? s.base + (storeys - 1) * 3.0 + 0.05 : s.base + 1, hi = wallTop - 0.35;
+    const size = Math.max(0.9, Math.min(1.6, hi - lo - 0.3));
+    numberPlaque(kit.numbers, e, along, hi > lo ? (lo + hi) / 2 : wallTop - 1.4, num, size);
   }
 }
 
 /** Number atlas layout (see textures.numberAtlas): 9 columns x 8 rows, numbers 1..72. */
 const NUMBER_COLS = 9, NUMBER_ROWS = 8, NUMBER_CELLS = NUMBER_COLS * NUMBER_ROWS;
-function numberPlaque(mb: MeshBuilder, e: { a: Pt; u: Pt; n: Pt }, along: number, y: number, num: number) {
-  const size = 1.6, out = 0.06;
+function numberPlaque(mb: MeshBuilder, e: { a: Pt; u: Pt; n: Pt }, along: number, y: number, num: number, size = 1.6) {
+  // Stood 12 cm proud of the wall: far enough that the depth buffer never mixes the two (flicker).
+  const out = 0.12;
   const c: Pt = [e.a[0] + e.u[0] * along + e.n[0] * out, e.a[1] + e.u[1] * along + e.n[1] * out];
   const p0: Pt = [c[0] - e.u[0] * size / 2, c[1] - e.u[1] * size / 2], p1: Pt = [c[0] + e.u[0] * size / 2, c[1] + e.u[1] * size / 2];
   const k = num - 1, col = k % NUMBER_COLS, row = Math.floor(k / NUMBER_COLS);

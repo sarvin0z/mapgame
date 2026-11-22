@@ -33,10 +33,46 @@ import { Menus } from './ui/menus.ts';
 import { RouteChallenge } from './gameplay/routeChallenge.ts';
 import { Pedestrians } from './gameplay/pedestrians.ts';
 import { Siren, Horn } from './audio/siren.ts';
+import { CartAudio } from './audio/cartAudio.ts';
+import { cue } from './audio/sfx.ts';
+import { unlockAudio, duckVehicle, muteVehicle, volumes, setVolumes } from './audio/mixer.ts';
+import { TouchControls, bindSoundSettings } from './ui/touchControls.ts';
 import { unproject } from './geo/projection.ts';
 
 const loading = document.getElementById('loading')!;
-const setLoading = (t: string) => { loading.querySelector('p')!.textContent = t; };
+const setLoading = (t: string) => { document.getElementById('load-msg')!.textContent = t; };
+
+/**
+ * Loading percentage. Real milestones set a floor (`at`) and the ceiling of the current stage
+ * (`cap`); between milestones the figure creeps toward the ceiling so it never looks stalled,
+ * and the shown number eases toward its target every frame, so it counts up smoothly.
+ */
+const loader = (() => {
+  const pct = document.getElementById('load-pct')!.firstChild!, bar = document.getElementById('load-bar')!, meter = loading.querySelector('.load-meter')!;
+  let target = 0, cap = 4, shown = 0, last = performance.now(), stop = false;
+  const tick = (now: number) => {
+    if (stop) return;
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    target = Math.min(cap, target + dt * 2.5);
+    shown += (target - shown) * (1 - Math.exp(-dt * 7));
+    const v = Math.min(100, Math.floor(shown + 0.02));
+    pct.nodeValue = String(v);
+    bar.style.transform = `scaleX(${(shown / 100).toFixed(4)})`;
+    meter.setAttribute('aria-valuenow', String(v));
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  // Frames can stall (a background tab, a long main-thread step); a timer keeps the count moving.
+  const timer = setInterval(() => { if (stop) clearInterval(timer); else if (performance.now() - last > 90) tick(performance.now()); }, 100);
+  return {
+    /** A milestone: progress is at least `at`, and may creep up to `cap` before the next one. */
+    set(at: number, cap2: number, msg?: string) { target = Math.max(target, at); cap = Math.max(cap2, target); if (msg) setLoading(msg); },
+    /** Lets the browser paint the new figure before a long synchronous step. */
+    paint: () => new Promise<void>(r => { let done = false; const go = () => { if (!done) { done = true; r(); } }; requestAnimationFrame(() => requestAnimationFrame(go)); setTimeout(go, 80); }),
+    /** Runs the count to 100 %; resolves when it shows. */
+    async finish() { target = cap = 100; for (let i = 0; i < 40 && shown < 99.5; i++) await new Promise(r => setTimeout(r, 16)); stop = true; pct.nodeValue = '100'; bar.style.transform = 'scaleX(1)'; },
+  };
+})();
 
 /**
  * Spawn on the drivable road nearest to a named building, facing along the road.
@@ -68,16 +104,20 @@ function findSpawn(data: CampusData, terrain: Terrain, landmark: string) {
 }
 
 async function main() {
-  setLoading('Loading campus map data…');
+  loader.set(2, 50, 'Loading campus map data…');
+  // Each download that lands moves the bar (seven files and modules, about half the load).
+  let got = 0;
+  const track = <T,>(p: Promise<T>) => p.then(v => { got++; loader.set(4 + got * 6.5, 50); return v; });
   const T_LOAD = { start: performance.now(), fetched: 0 };
   let bakedVersion = -1;
   /** True while the dev comment tool (3D-Agentation-Editor) is in marking mode. */
   let marking = false;
   const params = new URLSearchParams(location.search);
-  const [data, terrain, R, cartModel, cars, models] = await Promise.all([loadCampus(), Terrain.load(), initRapier(), loadCartModel(DEFAULT_CART), loadCars().catch(() => []), (() => { const photos = loadPhotos(); return loadBuildingModels(undefined, photos); })()]);
-  const solids = await loadBuildingSolids();
+  const [data, terrain, R, cartModel, cars, models] = await Promise.all([track(loadCampus()), track(Terrain.load()), track(initRapier()), track(loadCartModel(DEFAULT_CART)), track(loadCars().catch(() => [])), track((() => { const photos = loadPhotos(); return loadBuildingModels(undefined, photos); })())]);
+  const solids = await track(loadBuildingSolids());
   T_LOAD.fetched = performance.now();
-  setLoading('Building campus…');
+  loader.set(52, 66, 'Building campus…');
+  await loader.paint();
   const chunks = partition(data);
   const tm = terrain.meta;
   ensureChunks(chunks, tm.x0, tm.y0, tm.x0 + (tm.nx - 1) * tm.step, tm.y0 + (tm.ny - 1) * tm.step);
@@ -159,8 +199,8 @@ async function main() {
   // Not the cart: its clear polycarbonate windshield, boosted, flashed white across the open cabin as the cart moved.
   for (const m of models.values()) boostTree(m);
 
-  let quality: QualityName = (params.get('quality') as QualityName) ?? 'high';
-  if (!ORDER.includes(quality)) quality = 'high';
+  let quality: QualityName = (params.get('quality') as QualityName) ?? 'medium';
+  if (!ORDER.includes(quality)) quality = 'medium';
   const adaptive = new AdaptiveQuality(quality);
   if (params.has('quality')) adaptive.enabled = false;
 
@@ -202,6 +242,8 @@ async function main() {
   const hud = new Hud(data);
   const siren = new Siren();
   const horn = new Horn();
+  const cartAudio = new CartAudio();
+  unlockAudio();
 
   // Route Challenge (gameplay layer): network-following runs from the UEMR apartment.
   const startPt: Pt = [spawn.pos.x, -spawn.pos.z];
@@ -250,12 +292,30 @@ async function main() {
       if (q === 'auto') { adaptive.enabled = true; return; }
       adaptive.enabled = false; adaptive.current = q as QualityName; applyQuality(q as QualityName);
     },
-    menuOpen: open => { menuOpen = open; },
+    menuOpen: open => { menuOpen = open; muteVehicle(open); },
     time: t => applyTime(t as TimeOfDay),
     // Read from the form: this runs while Menus is still being constructed.
     deployPoint: () => { const sp = starts[(document.getElementById('start-select') as HTMLSelectElement).value as keyof typeof starts] ?? starts.uv11; return [sp.pos.x, -sp.pos.z]; },
     thumb: d => destinationPhoto(d),
+    cue,
   });
+  // Phones and tablets: drive stick, dispatch pill, Pause and Accessibility.
+  const touch = new TouchControls(input, { pause: () => { if (!menus.isOpen) menus.open(); } });
+  touch.onPrefs = p => { rig.reducedMotion = p.reduce; };
+  rig.reducedMotion = touch.prefs.reduce;
+  // Settings > Sound, and the HUD sound button (mute toggle) kept in step with it.
+  const syncMute = bindSoundSettings(() => volumes, v => setVolumes(v));
+  touch.onButton = id => {
+    if (id === 'sound') { setVolumes({ muted: !volumes.muted }); syncMute(volumes.muted); return; }
+    hud.onChip(id);
+  };
+  // A soft tick on every menu and HUD button press (switches get a higher one).
+  addEventListener('pointerdown', e => {
+    const el = (e.target as HTMLElement).closest?.('button, label.switch, select');
+    if (el && !el.closest('#touch')) cue(el.matches('label.switch') ? 'toggle' : 'tap');
+  }, { capture: true });
+  /** Speed bumps and kerbs: a sharp rise in vertical speed; a short cooldown per bump. */
+  let lastVy = 0, bumpFeel = 0, lastGear = '';
 
   /**
    * A photo of a destination for the dispatch cards, rendered from the game: from the
@@ -364,8 +424,8 @@ async function main() {
   input.onAction = a => {
     switch (a) {
       case 'camera': rig.cycle(); break;
-      case 'lights': cart.lightsOn = !cart.lightsOn; break;
-      case 'headlights': cart.headlightsOn = !cart.headlightsOn; break;
+      case 'lights': cart.lightsOn = !cart.lightsOn; cartAudio.click(true); break;
+      case 'headlights': cart.headlightsOn = !cart.headlightsOn; cartAudio.click(); break;
       case 'siren': siren.toggle(); break;
       case 'horn': horn.toggle(); break;
       case 'location': hud.toggleLocation(); break;
@@ -391,14 +451,17 @@ async function main() {
     composer.setSize(innerWidth, innerHeight);
   });
 
-  setLoading('Streaming nearby chunks…');
+  loader.set(68, 86, 'Streaming nearby chunks…');
+  await loader.paint();
   const tWarm = performance.now();
   streamer.warm(spawn.pos);
   const tCompile = performance.now();
   // No black frames at start: compile every shader the scene uses (asynchronously, off the
   // main thread where the driver allows), bake the shadows and draw two frames behind the
   // loading screen, then reveal. Uncompiled programs were drawing nothing on first use.
-  setLoading('Preparing graphics…');
+  loader.set(88, 97, 'Preparing graphics…');
+  await loader.paint();
+  cart.syncVisual(0, { pointLights: PRESETS[quality].pointLights });
   rig.update(cart, 0.016, 0);
   env.follow(cart.position(new THREE.Vector3()));
   // The first frames compile what the opening view needs; everything else in view range
@@ -410,9 +473,10 @@ async function main() {
   }
   void renderer.compileAsync(scene, camera).catch(() => {});
   console.info(`[load] fetch ${Math.round(T_LOAD.fetched - T_LOAD.start)} ms, setup ${Math.round(tWarm - T_LOAD.fetched)} ms, warm ${Math.round(tCompile - tWarm)} ms, compile ${Math.round(performance.now() - tCompile)} ms`);
-  loading.style.transition = 'opacity 0.35s ease-out';
-  loading.style.opacity = '0';
-  setTimeout(() => loading.remove(), 380);
+  setLoading('Ready');
+  await loader.finish();
+  loading.classList.add('done');
+  setTimeout(() => loading.remove(), 420);
   menus.open();
 
   const FIXED = physics.world.timestep;
@@ -460,16 +524,18 @@ async function main() {
 
     const driving = !marking && rig.mode !== 'free' && !menuOpen && rc.phase !== 'countdown' && rc.phase !== 'finished';
     const k = input.keys;
-    const fwd = driving ? input.axis([], ['KeyW', 'ArrowUp']) : 0;
-    // Held brake while the cart is not under the player's control (menus, countdown).
-    const back = driving ? input.axis([], ['KeyS', 'ArrowDown']) : (rig.mode !== 'free' ? 0 : 0);
-    const steer = driving ? input.axis(['KeyD', 'ArrowRight'], ['KeyA', 'ArrowLeft']) : (k.has('ArrowLeft') ? 1 : 0) - (k.has('ArrowRight') ? 1 : 0);
+    // Keyboard, tap pads and the touch stick (analog: partial pedal and steering) combine.
+    const st = input.analog;
+    const fwd = driving ? Math.max(input.axis([], ['KeyW', 'ArrowUp']), Math.max(0, st.y)) : 0;
+    const back = driving ? Math.max(input.axis([], ['KeyS', 'ArrowDown']), Math.max(0, -st.y)) : 0;
+    const steer = driving ? THREE.MathUtils.clamp(input.axis(['KeyD', 'ArrowRight'], ['KeyA', 'ArrowLeft']) - st.x, -1, 1) : (k.has('ArrowLeft') ? 1 : 0) - (k.has('ArrowRight') ? 1 : 0);
     const di = cart.mapKeys(fwd, back, steer, k.has('Space') || (!driving && rig.mode !== 'free'));
 
     acc += dt;
     let steps = 0;
     const tp = performance.now();
     while (acc >= FIXED && steps < 10) {
+      cart.snapshot();
       cart.update(di, FIXED);
       physics.step();
       acc -= FIXED;
@@ -483,7 +549,7 @@ async function main() {
 
     foliageTime.value = sim.freezeFoliage ?? now / 1000;
     mats.layers.water.normalMap?.offset.set(foliageTime.value * 0.012, foliageTime.value * 0.008);
-    cart.syncVisual(dt, { pointLights: PRESETS[quality].pointLights });
+    cart.syncVisual(dt, { pointLights: PRESETS[quality].pointLights }, Math.min(1, acc / FIXED));
     rig.update(cart, dt, now / 1000);
     camPos.copy(camera.position);
     streamer.update(camPos);
@@ -536,13 +602,33 @@ async function main() {
       bumpCooldown -= dt;
       const jumped = cp.distanceTo(lastPos) > 3; // reset or recovery, not a crash
       lastPos.copy(cp);
-      if (!jumped && rc.phase === 'running' && dt > 0 && dv / dt > 16 && lastVel.length() > 2 && v.length() < lastVel.length() - 1.2 && bumpCooldown <= 0) {
-        rc.collision();
+      if (!jumped && dt > 0 && dv / dt > 16 && lastVel.length() > 2 && v.length() < lastVel.length() - 1.2 && bumpCooldown <= 0) {
+        if (rc.phase === 'running') rc.collision();
         bumpCooldown = 1.5;
+        // Impact feedback scaled by the speed lost: camera shake, a thump, a short buzz on phones.
+        const hit = Math.min(1, (lastVel.length() - v.length()) / 6);
+        rig.kick(0.3 + hit * 0.45);
+        cartAudio.thump(0.5 + hit * 0.5);
+        if (touch.enabled && navigator.userActivation?.hasBeenActive) navigator.vibrate?.(30 + Math.round(hit * 40));
       }
       lastVel.copy(v);
+      // Speed bumps and kerbs: a small kick and thump, scaled by how hard the wheels hit.
+      bumpFeel -= dt;
+      const dvy = lv.y - lastVy;
+      lastVy = lv.y;
+      if (!jumped && dvy > 1.1 && bumpFeel <= 0 && v.length() > 1) {
+        const s = Math.min(1, (dvy - 1.1) / 2.5);
+        rig.kick(0.1 + s * 0.2);
+        cartAudio.thump(0.18 + s * 0.35);
+        bumpFeel = 0.3;
+      }
+      // Motor whirr follows road speed and pedal; ducks under the siren and horn.
+      cartAudio.update(menuOpen ? 0 : cart.speed, driving ? di.throttle : 0, onNetwork([cp.x, -cp.z]) ? 0 : 1, driving ? di.brake : 0);
+      duckVehicle(siren.on || horn.on);
+      if (cart.gear !== lastGear) { if (lastGear) cartAudio.click(); lastGear = cart.gear; }
     }
     menus.update([cp.x, -cp.z]);
+
     if (rc.phase !== 'idle') hud.overlay.trail = rc.trail;
     beacon.rotation.y += dt * 0.8;
     beacon.visible = (rc.phase === 'running' || rc.phase === 'countdown') && rc.assist.beam;
@@ -553,6 +639,7 @@ async function main() {
       menus.showResult(rc.result, { image: hud.mapImage, bounds: hud.bounds, scale: hud.MAP_SCALE }, rc.optimal!.pts, rc.trail);
     }
 
+    touch.update(dt, { mph: Math.abs(cart.speed) * 2.23694, gear: cart.gear, lights: cart.lightsOn, siren: siren.on, horn: horn.on, headlights: cart.headlightsOn, muted: volumes.muted });
     hud.update({
       speedMS: cart.speed, gear: cart.gear, x: cp.x, z: cp.z, heading: -Math.atan2(f.x, -f.z),
       lights: cart.lightsOn, siren: siren.on, horn: horn.on, headlights: cart.headlightsOn, camera: rig.mode, lat: ll.lat, lon: ll.lon,

@@ -176,7 +176,8 @@ export class CampusMaterials {
   hedge = new THREE.MeshStandardMaterial({ map: tex.leafTexture(), color: 0x6f8f4a, roughness: 1, vertexColors: true });
   bollard = new THREE.MeshStandardMaterial({ color: 0x3a3c3f, roughness: 0.5, metalness: 0.4 });
   hvac = new THREE.MeshStandardMaterial({ color: 0xb4b8bb, roughness: 0.5, metalness: 0.5 });
-  stopSign = new THREE.MeshStandardMaterial({ map: tex.signTexture('stop'), roughness: 0.5 });
+  // Retroreflective sheeting: a touch of self-light so the red face stays vivid in shade and dusk.
+  stopSign = ((t: THREE.Texture) => new THREE.MeshStandardMaterial({ map: t, roughness: 0.45, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.22 }))(tex.signTexture('stop'));
   numbers = new THREE.MeshStandardMaterial({ map: tex.numberAtlas(), roughness: 0.45, metalness: 0.3 });
   yieldSign = new THREE.MeshStandardMaterial({ map: tex.signTexture('yield'), roughness: 0.5, transparent: true, alphaTest: 0.5 });
   signalHead = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.4, emissive: 0x000000 });
@@ -428,8 +429,10 @@ function getShared() {
     // Square post centred behind the panel. Panels start at the right angle (thetaStart) rather than
     // being rotated afterwards, so their UVs line up with the drawn sign. Stop: 30 in (0.76 m across
     // flats), bottom edge 7 ft up; yield: 36 in triangle.
-    signPost: new THREE.BoxGeometry(0.05, 2.75, 0.05).translate(0, 1.375, -0.04),
-    stopFace: signFace(new THREE.CircleGeometry(0.762 / 2 / Math.cos(Math.PI / 8), 8, Math.PI / 8), 2.5),
+    // Stop signs are drawn a size up (36 in, the larger MUTCD size) on a stouter post so they
+    // read from the driver's seat at speed.
+    signPost: new THREE.BoxGeometry(0.07, 2.85, 0.07).translate(0, 1.425, -0.05),
+    stopFace: signFace(new THREE.CircleGeometry(0.915 / 2 / Math.cos(Math.PI / 8), 8, Math.PI / 8), 2.55),
     yieldFace: signFace(new THREE.CircleGeometry(0.53, 3, -Math.PI / 2), 2.45),
   };
   return shared;
@@ -447,6 +450,8 @@ export function instanced(geo: THREE.BufferGeometry, mat: THREE.Material, n: num
 
 /** Objects on this layer are drawn only into the sun's shadow map (see Environment). */
 export const SHADOW_ONLY_LAYER = 1;
+/** Which build stage is running (diagnostics for frame hitches). */
+export const buildProbe = { stage: '' };
 
 export interface BuiltChunk {
   base: THREE.Group;
@@ -507,6 +512,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   const rnd = (seed: number) => hash(`${c.cx},${c.cy},${seed}`);
 
   // --- Terrain ---
+  buildProbe.stage = 'terrain';
   for (const [group, lod] of (far ? [[coarse, 4]] : [[near, 1], [coarse, 4]]) as [THREE.Group, number][]) {
     const mesh = new THREE.Mesh(T.buildMesh(x0, y0, x0 + CHUNK_SIZE, y0 + CHUNK_SIZE, lod), mats.terrain);
     mesh.receiveShadow = true;
@@ -519,6 +525,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
 
   yield;
   // --- Ground surfaces ---
+  buildProbe.stage = 'ground';
   // Ground layers are draped twice: cut along the 2 m terrain grid for the near range,
   // and along an 8 m grid beyond it (true heights, so far markings and decals still sit
   // on them; the coarse terrain there is sunk 0.35 m below), at about a quarter of the
@@ -551,7 +558,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     if (isNear) for (const w of c.waterways) addDrapedRibbon(lb('water', LAYER.water), w.pts, w.w, src, LIFT.water, AREA_STYLE.water.color, 6);
     let nr = 0;
     for (const r of c.roads) {
-      if (++nr % 15 === 0) yield;
+      if (++nr % 5 === 0) yield;
       // Round caps and joins make ways that meet at junctions and bends read as one surface.
       if (r.promenade) addDrapedRibbon(lb('promenade', LAYER.path), r.pts, r.w, src, LIFT.path + 0.002, [1, 1, 1], 3, r.w / 3, 'all');
       else if (DRIVABLE.has(r.cls)) addDrapedRibbon(lb('road', LAYER.road), r.pts, r.w, src, LIFT.road, r.cls === 'construction' ? [1.2, 1.1, 1.0] : [1, 1, 1], 8, r.w / 8, 'all');
@@ -562,13 +569,14 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
         for (const piece of pieces) addDrapedRibbon(lb('path', LAYER.path), piece, r.w, src, LIFT.path, PATH_COLOR[r.cls] ?? PATH_COLOR.default, 1.5, r.w / 1.5, 'all');
       }
     }
-    for (const [k, { mb, order }] of layers) addMesh(k === 'water' && (isNear || far) ? base : isNear ? near : k === 'path' || k === 'promenade' ? mid : coarse, mb, mats.layers[k], { order });
+    for (const [k, { mb, order }] of layers) { addMesh(k === 'water' && (isNear || far) ? base : isNear ? near : k === 'path' || k === 'promenade' ? mid : coarse, mb, mats.layers[k], { order }); yield; }
     yield;
   }
   addMesh(detail, islands, mats.curb);
 
   yield;
   // --- Buildings ---
+  buildProbe.stage = 'buildings';
   const walls = new Map<string, MeshBuilder>();
   const kit: BuildingKit = {
     walls: (style: string) => { if (!walls.has(style)) walls.set(style, new MeshBuilder()); return walls.get(style)!; },
@@ -605,7 +613,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
       continue;
     }
     buildBuilding(b, T, mats.styles, kit);
-    if (++nb % 4 === 0) yield;
+    if (++nb % 2 === 0) yield;
   }
   for (const [style, mb] of walls) addMesh(base, mb, mats.facades[style] ?? mats.facades.precast, { cast: true });
   addMesh(base, kit.roofs, mats.roof, { cast: true });
@@ -641,6 +649,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
 
   yield;
   // --- Markings ---
+  buildProbe.stage = 'markings';
   const marks = new Map<string, MeshBuilder>([['y', new MeshBuilder()], ['w', new MeshBuilder()]]);
   // Lane lines stop short of intersections, as painted lines do.
   const clear = (pts: Pt[], r: number) => trimNear(pts, q => ctx.junctionNear(q, r));
@@ -736,6 +745,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
 
   yield;
   // --- Curbs, bumps, stairs, barriers ---
+  buildProbe.stage = 'curbs';
   const curb = new MeshBuilder();
   // Curb and gutter: a 15 cm concrete curb with a 0.45 m concrete gutter pan on the road side.
   const gutter = new MeshBuilder();
@@ -833,6 +843,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
 
   yield;
   // --- Trees ---
+  buildProbe.stage = 'trees';
   if (c.trees.length) {
     const byKind: Record<TreeKind, Tree[]> = { spreading: [], round: [], columnar: [] };
     for (const t of c.trees) byKind[treeKind(t)].push(t);
@@ -890,6 +901,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
 
   yield;
   // --- Street furniture ---
+  buildProbe.stage = 'furniture';
   const yawOf = (p: Pt, k: number) => rnd(k + Math.round(p[0] * 7 + p[1] * 13)) * 6.28;
   const put = (pts: Pt[], geo: THREE.BufferGeometry, mat: THREE.Material, group: THREE.Group, cast: boolean, salt: number) => {
     if (!pts.length) return;
@@ -912,8 +924,11 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   put(c.bins, S.bin, mats.metal, near, false, 9);
 
   yield;
+  buildProbe.stage = 'extras';
   yield* buildExtras(c, ctx, mats, { base, detail, near, cells: groups.trees });
+  buildProbe.stage = 'landmarks';
   buildLandmarks(c, ctx, mats, { base, detail, near }, ctx.buildings);
+  buildProbe.stage = 'batch';
   for (const g of Object.values(groups)) yield* batchByMaterial(g);
   return groups;
 }
@@ -940,7 +955,17 @@ export function* batchByMaterial(g: THREE.Group): Generator<void, void, void> {
     if (!buckets.has(key)) buckets.set(key, []);
     buckets.get(key)!.push(m);
   });
+  const parts: THREE.Mesh[][] = [];
   for (const list of buckets.values()) {
+    let cur: THREE.Mesh[] = [], verts = 0;
+    for (const m of list) {
+      const n = m.geometry.attributes.position.count;
+      if (cur.length && verts + n > 30000) { parts.push(cur); cur = []; verts = 0; }
+      cur.push(m); verts += n;
+    }
+    if (cur.length) parts.push(cur);
+  }
+  for (const list of parts) {
     if (list.length < 2) continue;
     const geos = list.map(m => {
       const src = m.geometry.clone();

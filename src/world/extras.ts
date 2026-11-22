@@ -29,6 +29,9 @@ const CAR_COLORS = [0xf2f2f0, 0xf2f2f0, 0xe8e8e6, 0x1a1b1e, 0x1a1b1e, 0x6b6e72, 
 
 export function* buildExtras(c: ChunkContent, ctx: WorldContext, mats: CampusMaterials, g: ExtraGroups): Generator<void, void, void> {
   const T = ctx.terrain;
+  // Stall layout first (the costly part; cached for buildParking and physics), then meshes.
+  computeStalls(c, ctx);
+  yield;
   buildParking(c, ctx, mats, g);
   yield;
   for (const a of c.areas) {

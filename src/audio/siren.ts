@@ -8,8 +8,9 @@
 //  the horn's band-pass, with a short slap-back echo off nearby buildings.
 //  Horn: a momentary car horn press, about a second: the usual pair of
 //  disc horns (about 420 and 510 Hz) as buzzy, clipped tones.
-let shared: AudioContext | null = null;
-const ctx = () => (shared ??= new AudioContext());
+import { audio } from './mixer.ts';
+
+const ctx = () => audio().ctx;
 
 function speakerChain(c: AudioContext, gain: number, drive = 4) {
   const shaper = c.createWaveShaper();
@@ -20,7 +21,7 @@ function speakerChain(c: AudioContext, gain: number, drive = 4) {
   const peak = c.createBiquadFilter(); peak.type = 'peaking'; peak.frequency.value = 1400; peak.gain.value = 7; peak.Q.value = 0.9;
   const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3800; lp.Q.value = 0.5;
   const out = c.createGain(); out.gain.value = gain;
-  shaper.connect(hp).connect(peak).connect(lp).connect(out).connect(c.destination);
+  shaper.connect(hp).connect(peak).connect(lp).connect(out).connect(audio().siren);
   // Slap-back echo off nearby walls.
   const echo = c.createDelay(0.5); echo.delayTime.value = 0.11;
   const eg = c.createGain(); eg.gain.value = 0.22;
@@ -115,6 +116,7 @@ export class Horn {
       return o;
     });
     void oscs;
+    setTimeout(() => chain.out.disconnect(), seconds * 1000 + 300);
     this.on = true;
     this.until = performance.now() + seconds * 1000;
     setTimeout(() => { if (performance.now() >= this.until - 5) this.on = false; }, seconds * 1000);

@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import type { ChunkContent } from './chunks.ts';
 import { CHUNK_SIZE } from './chunks.ts';
-import { buildChunk, buildChunkSteps, type BuiltChunk, type CampusMaterials, type WorldContext } from './campusBuilder.ts';
+import { buildProbe, buildChunk, buildChunkSteps, type BuiltChunk, type CampusMaterials, type WorldContext } from './campusBuilder.ts';
 
 export interface StreamSettings {
   viewDistance: number;
@@ -26,6 +26,7 @@ export class WorldStreamer {
   private uploads: THREE.Group[] = [];
   /** Longest single build step seen (diagnostics: a step longer than a frame is a hitch). */
   slowStep = { ms: 0, at: '' };
+  slowByStage: Record<string, number> = {};
   stats = { loaded: 0, visible: 0, detailVisible: 0, nearVisible: 0 };
 
   constructor(private chunks: Map<string, ChunkContent>, private mats: CampusMaterials, private ctx: WorldContext, public settings: StreamSettings) {
@@ -84,7 +85,7 @@ export class WorldStreamer {
     } else if (buildBudget > 0) {
       // Time-sliced: continue the chunk in progress, then start the most urgent pending one.
       const t0 = performance.now();
-      while (performance.now() - t0 < this.buildBudgetMs) {
+      while (performance.now() - t0 < this.buildBudgetMs * 0.5) {
         if (!this.building) {
           const next = pending.shift();
           if (!next) break;
@@ -93,7 +94,8 @@ export class WorldStreamer {
         const ts = performance.now();
         const r = this.building.it.next();
         const step = performance.now() - ts;
-        if (step > this.slowStep.ms) this.slowStep = { ms: step, at: this.building.key + (this.building.far ? ' far' : ' full') };
+        if (step > this.slowStep.ms) this.slowStep = { ms: step, at: this.building.key + (this.building.far ? ' far ' : ' full ') + buildProbe.stage };
+        if (step > 8) this.slowByStage[buildProbe.stage] = Math.max(this.slowByStage[buildProbe.stage] ?? 0, Math.round(step));
         if (r.done) { this.add(this.building.key, r.value, this.building.far); this.building = null; }
       }
     }

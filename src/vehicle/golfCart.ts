@@ -128,11 +128,35 @@ export class GolfCart {
     this.vc.updateVehicle(dt);
   }
 
-  /** Sync the visual model with the physics state; call once per rendered frame. */
-  syncVisual(dt: number, quality: { pointLights: boolean }) {
+  /** Body pose before the latest physics step, for interpolating the drawn cart. */
+  private prevT = new THREE.Vector3();
+  private prevQ = new THREE.Quaternion();
+  private curT = new THREE.Vector3();
+  private curQ = new THREE.Quaternion();
+  private hasPrev = false;
+
+  /** Call before each fixed physics step: remembers the pose the step starts from. */
+  snapshot() {
     const t = this.body.translation(), q = this.body.rotation();
-    this.model.root.position.set(t.x, t.y, t.z);
-    this.model.root.quaternion.set(q.x, q.y, q.z, q.w);
+    this.prevT.set(t.x, t.y, t.z); this.prevQ.set(q.x, q.y, q.z, q.w);
+    this.hasPrev = true;
+  }
+
+  /**
+   * Sync the visual model with the physics state; call once per rendered frame. `alpha` is how
+   * far the frame is between the last two physics steps (0..1): the drawn cart is interpolated
+   * between them, so it moves evenly however many fixed steps a frame happened to run.
+   */
+  syncVisual(dt: number, quality: { pointLights: boolean }, alpha = 1) {
+    const t = this.body.translation(), q = this.body.rotation();
+    this.curT.set(t.x, t.y, t.z); this.curQ.set(q.x, q.y, q.z, q.w);
+    if (this.hasPrev && this.prevT.distanceToSquared(this.curT) < 4) {
+      this.model.root.position.lerpVectors(this.prevT, this.curT, alpha);
+      this.model.root.quaternion.slerpQuaternions(this.prevQ, this.curQ, alpha);
+    } else {
+      this.model.root.position.copy(this.curT);
+      this.model.root.quaternion.copy(this.curQ);
+    }
     for (let i = 0; i < 4; i++) {
       const g = this.model.wheels[i];
       const c = this.vc.wheelChassisConnectionPointCs(i)!;
@@ -187,6 +211,7 @@ export class GolfCart {
     this.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
     this.gear = 'F';
     this.steerCenter = 0;
+    this.hasPrev = false;
   }
 
   /** Flip upright in place, keeping heading. */

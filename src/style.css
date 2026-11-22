@@ -54,11 +54,22 @@ kbd { display: inline-block; min-width: 22px; padding: 1px 6px 2px; border-radiu
 .mono.sm b { font-size: 13px; }
 
 /* ------------------------------------------------------------ loading */
-#loading { position: fixed; inset: 0; z-index: 50; display: grid; place-content: center; justify-items: center; gap: 22px; background: radial-gradient(circle at 50% 40%, #1d1712, #0b0a09 70%); }
-#loading p { margin: 0; color: var(--muted); font-size: 13px; }
-.bar { width: 260px; height: 3px; border-radius: 3px; background: rgba(255, 240, 220, 0.1); overflow: hidden; }
-.bar i { display: block; width: 40%; height: 100%; background: var(--orange); animation: load 1.2s linear infinite; }
-@keyframes load { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+#loading { position: fixed; inset: 0; z-index: 50; display: grid; place-content: center; justify-items: center; gap: 30px; background: radial-gradient(circle at 50% 40%, #1d1712, #0b0a09 70%);
+  transition: opacity 400ms ease-out; }
+#loading.done { opacity: 0; pointer-events: none; }
+.load-meter { display: grid; justify-items: center; gap: 12px; width: min(300px, 80vw); }
+/* The percentage counts up smoothly (eased in script); tabular figures keep it from jittering. */
+#load-pct { font: 700 54px/1 var(--display); color: var(--fg); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+#load-pct small { margin-left: 2px; font-size: 24px; color: var(--muted); }
+.bar { width: 100%; height: 4px; border-radius: 4px; background: rgba(255, 240, 220, 0.1); overflow: hidden; }
+.bar i { display: block; width: 100%; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--orange), var(--orange-hi)); transform: scaleX(0); transform-origin: left; }
+#load-msg { margin: 0; color: var(--muted); font-size: 13px; min-height: 1.4em; }
+#loading .credit { position: absolute; left: 0; right: 0; bottom: calc(22px + env(safe-area-inset-bottom)); text-align: center; }
+.credit { margin: 0; color: var(--faint); font-size: 12px; letter-spacing: 0.03em; }
+@media (prefers-reduced-motion: no-preference) {
+  #loading .wordmark, #loading .load-meter { animation: enter 500ms var(--ease-out) both; }
+  #loading .load-meter { animation-delay: 100ms; }
+}
 
 /* ------------------------------------------------------------ HUD */
 #unit { position: fixed; left: 20px; top: 18px; display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 12px; pointer-events: none; }
@@ -206,6 +217,8 @@ body.menu-open #hud { opacity: 0; pointer-events: none; }
 .lede.small { margin-top: 12px; font-size: 13px; }
 #dest-list button i { font: 700 11px var(--display); color: var(--orange-ink); background: var(--orange-hi); border-radius: 4px; padding: 1px 5px; font-style: normal; }
 @media (hover: hover) { #dest-list button:hover { background: var(--raise-hi); } }
+#dest-list button.on { background: rgb(232 117 0 / 0.2); box-shadow: inset 0 0 0 1px var(--orange); }
+#dest-list button.on small { color: var(--orange-hi); }
 .lede { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 .gauntlet-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .gauntlet-row label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
@@ -252,7 +265,18 @@ body.menu-open #hud { opacity: 0; pointer-events: none; }
 .primary:disabled { opacity: 0.5; cursor: default; }
 @media (hover: hover) { .primary:not(:disabled):hover { background: var(--orange-hi); } .ghost:hover { background: rgba(255, 244, 230, 0.14); } }
 
-.settings { display: grid; gap: 14px; margin-top: 20px; max-width: 520px; }
+.settings { display: grid; gap: 14px; margin-top: 20px; max-width: 520px; min-height: 0; overflow: auto; overscroll-behavior: contain; padding-right: 6px; }
+.set-h { margin: 12px 0 0; font: 700 15px var(--display); color: var(--fg); }
+.settings > label.vol { display: grid; grid-template-columns: 140px 1fr 46px; align-items: center; gap: 12px; color: var(--muted); font-size: 14px; }
+.vol output { color: var(--fg); font: 600 14px var(--display); font-variant-numeric: tabular-nums; text-align: right; }
+/* Volume sliders: an orange fill up to the thumb, a 24 px hit area on a 4 px track. */
+.vol input[type="range"] { --fill: 50%; appearance: none; -webkit-appearance: none; height: 24px; background: transparent; cursor: pointer; }
+.vol input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--orange) var(--fill), rgba(255, 240, 220, 0.16) var(--fill)); }
+.vol input[type="range"]::-moz-range-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--orange) var(--fill), rgba(255, 240, 220, 0.16) var(--fill)); }
+.vol input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5); }
+.vol input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5); }
+.vol input[type="range"]:focus-visible { outline: 2px solid var(--orange-hi); outline-offset: 2px; border-radius: 4px; }
+.board > .credit { margin-top: auto; padding-top: 16px; }
 .settings > label:not(.switch) { display: grid; grid-template-columns: 140px 1fr; align-items: center; gap: 12px; color: var(--muted); font-size: 14px; }
 select { appearance: none; background: rgba(0, 0, 0, 0.3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23b0a89e' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center / 16px;
   color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 34px 9px 12px; font: inherit; font-size: 14px; }
@@ -360,13 +384,119 @@ select option { background: #1b1815; }
   #location { display: none; }
 }
 
-/* Touch driving controls: two thumb pads at the bottom corners, above the safe area. */
-#touch { position: fixed; inset: auto 0 0 0; pointer-events: none; z-index: 5; }
-#touch .tpad { position: absolute; bottom: calc(18px + env(safe-area-inset-bottom)); display: flex; gap: 12px; pointer-events: auto; }
-#touch .left { left: calc(16px + env(safe-area-inset-left)); bottom: calc(160px + env(safe-area-inset-bottom)); }
-#touch .right { right: calc(16px + env(safe-area-inset-right)); bottom: calc(190px + env(safe-area-inset-bottom)); }
-#touch button { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--line); background: var(--ground-soft);
-  color: var(--fg); font: 700 14px var(--display); touch-action: none; user-select: none; -webkit-user-select: none; }
-#touch button svg { width: 26px; height: 26px; }
-#touch button.flip svg { rotate: 180deg; }
-#touch button.on { background: var(--orange); border-color: var(--orange); color: var(--orange-ink); }
+/* ------------------------------------------------------------ touch (phones and tablets)
+   After the mobile mock-up: an orange Menu button top left, the destination pill top centre,
+   cart buttons in a column down the right edge beside a square minimap, the drive stick
+   bottom left and a speed pill bottom right (mirrored for left-handed). Solid dark pills over
+   the scene, one accent colour, and every control at least 44 px and clear of the safe areas. */
+.touch-only, .touch-row { display: none !important; }
+body.touch-ui .touch-only { display: block !important; }
+body.touch-ui .touch-row { display: flex !important; }
+body.touch-ui .kb-only, body.touch-ui #unit, body.touch-ui #callcard, body.touch-ui #location, body.touch-ui #hint,
+body.touch-ui #dash, body.touch-ui #compass { display: none; }
+body.touch-ui { --st: env(safe-area-inset-top); --sb: env(safe-area-inset-bottom); --sl: env(safe-area-inset-left); --sr: env(safe-area-inset-right);
+  --pill: rgba(22, 21, 20, 0.8); --gap: 16px; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+#m-hud > * { position: fixed; z-index: 6; }
+#m-menu { left: calc(var(--gap) + var(--sl)); top: calc(14px + var(--st)); display: inline-flex; align-items: center; gap: 10px; height: 50px; padding: 0 22px 0 18px;
+  border-radius: 16px; background: var(--orange); color: #fff; font: 700 19px/1 var(--display); letter-spacing: 0.05em; text-transform: uppercase;
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.55); transition-property: background-color, scale; transition-duration: 150ms; transition-timing-function: ease-out; }
+#m-menu svg { width: 24px; height: 24px; }
+#m-menu:active { scale: 0.96; background: var(--orange-hi); }
+#m-dispatch { left: 50%; top: calc(14px + var(--st)); translate: -50% 0; display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 24px 0 18px;
+  max-width: min(600px, calc(100vw - 2 * (var(--gap) + 190px))); border-radius: 999px; background: var(--pill); color: #fff;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); pointer-events: none; }
+#m-dispatch .pin { width: 22px; height: 22px; color: var(--muted); flex: none; }
+#m-dispatch.live .pin { color: var(--orange-hi); }
+#m-dest { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 19px/1.1 var(--display); }
+#m-dist { flex: none; color: var(--muted); font: 600 15px var(--display); font-variant-numeric: tabular-nums; }
+#m-dist:not(:empty)::before { content: '·'; margin-right: 8px; color: var(--faint); }
+
+#m-side { right: calc(var(--gap) + var(--sr)); top: calc(14px + var(--st)); display: grid; gap: 8px; }
+#m-side button { display: grid; place-items: center; width: 50px; height: 44px; border-radius: 14px; background: var(--pill); color: #f4f1ec;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition-property: color, background-color, scale; transition-duration: 150ms; transition-timing-function: ease-out; }
+#m-side button svg { width: 24px; height: 24px; }
+#m-side button.on { color: var(--orange-hi); background: rgba(40, 24, 10, 0.86); }
+#m-side button:active { scale: 0.96; }
+#m-side .off-i, #m-side button.muted .on-i { display: none; }
+#m-side button.muted .off-i { display: block; }
+#m-side button.muted { color: var(--muted); }
+body.touch-ui #minimap-wrap { left: auto; bottom: auto; right: calc(var(--gap) + var(--sr) + 62px); top: calc(76px + var(--st)); width: 112px; height: 104px; border-radius: 16px; }
+body.touch-ui #minimap, body.touch-ui #minimap-wrap .ring { border-radius: 16px; }
+
+#m-speed { right: calc(var(--gap) + var(--sr)); bottom: calc(14px + var(--sb)); display: flex; align-items: center; gap: 12px; height: 66px; padding: 0 26px 0 20px;
+  border-radius: 999px; background: var(--pill); color: #fff; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); pointer-events: none; }
+#m-speed svg { width: 38px; height: 38px; color: var(--orange-hi); }
+#m-mph { min-width: 2ch; text-align: right; font: 700 42px/1 var(--display); font-variant-numeric: tabular-nums; }
+#m-speed span { font: 700 19px var(--display); letter-spacing: 0.02em; }
+#m-gear { margin-left: 2px; padding: 3px 7px; border-radius: 6px; background: var(--orange); color: #fff; font: 700 14px var(--display); font-style: normal; }
+
+/* Drive stick: a solid dark disc and a big orange knob. The zone catches the thumb anywhere
+   in the lower-left; the base jumps under it. */
+#touch { position: fixed; inset: 0; pointer-events: none; z-index: 5; transition: opacity 200ms ease-out; }
+body.menu-open #touch { opacity: 0; visibility: hidden; }
+#joy { position: absolute; left: 0; bottom: 0; width: min(46vw, 380px); height: min(64vh, 380px); pointer-events: auto; touch-action: none; }
+.joy-base { position: absolute; left: calc(28px + var(--sl)); bottom: calc(22px + var(--sb)); width: 196px; height: 196px; border-radius: 50%;
+  background: rgba(22, 21, 20, 0.78); box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.6); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.joy-ring, .joy-up, .joy-dn { display: none; }
+.joy-knob { position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%;
+  background: var(--orange-hi); box-shadow: 0 8px 18px -4px rgba(0, 0, 0, 0.5), inset 0 -4px 0 rgba(0, 0, 0, 0.12);
+  transition: translate 220ms var(--ease-out), scale 150ms ease-out, background-color 150ms ease-out; }
+#joy.drag .joy-knob { transition: scale 150ms ease-out, background-color 150ms ease-out; scale: 0.96; }
+#joy.stop .joy-knob { background: #ff6a3d; }
+
+/* Tap steering: four big pads instead of the stick. */
+#touch .tpad { position: absolute; display: none; gap: 12px; pointer-events: auto; }
+body.tap-steer #joy { display: none; }
+body.tap-steer #touch .tpad { display: flex; }
+#touch .steer { left: calc(24px + var(--sl)); bottom: calc(24px + var(--sb)); }
+#touch .pedals { right: calc(var(--gap) + var(--sr)); bottom: calc(96px + var(--sb)); }
+#touch .tpad button { display: grid; place-items: center; width: 82px; height: 82px; border-radius: 50%; background: rgba(22, 21, 20, 0.78); color: #fff;
+  font: 700 16px var(--display); touch-action: none; transition-property: background-color, color, scale; transition-duration: 120ms; transition-timing-function: ease-out; }
+#touch .tpad button svg { width: 30px; height: 30px; }
+#touch .tpad button.flip svg { rotate: 180deg; }
+#touch .tpad button.on { background: var(--orange-hi); color: var(--orange-ink); scale: 0.96; }
+
+body.touch-ui #event { top: calc(76px + var(--st)); }
+body.touch-ui #toast { bottom: auto; top: calc(128px + var(--st)); }
+body.touch-ui #first-tip { bottom: auto; top: calc(76px + var(--st)); }
+body.touch-ui #attribution { right: auto; left: 50%; bottom: calc(2px + var(--sb)); translate: -50% 0; width: max-content; max-width: 34vw; text-align: center; font-size: 9.5px; line-height: 1.3; }
+
+/* Left-handed: mirror the thumb zones. */
+body.left-handed #joy { left: auto; right: 0; }
+body.left-handed .joy-base { left: auto; right: calc(28px + var(--sr)); }
+body.left-handed #m-speed { right: auto; left: calc(var(--gap) + var(--sl)); }
+body.left-handed #touch .steer { left: auto; right: calc(24px + var(--sr)); }
+body.left-handed #touch .pedals { right: auto; left: calc(var(--gap) + var(--sl)); }
+
+/* Phones (short landscape or narrow portrait): everything a size down. */
+@media (max-height: 560px), (max-width: 700px) {
+  body.touch-ui { --gap: 12px; }
+  #m-menu { height: 44px; padding: 0 18px 0 14px; font-size: 17px; }
+  #m-dispatch { height: 44px; padding: 0 18px 0 14px; max-width: calc(100vw - 2 * (var(--gap) + 150px)); }
+  #m-dest { font-size: 17px; }
+  #m-side { gap: 6px; }
+  #m-side button { width: 46px; height: 40px; }
+  #m-side button svg { width: 22px; height: 22px; }
+  body.touch-ui #minimap-wrap { right: calc(var(--gap) + var(--sr) + 56px); top: calc(66px + var(--st)); width: 96px; height: 88px; }
+  .joy-base { width: 156px; height: 156px; left: calc(20px + var(--sl)); bottom: calc(16px + var(--sb)); }
+  .joy-knob { width: 76px; height: 76px; margin: -38px 0 0 -38px; }
+  #m-speed { height: 56px; padding: 0 20px 0 16px; }
+  #m-speed svg { width: 30px; height: 30px; }
+  #m-mph { font-size: 34px; }
+  #m-speed span { font-size: 16px; }
+  #touch .tpad button { width: 68px; height: 68px; }
+  #touch .pedals { bottom: calc(80px + var(--sb)); }
+  #countdown { font-size: 96px; }
+}
+@media (max-width: 700px) {
+  #m-menu span { display: none; }
+  #m-menu { padding: 0 12px; }
+  #m-dispatch { left: calc(var(--gap) + 62px); translate: none; max-width: calc(100vw - 2 * var(--gap) - 130px); }
+}
+
+/* Reduced motion chosen in the game (mirrors the system preference): cross-fades only. */
+body.reduce-motion .shell.enter > *, body.reduce-motion .result.enter > *, body.reduce-motion .brief.swap > *,
+body.reduce-motion #event.flip, body.reduce-motion #callcard.flip, body.reduce-motion #countdown.tick { animation: fade 200ms ease both; }
+body.reduce-motion .joy-knob { transition-property: opacity; }
+body.reduce-motion #loading .wordmark, body.reduce-motion #loading .load-meter { animation: fade 200ms ease both; }

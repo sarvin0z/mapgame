@@ -5,6 +5,8 @@
 // when the horn or siren sounds as the cart approaches, flinch away at the
 // last moment otherwise, and a contact is reported to the run. Drawn with a
 // few instanced meshes (legs, torso, head, hair, bicycle, wheels, skateboard).
+// Some of the walkers cross streets on the mapped crosswalks: they wait at the
+// kerb, let an approaching cart pass, cross, and after a while cross back.
 import * as THREE from 'three';
 import type { CampusData, Pt } from '../world/campusData.ts';
 import type { Terrain } from '../world/terrain.ts';
@@ -15,6 +17,8 @@ interface Walker {
   mode: Mode;
   way: Pt[]; len: number; s: number; dir: 1 | -1; speed: number; lane: number;
   dodge: number; dodgeT: number; target: number; hitCooldown: number; phase: number;
+  /** Crosswalk user: waits `wait` seconds at each kerb before crossing (yields to the cart). */
+  cross?: boolean; wait: number;
   /** Distance culling state (see Pedestrians.ANIM_M / HIDE_M). */
   hidden?: boolean; lazy?: number;
   shirt: THREE.Color; pants: THREE.Color; skin: THREE.Color; hair: THREE.Color; gear: THREE.Color;
@@ -36,6 +40,7 @@ export class Pedestrians {
   private walkers: Walker[] = [];
   private walks: Pt[][];
   private rides: Pt[][];
+  private crossings: Pt[][];
   private legs: THREE.InstancedMesh;
   private torso: THREE.InstancedMesh;
   private head: THREE.InstancedMesh;
@@ -53,13 +58,19 @@ export class Pedestrians {
   private static readonly X = new THREE.Vector3(1, 0, 0);
   active = false;
 
-  constructor(data: CampusData, private terrain: Terrain, private count = 30) {
+  constructor(data: CampusData, private terrain: Terrain, private count = 60) {
     // Walks long enough to stroll along: footways, pedestrian streets and paths over 30 m.
     this.walks = data.roads.filter(r => ['footway', 'pedestrian', 'path'].includes(r.cls) && r.fw !== 'crossing' && r.fw !== 'access_aisle')
       .map(r => r.pts).filter(p => len(p) > 30);
     // Cyclists also use cycleways and quiet service roads (not parking aisles).
     this.rides = data.roads.filter(r => r.cls === 'cycleway' || (r.cls === 'service' && r.svc !== 'parking_aisle'))
       .map(r => r.pts).filter(p => len(p) > 40).concat(this.walks);
+    // Crosswalks, run on 1.5 m into the walk at each end so people wait on the kerb, not in the road.
+    this.crossings = data.roads.filter(r => r.fw === 'crossing' && len(r.pts) > 4 && len(r.pts) < 40).map(r => {
+      const p = r.pts, a = p[0], b = p[1], y = p[p.length - 1], z = p[p.length - 2];
+      const ext = (q: Pt, from: Pt): Pt => { const l = Math.hypot(q[0] - from[0], q[1] - from[1]) || 1; return [q[0] + (q[0] - from[0]) / l * 1.5, q[1] + (q[1] - from[1]) / l * 1.5]; };
+      return [ext(a, b), ...p, ext(y, z)];
+    });
     const mat = new THREE.MeshStandardMaterial({ roughness: 0.85 });
     const legGeo = new THREE.CylinderGeometry(0.075, 0.06, 0.86, 6).translate(0, -0.43, 0); // pivot at hip
     const torsoGeo = new THREE.CapsuleGeometry(0.19, 0.42, 4, 8).scale(1, 1, 0.7).translate(0, 1.18, 0);
@@ -90,9 +101,9 @@ export class Pedestrians {
   }
 
   /** Populates walks within `radius` of `center` (map coordinates). */
-  start(center: Pt, radius = 220) {
+  start(center: Pt, radius = 200) {
     this.walkers = [];
-    for (let tries = 0; tries < 200 && this.walkers.length < this.count; tries++) this.walkers.push(...this.spawn(center, radius, 40, this.count - this.walkers.length));
+    for (let tries = 0; tries < 300 && this.walkers.length < this.count; tries++) this.walkers.push(...this.spawn(center, radius, 30, this.count - this.walkers.length));
     this.active = true;
     this.group.visible = true;
   }
@@ -105,23 +116,26 @@ export class Pedestrians {
    */
   private spawn(center: Pt, radius: number, minDist: number, room: number): Walker[] {
     const r = Math.random();
-    const mode: Mode = r < 0.15 && this.rides.length ? 'bike' : r < 0.25 ? 'skate' : 'walk';
+    const mode: Mode = r < 0.13 && this.rides.length ? 'bike' : r < 0.21 ? 'skate' : 'walk';
+    const cross = mode === 'walk' && this.crossings.length > 0 && Math.random() < 0.18;
     const size = mode !== 'walk' ? 1 : Math.min(room, Math.random() < 0.65 ? 1 : Math.random() < 0.6 ? 2 : 3);
-    const ways = mode === 'bike' ? this.rides : this.walks;
+    const ways = cross ? this.crossings : mode === 'bike' ? this.rides : this.walks;
     if (!ways.length || size < 1) return [];
     for (let t = 0; t < 40; t++) {
       const way = ways[Math.floor(Math.random() * ways.length)];
-      const L = len(way), s = Math.random() * L, p = at(way, s).p;
+      const L = len(way), dir0: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
+      // Crossers start at a kerb, about to cross; everyone else anywhere along the way.
+      const s = cross ? (dir0 === 1 ? 0 : L) : Math.random() * L, p = at(way, s).p;
       const d = Math.hypot(p[0] - center[0], p[1] - center[1]);
       if (d > radius || d < minDist) continue;
       const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
-      const dir: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
+      const dir = dir0;
       const [v0, v1] = SPEED[mode], speed = v0 + Math.random() * (v1 - v0);
       // Riders keep right of the way's centre line; a group walks abreast, 0.65 m apart.
       const base = mode === 'walk' ? (Math.random() - 0.5) * 0.6 : -dir * (0.5 + Math.random() * 0.6);
       return Array.from({ length: size }, (_, k) => ({
         mode, way, len: L, s, dir, speed, lane: base + (k - (size - 1) / 2) * 0.65,
-        dodge: 0, dodgeT: 0, target: 0, hitCooldown: 0, phase: Math.random() * 6,
+        dodge: 0, dodgeT: 0, target: 0, hitCooldown: 0, phase: Math.random() * 6, cross, wait: cross ? Math.random() * 4 : 0,
         shirt: new THREE.Color(pick(SHIRTS)), pants: new THREE.Color(pick(PANTS)), skin: new THREE.Color(pick(SKIN)), hair: new THREE.Color(pick(HAIR)), gear: new THREE.Color(pick(GEAR)),
       }));
     }
@@ -168,12 +182,22 @@ export class Pedestrians {
       const rate = w.dodgeT > 0 ? (warn ? 4.5 : 2.2) : 1;
       w.dodge += Math.max(-rate * dt, Math.min(rate * dt, target - w.dodge));
       w.dodgeT -= dt;
+      // At the kerb: wait, and don't step out while the cart is close (within 25 m and coming).
+      if (w.cross && w.wait > 0) {
+        const near = Math.hypot(rx, ry) < 25 && speed > 1 && ahead > -3;
+        if (!near) w.wait -= dt;
+      }
+      const waiting = w.cross === true && w.wait > 0;
       // Walkers pause while stepping aside; riders slow down.
-      const moving = w.dodgeT > 0 ? (w.mode === 'walk' ? 0.3 : 0.5) : 1;
+      const moving = waiting ? 0 : w.dodgeT > 0 ? (w.mode === 'walk' ? 0.3 : 0.5) : 1;
       w.s += w.dir * w.speed * moving * dt;
-      if (w.s < 0 || w.s > w.len) { w.dir = (w.dir === 1 ? -1 : 1); w.s = Math.max(0, Math.min(w.len, w.s)); if (w.mode !== 'walk') w.lane = -w.lane; }
-      w.phase += dt * (w.mode === 'walk' ? w.speed * 4.2 : w.mode === 'bike' ? w.speed * 1.6 : 2.2) * moving;
-      w.hitCooldown -= dt;
+      if (w.s < 0 || w.s > w.len) {
+        w.dir = (w.dir === 1 ? -1 : 1); w.s = Math.max(0, Math.min(w.len, w.s));
+        if (w.mode !== 'walk') w.lane = -w.lane;
+        // Crossed: linger on this side (as if waiting for someone, or at the next light), then go back.
+        if (w.cross) w.wait = 10 + Math.random() * 18;
+      }
+      w.phase += dt * (w.mode === 'walk' ? w.speed * 4.2 : w.mode === 'bike' ? w.speed * 1.6 : 2.2) * moving;      w.hitCooldown -= dt;
       if (Math.abs(side) < 0.8 && ahead > -1.4 && ahead < 1.6 && speed > 0.8 && w.hitCooldown <= 0) {
         hits++;
         w.hitCooldown = 3;
@@ -219,7 +243,7 @@ export class Pedestrians {
     const facing: Pt = w.dir === 1 ? u : [-u[0], -u[1]];
     const yaw = Math.atan2(facing[0], -facing[1]) + Math.PI;
     const lift = LIFT[w.mode];
-    const bob = w.mode === 'walk' ? Math.abs(Math.sin(w.phase)) * 0.035 : 0;
+    const bob = w.mode === 'walk' && !(w.cross && w.wait > 0) ? Math.abs(Math.sin(w.phase)) * 0.035 : 0;
     const body = this.q.setFromAxisAngle(Pedestrians.Y, yaw);
     // Riders lean a little forward (cyclists more).
     if (w.mode !== 'walk') body.multiply(this.q2.setFromAxisAngle(Pedestrians.X, w.mode === 'bike' ? 0.35 : 0.08));
@@ -237,7 +261,7 @@ export class Pedestrians {
     }
     // Legs about the hip: walking swing, pedalling circles, or a skater's stance with an occasional push.
     for (const k of [0, 1]) {
-      const swing = w.mode === 'walk' ? Math.sin(w.phase + k * Math.PI) * 0.45
+      const swing = w.mode === 'walk' ? (w.cross && w.wait > 0 ? 0 : Math.sin(w.phase + k * Math.PI) * 0.45) // standing at the kerb
         : w.mode === 'bike' ? 0.3 + Math.sin(w.phase + k * Math.PI) * 0.35
         : (k === 1 ? Math.max(0, Math.sin(w.phase)) * 0.5 : 0);
       const legQ = flat.clone().multiply(this.q2.setFromAxisAngle(Pedestrians.X, swing));

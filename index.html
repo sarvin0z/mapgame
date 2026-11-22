@@ -3,7 +3,8 @@
 <head>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E%E2%9C%B1%3C/text%3E%3C/svg%3E" />
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0a09" />
   <title>UTD EMS Cart Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -35,6 +36,17 @@
     <symbol id="i-headlights" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6C6 6 4 9 4 12s2 6 7 6z"/><path d="M14 8h7M14 12h7M14 16h7"/></g></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></g></symbol>
     <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><g fill="currentColor"><rect x="6.5" y="5" width="3.5" height="14" rx="1"/><rect x="14" y="5" width="3.5" height="14" rx="1"/></g></symbol>
+    <symbol id="i-access" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="7.3" r="1.3" fill="currentColor" stroke="none"/><path d="M7.5 10.2l4.5 1 4.5-1M12 11.2v3M12 14.2l-2.2 4M12 14.2l2.2 4"/></g></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-pinfill" viewBox="0 0 24 24"><path d="M12 22s-7-6.4-7-12a7 7 0 0 1 14 0c0 5.6-7 12-7 12z" fill="currentColor"/><circle cx="12" cy="10" r="2.6" fill="#1b1815"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></g></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></g></symbol>
+    <symbol id="i-beacon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18v-5a5 5 0 0 1 10 0v5"/><path d="M5 18h14v2.5H5zM12 3v2M4.5 6l1.4 1.4M19.5 6l-1.4 1.4M2.5 12.5h2M19.5 12.5h2"/></g></symbol>
+    <symbol id="i-beacon2" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18v-5a5 5 0 0 1 10 0v5"/><path d="M5 18h14v2.5H5z"/><path d="M12 10v4" /><path d="M3 9l2 1M21 9l-2 1M12 3v3" /></g></symbol>
+    <symbol id="i-horn2" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h3l8 5V5L6 10z"/><path d="M17.5 9.5l3-1.5M17.5 14.5l3 1.5M18 12h3"/></g></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 17a9 9 0 1 1 17 0"/><path d="M12 16l4.5-6"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></g></symbol>
     <symbol id="i-retry" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5"/><path d="M4 3.5v5h5"/></g></symbol>
   </svg>
 
@@ -43,8 +55,12 @@
 
   <div id="loading">
     <div class="wordmark"><span class="mono"><img src="brand/utd-monogram.svg" alt="" onerror="this.remove()" /><b>UTD</b></span><span><strong>UTD EMS</strong><small>Campus Response Simulator</small></span></div>
-    <div class="bar"><i></i></div>
-    <p>Starting…</p>
+    <div class="load-meter" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <b id="load-pct">0<small>%</small></b>
+      <div class="bar"><i id="load-bar"></i></div>
+      <p id="load-msg">Starting…</p>
+    </div>
+    <p class="credit">Created by Sarvinoz Hasanova</p>
   </div>
 
   <div id="hud">
@@ -97,9 +113,24 @@
 
     <div id="first-tip" class="glass" role="dialog" aria-label="Driving controls" hidden>
       <b>Driving the cart</b>
-      <p><kbd>W</kbd> accelerate, <kbd>S</kbd> brake and reverse, <kbd>A</kbd> <kbd>D</kbd> steer, <kbd>Space</kbd> park brake. <kbd>H</kbd> siren, <kbd>B</kbd> horn, <kbd>L</kbd> lights. <kbd>Esc</kbd> opens dispatch, <kbd>F1</kbd> all controls.</p>
+      <p class="touch-only">Drag the stick up to drive, down to brake and reverse, sideways to steer. The buttons by the speedometer work the lights, siren and horn; Pause opens dispatch.</p>
+      <p class="kb-only"><kbd>W</kbd> accelerate, <kbd>S</kbd> brake and reverse, <kbd>A</kbd> <kbd>D</kbd> steer, <kbd>Space</kbd> park brake. <kbd>H</kbd> siren, <kbd>B</kbd> horn, <kbd>L</kbd> lights. <kbd>Esc</kbd> opens dispatch, <kbd>F1</kbd> all controls.</p>
       <p class="sub">The call card counts down to the arrival zone: within 6 m of any wall of the building, or inside the lot. Turn on "Show the destination" in Settings for a pin on the compass and map.</p>
       <button class="ghost small" id="first-tip-ok">Got it</button>
+    </div>
+    <!-- Touch HUD (phones and tablets): Menu, destination, side controls, speed. -->
+    <div id="m-hud" hidden>
+      <button id="m-menu" aria-label="Menu"><svg><use href="#i-menu" /></svg><span>Menu</span></button>
+      <div id="m-dispatch" role="status" aria-live="polite"><svg class="pin"><use href="#i-pinfill" /></svg><b id="m-dest">Free roam</b><span id="m-dist"></span></div>
+      <div id="m-side" role="toolbar" aria-label="Cart controls">
+        <button data-id="sound" aria-label="Sound" aria-pressed="true"><svg class="on-i"><use href="#i-sound" /></svg><svg class="off-i"><use href="#i-mute" /></svg></button>
+        <button data-id="lights" aria-label="Emergency lights" aria-pressed="false"><svg><use href="#i-beacon" /></svg></button>
+        <button data-id="siren" aria-label="Siren" aria-pressed="false"><svg><use href="#i-beacon2" /></svg></button>
+        <button data-id="horn" aria-label="Horn" aria-pressed="false"><svg><use href="#i-horn2" /></svg></button>
+        <button data-id="headlights" aria-label="Headlights" aria-pressed="false"><svg><use href="#i-headlights" /></svg></button>
+        <button data-id="camera" aria-label="Camera"><svg><use href="#i-camera" /></svg></button>
+      </div>
+      <div id="m-speed" aria-label="Speed"><svg><use href="#i-gauge" /></svg><b id="m-mph">0</b><span>MPH</span><i id="m-gear" hidden>R</i></div>
     </div>
     <div id="toast" hidden></div>
     <div id="hint"><kbd>Esc</kbd> Dispatch <kbd>F1</kbd> Controls</div>
@@ -109,8 +140,11 @@
 
   <!-- Touch driving controls (shown on touch screens only). -->
   <div id="touch" hidden>
-    <div class="tpad left"><button data-key="ArrowLeft" aria-label="Steer left"><svg><use href="#i-back" /></svg></button><button data-key="ArrowRight" aria-label="Steer right" class="flip"><svg><use href="#i-back" /></svg></button></div>
-    <div class="tpad right"><button data-key="ArrowDown">Brake</button><button data-key="ArrowUp">Gas</button></div>
+    <div id="joy" role="application" aria-label="Drive stick: up to drive, down to brake and reverse, sideways to steer">
+      <div class="joy-base"><i class="joy-ring"></i><svg class="joy-up"><use href="#i-down" /></svg><svg class="joy-dn"><use href="#i-down" /></svg><div class="joy-knob"></div></div>
+    </div>
+    <div class="tpad steer"><button data-key="ArrowLeft" aria-label="Steer left"><svg><use href="#i-back" /></svg></button><button data-key="ArrowRight" aria-label="Steer right" class="flip"><svg><use href="#i-back" /></svg></button></div>
+    <div class="tpad pedals"><button data-key="ArrowDown" aria-label="Brake and reverse">Brake</button><button data-key="ArrowUp" aria-label="Drive">Go</button></div>
   </div>
 
   <!-- Dispatch: the main and pause menu. -->
@@ -131,13 +165,12 @@
         <p>Respond to calls across campus from <b id="deploy-label">the UEMR apartment</b>.</p>
       </header>
       <div class="tabs" role="tablist">
-        <button role="tab" class="on" data-tab="calls">Open calls</button>
-        <button role="tab" data-tab="locations">Any location</button>
+        <button role="tab" class="on" data-tab="locations" aria-selected="true">Any location</button>
         <button role="tab" data-tab="gauntlet">Multi-call</button>
-        <button class="ghost small" data-action="reroll" id="reroll"><svg><use href="#i-retry" /></svg>New calls</button>
+        <button class="ghost small" data-action="random-dest" id="reroll" title="Pick a random destination"><svg><use href="#i-retry" /></svg>Random</button>
       </div>
-      <div class="tabpanel" data-tab="calls"><div id="calls"></div></div>
-      <div class="tabpanel" data-tab="locations" hidden>
+      <div id="calls" hidden></div>
+      <div class="tabpanel" data-tab="locations">
         <input id="dest-search" placeholder="Search buildings, lots or codes (BSB, ECSW, Lot J)" autocomplete="off" aria-controls="dest-list" />
         <div id="dest-empty" role="status" hidden>No destinations match “<span id="dest-empty-q"></span>”. Try a building code or part of the name. <button class="ghost small" id="dest-clear">Clear search</button></div>
         <div id="dest-list"></div>
@@ -178,9 +211,20 @@
       <div class="settings">
         <label>Deploy from <select id="start-select"><option value="uv11">UEMR apartment · UV Building 11</option><option value="sg">Safety and Grounds</option></select></label>
         <select id="time-select" hidden><option value="golden">Golden hour</option></select>
-        <label>Graphics <select id="quality-select"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+        <label>Graphics <select id="quality-select"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option></select></label>
         <label class="switch"><input type="checkbox" id="show-target" /><i></i>Show the destination on the map and compass</label>
+        <h2 class="set-h">Sound</h2>
+        <label class="vol">Master <input type="range" id="vol-master" min="0" max="100" step="1" /><output for="vol-master"></output></label>
+        <label class="vol">Siren and horn <input type="range" id="vol-siren" min="0" max="100" step="1" /><output for="vol-siren"></output></label>
+        <label class="vol">Cart motor <input type="range" id="vol-cart" min="0" max="100" step="1" /><output for="vol-cart"></output></label>
+        <label class="vol">Effects <input type="range" id="vol-sfx" min="0" max="100" step="1" /><output for="vol-sfx"></output></label>
+        <label class="switch"><input type="checkbox" id="vol-mute" /><i></i>Mute all sound</label>
+        <h2 class="set-h">Accessibility</h2>
+        <label class="switch"><input type="checkbox" id="a11y-reduce" /><i></i>Reduced motion <small>No camera shake or speed zoom</small></label>
+        <label class="switch touch-row"><input type="checkbox" id="a11y-tap" /><i></i>Tap steering <small>Buttons instead of the stick</small></label>
+        <label class="switch touch-row"><input type="checkbox" id="a11y-left" /><i></i>Left-handed <small>Stick on the right</small></label>
       </div>
+      <p class="credit">Created by Sarvinoz Hasanova</p>
     </section>
 
     <section class="board view" data-view="controls" hidden id="help">
@@ -196,7 +240,7 @@
         <tr><td><kbd>M</kbd> <kbd>P</kbd> <kbd>G</kbd></td><td>Minimap, performance, graphics quality</td></tr>
         <tr><td><kbd>Esc</kbd> <kbd>F1</kbd></td><td>Dispatch; controls</td></tr>
       </table>
-      <p class="note">A run scores route efficiency (40%), pace (30%), staying on roads and walks (15%) and traffic (15%: a rolling stop at stop signs, under 8 mph over speed bumps). Each pedestrian contact costs 50 points and each collision 100; the horn and siren clear people from your path. Arrive within 6 m of any wall of the building, or inside the lot. The best route and the destination beam cost 10% each.</p>
+      <p class="note">A run scores route efficiency (40%), pace (30%), staying on roads and walks (15%) and traffic (15%: slow to 8 mph or under at stop signs and over speed bumps). Each pedestrian contact costs 50 points and each collision 100; the horn and siren clear people from your path. Arrive within 6 m of any wall of the building, or inside the lot. The best route and the destination beam cost 10% each.</p>
     </section>
   </div>
 

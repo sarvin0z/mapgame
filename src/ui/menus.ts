@@ -17,6 +17,8 @@ export interface MenuHooks {
   menuOpen(open: boolean): void;
   /** Map position the cart deploys from (for call distances). */
   deployPoint(): Pt;
+  /** Feedback sound for a menu or run event. */
+  cue?(kind: 'count' | 'go' | 'good' | 'bad' | 'stop' | 'done' | 'tap' | 'toggle'): void;
   /** A photo of the destination rendered from the game, as an image URL. */
   thumb?(d: Destination): Promise<string | null>;
 }
@@ -84,6 +86,21 @@ export class Menus {
       if (a === 'free') { this.close(); hooks.free(); }
       if (a === 'start' && this.selected) this.startCall(this.selected);
       if (a === 'reroll') this.newCalls();
+      // Random destination (Any location tab): a fresh call somewhere not trivially close, selected
+      // in the brief panel and scrolled into view in the list.
+      if (a === 'random-dest') {
+        const from = this.hooks.deployPoint();
+        const pool = this.rc.destinations.filter(d => this.rc.distanceTo(d, from) > 150);
+        const d = pool[Math.floor(rnd() * pool.length)];
+        if (d) {
+          const c = this.makeCall(d);
+          this.select(c);
+          this.search.value = '';
+          this.renderList();
+          const li = [...this.list.querySelectorAll<HTMLElement>('[data-name]')].find(el => el.dataset.name === d.name);
+          li?.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        }
+      }
       if (a === 'retry') { this.close(); hooks.start(this.lastDest ?? rc.result?.legs.map(l => l.name), this.lastStops); }
       if (a === 'next') { this.newCalls(); this.startCall(this.calls[0]); }
       if (a === 'dispatch') { this.result.hidden = true; this.open(); }
@@ -153,7 +170,7 @@ export class Menus {
   private tab(t: string) {
     for (const b of this.menu.querySelectorAll<HTMLElement>('[role="tab"]')) { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-selected', String(b.dataset.tab === t)); }
     for (const p of this.menu.querySelectorAll<HTMLElement>('.tabpanel')) p.hidden = p.dataset.tab !== t;
-    $('reroll').hidden = t !== 'calls';
+    $('reroll').hidden = t !== 'locations';
     if (t === 'locations') this.renderList();
   }
 
@@ -226,7 +243,7 @@ export class Menus {
     $('brief-diff').textContent = difficulty(c.dist);
     $('brief-code').textContent = locationCode(c.dest.name);
     const where = c.dest.kind === 'lot' ? `into ${c.dest.name}` : `to ${c.dest.name}, within 6 m of any wall`;
-    $('brief-obj').innerHTML = [`Drive ${where}`, 'Keep to roads, walks and lots', 'Stop at stop signs and ease over speed bumps', 'Warn pedestrians with the horn or siren'].map(t => `<li>${t}</li>`).join('');
+    $('brief-obj').innerHTML = [`Drive ${where}`, 'Keep to roads, walks and lots', 'Slow to 8 mph at stop signs and over speed bumps', 'Warn pedestrians with the horn or siren'].map(t => `<li>${t}</li>`).join('');
     this.loadThumb(c.dest, $<HTMLImageElement>('brief-img'));
     replay(brief, 'swap');
   }
@@ -264,7 +281,10 @@ export class Menus {
       const b = document.createElement('button');
       const code = d.aliases?.[0] && /^[A-Z0-9]+$/.test(d.aliases[0]) ? d.aliases[0] : locationCode(d.name);
       b.innerHTML = (d.kind === 'lot' ? '<i>P</i>' : '') + `<span>${d.name}</span><small>${code}</small>`;
+      b.dataset.name = d.name;
+      if (this.selected?.dest.name === d.name) b.classList.add('on');
       b.addEventListener('click', () => {
+        for (const el of this.list.children) el.classList.toggle('on', el === b);
         if (this.picking) {
           if (this.stops[this.stops.length - 1] !== d.name && this.stops.length < 10) this.stops.push(d.name);
           this.renderStops();
@@ -321,8 +341,8 @@ export class Menus {
     if (rc.phase === 'idle' || !rc.dest) { this.shownDest = ''; return; }
     if (rc.phase === 'countdown') {
       const n = String(Math.ceil(rc.countdown));
-      if (n !== this.shownCount) { this.shownCount = n; this.cd.textContent = n; replay(this.cd, 'tick'); }
-    } else this.shownCount = '';
+      if (n !== this.shownCount) { this.shownCount = n; this.cd.textContent = n; replay(this.cd, 'tick'); this.hooks.cue?.('count'); }
+    } else { if (this.shownCount) this.hooks.cue?.('go'); this.shownCount = ''; }
     if (rc.dest.name !== this.shownDest) {
       // A new stop: the card changes in place, flipping like a dispatch board.
       this.shownDest = rc.dest.name;
@@ -347,11 +367,13 @@ export class Menus {
       ev.textContent = rc.event!.text;
       ev.className = rc.event!.good ? 'good' : 'bad';
       replay(ev, 'flip');
+      this.hooks.cue?.(/reached/.test(rc.event!.text) ? 'stop' : rc.event!.good ? 'good' : 'bad');
     }
   }
 
   showResult(r: RunResult, map: { image: HTMLCanvasElement; bounds: { minX: number; maxY: number }; scale: number }, route: Pt[], trail: Pt[]) {
     this.result.hidden = false;
+    this.hooks.cue?.('done');
     document.body.classList.add('menu-open');
     this.hooks.menuOpen(true);
     const multi = r.legs.length > 1;
@@ -375,7 +397,7 @@ export class Menus {
     const checks: [boolean, string][] = [
       [r.time <= target * 1.15, `Arrived near the target time (${mmss(target)})`],
       [r.onNetwork >= 0.95, 'Stayed on roads, walks and lots'],
-      [r.stops.obeyed === r.stops.total, r.stops.total ? 'Stopped at every stop sign' : 'No stop signs on the way'],
+      [r.stops.obeyed === r.stops.total, r.stops.total ? 'Slowed for every stop sign' : 'No stop signs on the way'],
       [r.bumps.slow === r.bumps.total, r.bumps.total ? 'Eased over every speed bump' : 'No speed bumps on the way'],
       [r.hits === 0, r.hits ? `${r.hits} pedestrian contact${r.hits === 1 ? '' : 's'}` : 'No pedestrian contact'],
       [r.collisions === 0, r.collisions ? `${r.collisions} collision${r.collisions === 1 ? '' : 's'}` : 'No collisions'],

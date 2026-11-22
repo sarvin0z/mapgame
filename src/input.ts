@@ -29,25 +29,10 @@ export class Input {
     el.addEventListener('pointermove', e => { if (this.dragging) { this.mdx += e.movementX; this.mdy += e.movementY; } });
     el.addEventListener('wheel', e => { this.wheel += e.deltaY; e.preventDefault(); }, { passive: false });
     el.addEventListener('contextmenu', e => e.preventDefault());
-    this.touchControls();
   }
 
-  /**
-   * On touch screens, on-screen pads hold the same keys as the keyboard (arrows), so
-   * the cart is drivable on phones. Release, cancel and leaving the button all let go,
-   * so a control can never stay stuck down.
-   */
-  private touchControls() {
-    const pad = document.getElementById('touch');
-    if (!pad || !matchMedia('(pointer: coarse)').matches) return;
-    pad.hidden = false;
-    for (const b of pad.querySelectorAll<HTMLButtonElement>('button[data-key]')) {
-      const code = b.dataset.key!;
-      const up = () => { this.keys.delete(code); b.classList.remove('on'); };
-      b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture(e.pointerId); this.keys.add(code); b.classList.add('on'); });
-      for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture'] as const) b.addEventListener(ev, up);
-    }
-  }
+  /** Analog drive from the touch joystick: x steer (-1 left .. 1 right), y pedal (1 go .. -1 brake). */
+  analog = { x: 0, y: 0 };
 
   axis(neg: string[], pos: string[]) {
     return (pos.some(k => this.keys.has(k)) ? 1 : 0) - (neg.some(k => this.keys.has(k)) ? 1 : 0);
