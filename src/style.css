@@ -228,6 +228,11 @@ body.menu-open #hud { opacity: 0; pointer-events: none; }
 
 /* Brief: the selected call. */
 .brief { padding: 10px 10px 16px; overflow: auto; overscroll-behavior: contain; }
+/* The brief scrolls as a whole; its parts keep their size (the photo collapsed to 0 px on short screens). */
+.brief > * { flex-shrink: 0; }
+.brief-shot { max-height: min(260px, 34vh); }
+/* Start response stays pinned to the bottom of the view whenever the brief has to scroll. */
+.brief .primary { position: sticky; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 1; }
 .brief > * { margin-left: 8px; margin-right: 8px; }
 .brief-shot { position: relative; margin: 0; border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 9; background: #1f1b17; }
 .brief-shot img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 200ms ease-out; }
@@ -371,7 +376,8 @@ select option { background: #1b1815; }
   .nav { padding: 9px 11px; font-size: 14px; }
   .side-foot { display: none; }
   .board, .brief { flex: none; }
-  .tabpanel { overflow: visible; }
+  /* The destination list scrolls in its own box, so the brief and Start stay a short scroll away. */
+  .tabpanel { overflow: auto; max-height: min(44vh, 340px); }
   .call { grid-template-columns: 96px minmax(0, 1fr); }
   .call img, .call .ph { width: 96px; height: 64px; }
   .call .chev { display: none; }
@@ -461,6 +467,10 @@ body.touch-ui #event { top: calc(76px + var(--st)); }
 body.touch-ui #toast { bottom: auto; top: calc(128px + var(--st)); }
 body.touch-ui #first-tip { bottom: auto; top: calc(76px + var(--st)); }
 body.touch-ui #attribution { right: auto; left: 50%; bottom: calc(2px + var(--sb)); translate: -50% 0; width: max-content; max-width: 34vw; text-align: center; font-size: 9.5px; line-height: 1.3; }
+/* Portrait: the bottom edge belongs to the thumbs, so the map credit sits under the Menu button. */
+@media (orientation: portrait) {
+  body.touch-ui #attribution { left: calc(var(--gap) + var(--sl)); top: calc(66px + var(--st)); bottom: auto; translate: none; max-width: 52vw; text-align: left; }
+}
 
 /* Left-handed: mirror the thumb zones. */
 body.left-handed #joy { left: auto; right: 0; }

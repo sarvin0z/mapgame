@@ -651,7 +651,7 @@ async function main() {
       fps = fpsFrames / fpsTime;
       fpsFrames = 0; fpsTime = 0;
       // Judged only while driving: on the menu the horizon is still streaming in.
-      const change = menuOpen ? null : adaptive.sample(fps, 0.5);
+      const change = menuOpen ? null : adaptive.sample(fps, 0.5, frameMs);
       if (change) applyQuality(change);
       if (hud.perfVisible) {
         const info = renderer.info;

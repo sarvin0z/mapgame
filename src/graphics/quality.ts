@@ -33,11 +33,16 @@ export class AdaptiveQuality {
   constructor(public current: QualityName, private targetFps = 60) {}
 
   /** Returns a new preset name when a change is warranted. */
-  sample(fps: number, dt: number): QualityName | null {
+  sample(fps: number, dt: number, cpuMs = 0): QualityName | null {
     if (!this.enabled) return null;
     this.cooldown -= dt;
     if (this.cooldown > 0) return null;
     const i = ORDER.indexOf(this.current);
+    // A display or power mode that caps the browser at 30 Hz (iPhone Low Power Mode, battery
+    // saver, some monitors) shows a steady ~30 fps with little work per frame. That is the
+    // screen's limit, not the game struggling, so it must not count as slow.
+    const capped = Math.abs(fps - 30) < 1.5 && cpuMs > 0 && cpuMs < 12;
+    if (capped) { this.lowFor = this.highFor = 0; return null; }
     if (fps < this.targetFps * 0.75) { this.lowFor += dt; this.highFor = 0; }
     else if (fps > this.targetFps * 0.97) { this.highFor += dt; this.lowFor = 0; }
     else { this.lowFor = this.highFor = 0; }
