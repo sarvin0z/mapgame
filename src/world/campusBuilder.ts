@@ -456,6 +456,11 @@ export interface BuiltChunk {
   farOnly: THREE.Group;
   detail: THREE.Group;
   near: THREE.Group;
+  /**
+   * Tree crowns and parked cars in 80 m cells: children carry userData.cell [x, y] and
+   * lod 'full' | 'lite' (and optional fullScale); the streamer shows one level per cell.
+   */
+  trees: THREE.Group;
 }
 
 const tq = new THREE.Quaternion(), ts = new THREE.Vector3(), tp = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
@@ -463,6 +468,15 @@ const tq = new THREE.Quaternion(), ts = new THREE.Vector3(), tp = new THREE.Vect
 export function addMesh(group: THREE.Group, mb: MeshBuilder, mat: THREE.Material, opts: { cast?: boolean; receive?: boolean; order?: number } = {}) {
   const g = toGeometry(mb);
   if (!g) return;
+  // Static chunk geometry is never read back on the CPU in the shipped game (physics uses
+  // the map data), so production builds free each array once it is on the GPU, roughly
+  // halving the memory a loaded campus takes. Dev builds keep them for picking tools.
+  if (import.meta.env.PROD) {
+    g.computeBoundingSphere();
+    g.computeBoundingBox();
+    for (const a of Object.values(g.attributes)) (a as THREE.BufferAttribute).onUpload(function (this: { array: unknown }) { this.array = null; });
+    g.index?.onUpload(function (this: { array: unknown }) { this.array = null; });
+  }
   const mesh = new THREE.Mesh(g, mat);
   mesh.castShadow = opts.cast ?? false;
   mesh.receiveShadow = opts.receive ?? true;
@@ -471,8 +485,8 @@ export function addMesh(group: THREE.Group, mb: MeshBuilder, mat: THREE.Material
 }
 
 /** Builds a chunk in one go (tests, warm start). */
-export function buildChunk(c: ChunkContent, mats: CampusMaterials, ctx: WorldContext): BuiltChunk {
-  const it = buildChunkSteps(c, mats, ctx);
+export function buildChunk(c: ChunkContent, mats: CampusMaterials, ctx: WorldContext, far = false): BuiltChunk {
+  const it = buildChunkSteps(c, mats, ctx, far);
   for (let r = it.next(); ; r = it.next()) if (r.done) return r.value;
 }
 
@@ -481,8 +495,11 @@ export function buildChunk(c: ChunkContent, mats: CampusMaterials, ctx: WorldCon
  * streamer may pause and continue on a later frame, so building never stalls
  * a frame for long.
  */
-export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: WorldContext): Generator<void, BuiltChunk, void> {
-  const groups = { base: new THREE.Group(), coarse: new THREE.Group(), farOnly: new THREE.Group(), detail: new THREE.Group(), near: new THREE.Group(), mid: new THREE.Group() };
+export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: WorldContext, far = false): Generator<void, BuiltChunk, void> {
+  // `far`: a chunk beyond the detail range gets only what reads from there (coarse ground,
+  // water, buildings, tree blobs), a fraction of the memory and build time of a full one.
+  // The streamer rebuilds it in full as the camera approaches.
+  const groups = { base: new THREE.Group(), coarse: new THREE.Group(), farOnly: new THREE.Group(), detail: new THREE.Group(), near: new THREE.Group(), mid: new THREE.Group(), trees: new THREE.Group() };
   for (const [k, g] of Object.entries(groups)) g.name = `chunk ${c.cx},${c.cy} ${k}`;
   const { base, coarse, farOnly, detail, near, mid } = groups;
   const T = ctx.terrain;
@@ -490,13 +507,13 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   const rnd = (seed: number) => hash(`${c.cx},${c.cy},${seed}`);
 
   // --- Terrain ---
-  for (const [group, lod] of [[near, 1], [coarse, 2]] as const) {
+  for (const [group, lod] of (far ? [[coarse, 4]] : [[near, 1], [coarse, 4]]) as [THREE.Group, number][]) {
     const mesh = new THREE.Mesh(T.buildMesh(x0, y0, x0 + CHUNK_SIZE, y0 + CHUNK_SIZE, lod), mats.terrain);
     mesh.receiveShadow = true;
     mesh.renderOrder = LAYER.terrain;
     // The 4 m mesh cuts corners the 2 m-draped roads and walks follow; sinking it keeps
     // it from poking through them at distance.
-    if (lod === 2) mesh.position.y = -0.35;
+    if (lod > 1) mesh.position.y = -0.35;
     group.add(mesh);
   }
 
@@ -508,7 +525,8 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   // triangles. Far walks stop at the detail range, where they are under a pixel wide.
   const coarseGround = { heightAt: (x: number, y: number) => T.heightAt(x, y), grid: { x0, y0, step: 8 } };
   const islands = new MeshBuilder();
-  for (const [src, isNear] of [[T, true], [coarseGround, false]] as const) {
+  const passes: [typeof coarseGround, boolean][] = far ? [[coarseGround, false]] : [[T, true], [coarseGround, false]];
+  for (const [src, isNear] of passes) {
     const layers = new Map<string, { mb: MeshBuilder; order: number }>();
     const lb = (mat: string, order: number) => {
       if (!layers.has(mat)) layers.set(mat, { mb: new MeshBuilder(), order });
@@ -522,7 +540,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
       if (!st || a.kind === 'grass' || a.kind === 'park') continue;
       if (st.layer === 'water') {
         // Water lies level (the banks rise above it), at the lower fifth of the shore heights.
-        if (!isNear) continue;
+        if (!isNear && !far) continue;
         const hs = resample([...a.outer, a.outer[0]], 2).map(p => T.heightAt(p[0], p[1])).sort((x, y) => x - y);
         addFlatPolygon(lb('water', LAYER.water), a.outer, [], hs[Math.floor(hs.length * 0.2)] - 0.05, st.color, st.uv);
         continue;
@@ -544,7 +562,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
         for (const piece of pieces) addDrapedRibbon(lb('path', LAYER.path), piece, r.w, src, LIFT.path, PATH_COLOR[r.cls] ?? PATH_COLOR.default, 1.5, r.w / 1.5, 'all');
       }
     }
-    for (const [k, { mb, order }] of layers) addMesh(k === 'water' && isNear ? base : isNear ? near : k === 'path' || k === 'promenade' ? mid : coarse, mb, mats.layers[k], { order });
+    for (const [k, { mb, order }] of layers) addMesh(k === 'water' && (isNear || far) ? base : isNear ? near : k === 'path' || k === 'promenade' ? mid : coarse, mb, mats.layers[k], { order });
     yield;
   }
   addMesh(detail, islands, mats.curb);
@@ -606,6 +624,19 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     const [x, y, z, sx, yaw] = hvac[i];
     m.compose(tp.set(x, y, z), tq.setFromAxisAngle(UP, yaw), ts.set(sx, 1.4, sx * 0.7));
   }, false));
+  if (far) {
+    // Far trees: one low-poly blob per tree, one draw call per chunk.
+    if (c.trees.length) {
+      const col = new THREE.Color();
+      const blob = instanced(S.blob, mats.blob, c.trees.length, (i, m) => {
+        const [x, y, h, r] = c.trees[i];
+        m.compose(tp.set(x, T.heightAt(x, y) - 0.05, -y), tq.setFromAxisAngle(UP, hash(`${x},${y}`) * 6.28), ts.set(r, h, r));
+      }, false);
+      c.trees.forEach((t, i) => { const v = hash(`${t[0]}c${t[1]}`); blob.setColorAt(i, (v < 0.78 ? col.setHSL(0.22 + v * 0.05, 0.42, 0.33 + v * 0.06) : v < 0.93 ? col.setHSL(0.13 + (v - 0.78), 0.45, 0.36) : col.setHSL(0.07, 0.3, 0.3)).multiplyScalar(0.55)); });
+      farOnly.add(blob);
+    }
+    return groups;
+  }
 
   yield;
   // --- Markings ---
@@ -820,13 +851,24 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
       const list = byKind[kind];
       if (!list.length) continue;
       detail.add(instanced(S.trees[kind].trunk, mats.bark, list.length, placeTree(list), true));
-      // Full crowns near the camera, light crowns farther out; the shadow pass always
-      // uses the light crown, on a layer only the sun's shadow camera renders.
-      for (const [geo, group, cast] of [[S.trees[kind].leaves, near, false], [S.trees[kind].lite, mid, false], [S.trees[kind].lite, detail, true]] as const) {
-        const leaves = instanced(geo, mats.leaves, list.length, placeTree(list), cast);
-        list.forEach((t, i) => leaves.setColorAt(i, crown(t)));
-        if (cast) leaves.layers.set(SHADOW_ONLY_LAYER);
-        group.add(leaves);
+      // The shadow pass always uses the light crown, on a layer only the sun's shadow camera renders.
+      const sh = instanced(S.trees[kind].lite, mats.leaves, list.length, placeTree(list), true);
+      list.forEach((t, i) => sh.setColorAt(i, crown(t)));
+      sh.layers.set(SHADOW_ONLY_LAYER);
+      detail.add(sh);
+      // Visible crowns per 80 m cell: full crowns only close to the camera, light ones beyond.
+      const cells = new Map<string, Tree[]>();
+      for (const t of list) { const k = Math.floor(t[0] / 80) + ',' + Math.floor(t[1] / 80); if (!cells.has(k)) cells.set(k, []); cells.get(k)!.push(t); }
+      for (const cl of cells.values()) {
+        const cx = cl.reduce((s, t) => s + t[0], 0) / cl.length, cy = cl.reduce((s, t) => s + t[1], 0) / cl.length;
+        for (const [geo, lod] of [[S.trees[kind].leaves, 'full'], [S.trees[kind].lite, 'lite']] as const) {
+          const leaves = instanced(geo, mats.leaves, cl.length, placeTree(cl), false);
+          cl.forEach((t, i) => leaves.setColorAt(i, crown(t)));
+          leaves.userData.cell = [cx, cy];
+          leaves.userData.lod = lod;
+          leaves.visible = false;
+          groups.trees.add(leaves);
+        }
       }
     }
     // Far away every tree is the same low-poly blob: one draw call per chunk.
@@ -869,7 +911,7 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   put(c.bins, S.bin, mats.metal, near, false, 9);
 
   yield;
-  yield* buildExtras(c, ctx, mats, { base, detail, near });
+  yield* buildExtras(c, ctx, mats, { base, detail, near, cells: groups.trees });
   buildLandmarks(c, ctx, mats, { base, detail, near }, ctx.buildings);
   return groups;
 }

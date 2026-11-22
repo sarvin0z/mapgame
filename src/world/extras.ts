@@ -4,6 +4,7 @@
 // Rock Garden. Positions come from OSM; dimensions are regulation sizes or
 // taken from reference photos where noted.
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { ChunkContent } from './chunks.ts';
 import type { Area, Building, Pt } from './campusData.ts';
 import { MeshBuilder, addDrapedPolygon, addDrapedRibbon, addWalls, ensureCCW, resample, centroid } from './geometry.ts';
@@ -21,7 +22,7 @@ const WHITE = lin([0.95, 0.95, 0.93]);
 /** A parked-car type: all parts merged, coloured per vertex (paint white, the rest by part colour). */
 export interface CarTemplate { name: string; length: number; geometry: THREE.BufferGeometry }
 
-export interface ExtraGroups { base: THREE.Group; detail: THREE.Group; near: THREE.Group }
+export interface ExtraGroups { base: THREE.Group; detail: THREE.Group; near: THREE.Group; /** Per-cell LOD meshes (see BuiltChunk.trees). */ cells?: THREE.Group }
 
 // Realistic US parked-car colour mix: white, black, gray and silver dominate.
 const CAR_COLORS = [0xf2f2f0, 0xf2f2f0, 0xe8e8e6, 0x1a1b1e, 0x1a1b1e, 0x6b6e72, 0x8d9094, 0xb6b9bc, 0xb6b9bc, 0x7a1418, 0x1f3a6b, 0x3c4d3a, 0x9a7b55];
@@ -208,10 +209,28 @@ function buildParking(c: ChunkContent, ctx: WorldContext, mats: CampusMaterials,
     if (!byType[t].length) return;
     // One merged mesh per car type: the paint colour comes from the instance colour,
     // the other parts are near-black and stay dark whatever it is.
-    const m = instanced(tpl.geometry, mats.carBody, byType[t].length, (i, mm) => mm.copy(byType[t][i]), true);
-    colors[t].forEach((col, i) => m.setColorAt(i, col));
-    // Parked cars only render near the camera; farther lots show stalls only.
-    g.near.add(m);
+    if (!g.cells) {
+      const m = instanced(tpl.geometry, mats.carBody, byType[t].length, (i, mm) => mm.copy(byType[t][i]), true);
+      colors[t].forEach((col, i) => m.setColorAt(i, col));
+      g.near.add(m);
+      return;
+    }
+    // Per 80 m cell: the full model close to the camera, a low-poly stand-in (body and
+    // cabin boxes, about 1 % of the triangles) beyond; the streamer switches them per cell.
+    const cells = new Map<string, number[]>();
+    byType[t].forEach((m, i) => { const k = Math.floor(m.elements[12] / 80) + ',' + Math.floor(-m.elements[14] / 80); if (!cells.has(k)) cells.set(k, []); cells.get(k)!.push(i); });
+    for (const ids of cells.values()) {
+      const cx = ids.reduce((s, i) => s + byType[t][i].elements[12], 0) / ids.length, cy = ids.reduce((s, i) => s - byType[t][i].elements[14], 0) / ids.length;
+      for (const [geo, lod] of [[tpl.geometry, 'full'], [carProxy(tpl), 'lite']] as const) {
+        const m = instanced(geo, mats.carBody, ids.length, (i, mm) => mm.copy(byType[t][ids[i]]), lod === 'full');
+        ids.forEach((id, i) => m.setColorAt(i, colors[t][id]));
+        m.userData.cell = [cx, cy];
+        m.userData.lod = lod;
+        m.userData.fullScale = 0.6;
+        m.visible = false;
+        g.cells.add(m);
+      }
+    }
   });
   addMesh(g.near, ao, mats.occlusion, { receive: false, order: LAYER.marking + 2 });
 }
@@ -220,6 +239,30 @@ export interface ParkedCar { x: number; y: number; heading: number; type: number
 const SIZES = [[4.63, 1.78, 1.44], [4.9, 1.95, 1.76], [5.6, 2.0, 1.88]];
 const carCache = new WeakMap<ChunkContent, ParkedCar[]>();
 /** Parked cars in a chunk: about 60 % of stalls, nose in, slightly off-center. `heading` is a rotation about +y. */
+const proxies = new WeakMap<object, THREE.BufferGeometry>();
+/** A low-poly stand-in for a car template: a painted lower body, a dark cabin and four wheels. */
+function carProxy(tpl: CarTemplate) {
+  const hit = proxies.get(tpl);
+  if (hit) return hit;
+  tpl.geometry.computeBoundingBox();
+  const b = tpl.geometry.boundingBox!, sx = b.max.x - b.min.x, sy = b.max.y - b.min.y, sz = b.max.z - b.min.z;
+  const cx = (b.max.x + b.min.x) / 2, cz = (b.max.z + b.min.z) / 2;
+  const part = (w: number, h: number, d: number, x: number, y: number, z: number, c: number) => {
+    const g = new THREE.BoxGeometry(w, h, d).translate(x, y, z);
+    g.deleteAttribute('uv');
+    const ng = g.toNonIndexed();
+    ng.setAttribute('color', new THREE.BufferAttribute(new Float32Array(ng.attributes.position.count * 3).fill(c), 3));
+    return ng;
+  };
+  const geo = mergeGeometries([
+    part(sx, sy * 0.48, sz, cx, b.min.y + 0.16 + sy * 0.24, cz, 1),
+    part(sx * 0.86, sy * 0.4, sz * 0.5, cx, b.min.y + 0.16 + sy * 0.66, cz - sz * 0.03, 0.02),
+    ...[-1, 1].flatMap(fz => [-1, 1].map(fx => part(0.22, 0.62, 0.62, cx + fx * (sx / 2 - 0.1), b.min.y + 0.31, cz + fz * sz * 0.32, 0.015))),
+  ])!;
+  proxies.set(tpl, geo);
+  return geo;
+}
+
 export function parkedCars(c: ChunkContent, ctx: WorldContext): ParkedCar[] {
   const hit = carCache.get(c);
   if (hit) return hit;

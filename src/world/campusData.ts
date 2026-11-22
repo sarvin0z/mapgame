@@ -173,12 +173,25 @@ const REMOVED_BUMPS: Pt[] = [[-332.39, -108.16], [-326.22, -109.26]];
  */
 export function openMedians(medians: { pts: Pt[]; w: number }[], roads: Road[]): { pts: Pt[]; w: number }[] {
   const drive = roads.filter(r => DRIVABLE.has(r.cls));
+  // Road segments bucketed on a 25 m grid (each in every cell its padded box touches), so a
+  // median point is tested only against the segments near it, not every road on campus
+  // (that took about 3.5 s at load).
+  const G = 25, grid = new Map<string, [Road, number][]>();
+  for (const r of drive) for (let j = 0; j < r.pts.length - 1; j++) {
+    const e = r.pts[j], f = r.pts[j + 1], pad = r.w / 2 + 4;
+    for (let gx = Math.floor((Math.min(e[0], f[0]) - pad) / G); gx <= Math.floor((Math.max(e[0], f[0]) + pad) / G); gx++)
+      for (let gy = Math.floor((Math.min(e[1], f[1]) - pad) / G); gy <= Math.floor((Math.max(e[1], f[1]) + pad) / G); gy++) {
+        const k = gx + ',' + gy;
+        if (!grid.has(k)) grid.set(k, []);
+        grid.get(k)!.push([r, j]);
+      }
+  }
   const out: { pts: Pt[]; w: number }[] = [];
   for (const m of medians) {
     const blocked = m.pts.map((p, i) => {
       const a = m.pts[Math.max(0, i - 1)], b = m.pts[Math.min(m.pts.length - 1, i + 1)];
       const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, u = [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
-      for (const r of drive) for (let j = 0; j < r.pts.length - 1; j++) {
+      for (const [r, j] of grid.get(Math.floor(p[0] / G) + ',' + Math.floor(p[1] / G)) ?? []) {
         const e = r.pts[j], f = r.pts[j + 1], lf = Math.hypot(f[0] - e[0], f[1] - e[1]) || 1;
         const v = [(f[0] - e[0]) / lf, (f[1] - e[1]) / lf];
         if (Math.abs(u[0] * v[0] + u[1] * v[1]) > Math.cos(35 * Math.PI / 180)) continue;

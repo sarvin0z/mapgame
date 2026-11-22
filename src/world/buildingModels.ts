@@ -12,15 +12,21 @@ export function slugOf(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 }
 
-export async function loadBuildingModels(base = 'models/buildings/'): Promise<Map<string, THREE.Object3D>> {
+/**
+ * Loads every building model. Their PBR textures depend on the photo textures, so
+ * `pbrReady` (the photo load) is awaited only before applying them: downloads and Draco
+ * decoding run in parallel with the photos.
+ */
+export async function loadBuildingModels(base = 'models/buildings/', pbrReady: Promise<unknown> = Promise.resolve()): Promise<Map<string, THREE.Object3D>> {
   const out = new Map<string, THREE.Object3D>();
   let index: string[] = [];
   try { index = await (await fetch(base + 'index.json')).json(); } catch { return out; }
-  const draco = new DRACOLoader().setDecoderPath('draco/');
+  const draco = new DRACOLoader().setDecoderPath('draco/').setWorkerLimit(Math.max(2, Math.min(4, (navigator.hardwareConcurrency || 4) - 1)));
   const loader = new GLTFLoader().setDRACOLoader(draco);
   await Promise.all(index.map(async slug => {
     try {
       const g = await loader.loadAsync(base + slug + '.glb');
+      await pbrReady;
       g.scene.traverse(o => {
         const m = o as THREE.Mesh;
         if (!m.isMesh) return;

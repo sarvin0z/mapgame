@@ -12,12 +12,16 @@ export interface QualityPreset {
   nearDistance: number;
   pointLights: boolean;
   bloom: boolean;
+  /** Half-width (m) of the baked sun-shadow area around the player. */
+  shadowExtent: number;
+  /** Full tree crowns and parked cars within this distance (see WorldStreamer). */
+  treeFullDistance: number;
 }
 
 export const PRESETS: Record<QualityName, QualityPreset> = {
-  low: { name: 'low', pixelRatioCap: 0.75, shadows: false, shadowMapSize: 0, viewDistance: 700, detailDistance: 260, nearDistance: 120, pointLights: false, bloom: false },
-  medium: { name: 'medium', pixelRatioCap: 1, shadows: true, shadowMapSize: 1024, viewDistance: 1100, detailDistance: 420, nearDistance: 200, pointLights: true, bloom: false },
-  high: { name: 'high', pixelRatioCap: 2, shadows: true, shadowMapSize: 2048, viewDistance: 1400, detailDistance: 480, nearDistance: 200, pointLights: true, bloom: true },
+  low: { name: 'low', pixelRatioCap: 0.75, shadows: true, shadowMapSize: 2048, shadowExtent: 110, viewDistance: 700, detailDistance: 240, nearDistance: 120, pointLights: false, bloom: false, treeFullDistance: 45 },
+  medium: { name: 'medium', pixelRatioCap: 1, shadows: true, shadowMapSize: 2048, shadowExtent: 130, viewDistance: 1000, detailDistance: 340, nearDistance: 180, pointLights: true, bloom: false, treeFullDistance: 70 },
+  high: { name: 'high', pixelRatioCap: 1.5, shadows: true, shadowMapSize: 4096, shadowExtent: 160, viewDistance: 1300, detailDistance: 420, nearDistance: 200, pointLights: true, bloom: true, treeFullDistance: 95 },
 };
 export const ORDER: QualityName[] = ['low', 'medium', 'high'];
 

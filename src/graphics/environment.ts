@@ -146,6 +146,15 @@ export class Environment {
     this.scene.environmentIntensity = P.env;
   }
 
+  /** Sets the half-width (m) of the sun's shadow area. */
+  setShadowExtent(e: number) {
+    const s = this.sun.shadow.camera;
+    s.left = s.bottom = -e;
+    s.right = s.top = e;
+    s.far = 600;
+    s.updateProjectionMatrix();
+  }
+
   setViewDistance(d: number) {
     const fog = this.scene.fog as THREE.Fog;
     fog.far = d * 1.05;

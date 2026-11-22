@@ -69,9 +69,14 @@ function findSpawn(data: CampusData, terrain: Terrain, landmark: string) {
 
 async function main() {
   setLoading('Loading campus map data…');
+  const T_LOAD = { start: performance.now(), fetched: 0 };
+  let bakedVersion = -1;
+  /** True while the dev comment tool (3D-Agentation-Editor) is in marking mode. */
+  let marking = false;
   const params = new URLSearchParams(location.search);
-  const [data, terrain, R, cartModel, cars, models] = await Promise.all([loadCampus(), Terrain.load(), initRapier(), loadCartModel(DEFAULT_CART), loadCars().catch(() => []), loadPhotos().then(() => loadBuildingModels())]);
+  const [data, terrain, R, cartModel, cars, models] = await Promise.all([loadCampus(), Terrain.load(), initRapier(), loadCartModel(DEFAULT_CART), loadCars().catch(() => []), (() => { const photos = loadPhotos(); return loadBuildingModels(undefined, photos); })()]);
   const solids = await loadBuildingSolids();
+  T_LOAD.fetched = performance.now();
   setLoading('Building campus…');
   const chunks = partition(data);
   const tm = terrain.meta;
@@ -159,7 +164,7 @@ async function main() {
   const adaptive = new AdaptiveQuality(quality);
   if (params.has('quality')) adaptive.enabled = false;
 
-  const streamer = new WorldStreamer(chunks, mats, ctx, { viewDistance: PRESETS[quality].viewDistance, detailDistance: PRESETS[quality].detailDistance, nearDistance: PRESETS[quality].nearDistance });
+  const streamer = new WorldStreamer(chunks, mats, ctx, { viewDistance: PRESETS[quality].viewDistance, detailDistance: PRESETS[quality].detailDistance, nearDistance: PRESETS[quality].nearDistance, treeFullDistance: PRESETS[quality].treeFullDistance });
   scene.add(streamer.root);
 
   const physics = new PhysicsWorld(R, chunks, terrain);
@@ -205,6 +210,11 @@ async function main() {
   const rc = new RouteChallenge(data, startPt, onNetwork, data.stops.filter(s => !ctx.inParking(s.p)), data.bumps);
   const peds = new Pedestrians(data, terrain);
   scene.add(peds.group);
+  // Moving actors stay out of the baked sun-shadow map (their contact shadows ground them).
+  const noCast = (root: THREE.Object3D) => root.traverse(o => { o.castShadow = false; });
+  noCast(cart.model.root);
+  noCast(peds.group);
+  peds.group.addEventListener('childadded', e => noCast((e as unknown as { child: THREE.Object3D }).child));
   const beacon = makeBeacon();
   scene.add(beacon);
   let menuOpen = true;
@@ -306,8 +316,8 @@ async function main() {
     cart.headlightsOn = night > 0;
     menus.setTime(t);
   }
-  const startTime = params.get('time') as TimeOfDay | null;
-  applyTime(startTime && ['golden', 'day', 'night'].includes(startTime) ? startTime : 'golden');
+  // One time of day, golden hour, so the sun shadows can be baked (see the frame loop).
+  applyTime('golden');
 
   // Post-processing (bloom for emergency lights) on high quality only.
   // Multisampled half-float target so the post chain keeps MSAA and HDR highlights.
@@ -333,6 +343,9 @@ async function main() {
     streamer.settings.viewDistance = p.viewDistance;
     streamer.settings.detailDistance = p.detailDistance;
     streamer.settings.nearDistance = p.nearDistance;
+    streamer.settings.treeFullDistance = p.treeFullDistance;
+    env.setShadowExtent(p.shadowExtent);
+    bakedVersion = -1;
     camera.far = p.viewDistance + 3000;
     camera.updateProjectionMatrix();
     env.setViewDistance(p.viewDistance);
@@ -373,8 +386,27 @@ async function main() {
   });
 
   setLoading('Streaming nearby chunks…');
+  const tWarm = performance.now();
   streamer.warm(spawn.pos);
-  loading.remove();
+  const tCompile = performance.now();
+  // No black frames at start: compile every shader the scene uses (asynchronously, off the
+  // main thread where the driver allows), bake the shadows and draw two frames behind the
+  // loading screen, then reveal. Uncompiled programs were drawing nothing on first use.
+  setLoading('Preparing graphics…');
+  rig.update(cart, 0.016, 0);
+  env.follow(cart.position(new THREE.Vector3()));
+  // The first frames compile what the opening view needs; everything else in view range
+  // compiles in the background (parallel compile) while the menu is up.
+  renderer.shadowMap.needsUpdate = true;
+  for (let i = 0; i < 2; i++) {
+    if (PRESETS[quality].bloom) composer.render(0.016); else renderer.render(scene, camera);
+    await new Promise(r => requestAnimationFrame(r));
+  }
+  void renderer.compileAsync(scene, camera).catch(() => {});
+  console.info(`[load] fetch ${Math.round(T_LOAD.fetched - T_LOAD.start)} ms, setup ${Math.round(tWarm - T_LOAD.fetched)} ms, warm ${Math.round(tCompile - tWarm)} ms, compile ${Math.round(performance.now() - tCompile)} ms`);
+  loading.style.transition = 'opacity 0.35s ease-out';
+  loading.style.opacity = '0';
+  setTimeout(() => loading.remove(), 380);
   menus.open();
 
   const FIXED = physics.world.timestep;
@@ -383,6 +415,7 @@ async function main() {
   let fpsFrames = 0, fpsTime = 0, fps = 60, frameMs = 0, physMs = 0, renderMs = 0;
   let physTimer = 0;
   let shadowFrame = 0;
+  const bakedAt = new THREE.Vector3(Infinity, 0, 0);
   const camPos = new THREE.Vector3();
   const tmp = new THREE.Vector3();
   const tmp2 = new THREE.Vector3();
@@ -393,6 +426,15 @@ async function main() {
   (window as any).__sim = sim;
   if (import.meta.env.DEV) {
     const { installHarness } = await import('./debug/harness.ts');
+    // 3D-Agentation-Editor (dev only): Shift+M, click anything in the 3D scene and type a
+    // comment; notes go to .scenemark/ through its receiver (see docs). Driving pauses while marking.
+    const { attachSceneMark } = await import('./dev/scenemark.js');
+    attachSceneMark({
+      renderer, scene, camera,
+      render: () => { if (PRESETS[quality].bloom) composer.render(0.016); else renderer.render(scene, camera); },
+      ignore: o => o.layers.mask === 2,
+      onModeChange: active => { marking = active; },
+    });
     installHarness({
       data, cart, physics, streamer, rig, terrain, renderer, scene, camera, sun: env.sun, sunDir: env.sunDir,
       post: (w, h) => {
@@ -410,7 +452,7 @@ async function main() {
     last = now;
     const t0 = performance.now();
 
-    const driving = rig.mode !== 'free' && !menuOpen && rc.phase !== 'countdown' && rc.phase !== 'finished';
+    const driving = !marking && rig.mode !== 'free' && !menuOpen && rc.phase !== 'countdown' && rc.phase !== 'finished';
     const k = input.keys;
     const fwd = driving ? input.axis([], ['KeyW', 'ArrowUp']) : 0;
     // Held brake while the cart is not under the player's control (menus, countdown).
@@ -439,16 +481,22 @@ async function main() {
     rig.update(cart, dt, now / 1000);
     camPos.copy(camera.position);
     streamer.update(camPos);
-    env.follow(rig.mode === 'free' ? camPos : cp);
-    // The shadow map is refreshed every frame: refreshing it every other frame made
-    // shadow edges step against the moving camera, which read as flicker on facades.
-    // Its cost is kept down instead by the light tree crowns in the shadow pass.
-    shadowFrame++;
+    // Baked sun shadows: the cart and pedestrians cast none (they have contact shadows),
+    // so the map only changes when the area around the player does. It is re-rendered
+    // when the player has moved a third of its width from where it was baked, or the
+    // chunks around changed, instead of every frame.
+    const focus = rig.mode === 'free' ? camPos : cp;
     renderer.shadowMap.autoUpdate = false;
-    renderer.shadowMap.needsUpdate = true;
+    if (bakedVersion !== streamer.version || focus.distanceTo(bakedAt) > PRESETS[quality].shadowExtent / 3) {
+      env.follow(focus);
+      bakedAt.copy(focus);
+      bakedVersion = streamer.version;
+      renderer.shadowMap.needsUpdate = true;
+      shadowFrame++;
+    }
 
     // Bloom: a little lamp glow at night; nearly none at midday, where it hazed the horizon on High.
-    bloom.strength = env.night ? 0.3 : env.time === 'day' ? 0.05 : 0.14;
+    bloom.strength = 0.14;
     renderer.info.reset();
     const tr = performance.now();
     if (PRESETS[quality].bloom) composer.render(dt); else renderer.render(scene, camera);
