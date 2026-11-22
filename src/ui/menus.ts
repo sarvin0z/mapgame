@@ -109,10 +109,11 @@ export class Menus {
         this.current = null; this.stopCalls.clear();
         this.close(); this.lastDest = undefined; this.lastStops = n; hooks.start(undefined, n);
       }
-      if (a === 'multi-choose') { this.picking = true; this.stops = []; this.renderStops(); this.tab('locations'); this.search.focus(); }
+      if (a === 'multi-choose') { this.picking = true; this.stops = []; this.search.value = ''; this.renderStops(); this.tab('locations'); this.search.focus(); }
+      if (a === 'multi-cancel') { this.picking = false; this.stops = []; this.renderStops(); }
       if (a === 'multi-start' && this.stops.length) {
         const s = this.stops.slice();
-        this.current = null; this.stopCalls.clear(); this.picking = false;
+        this.current = null; this.stopCalls.clear(); this.picking = false; this.stops = []; this.renderStops();
         this.close(); this.lastDest = s; this.lastStops = s.length; hooks.start(s);
       }
       if (a === 'resume') this.close();
@@ -140,6 +141,32 @@ export class Menus {
     this.renderList();
   }
 
+  /** Restarts a run over the given stops from the deploy point (Backspace during a call). */
+  restart(stops: string[]) { this.close(); this.lastDest = stops; this.lastStops = stops.length; this.hooks.start(stops.length === 1 ? stops[0] : stops, stops.length); }
+  /** True while the first-drive controls card is up (the countdown waits for it). */
+  get tipOpen() { return !$('first-tip').hidden; }
+
+  /**
+   * Settings and dispatch choices kept between visits: deploy point, graphics, the route and
+   * beam aids, and the destination marker. Applied once the game has started.
+   */
+  restoreSettings() {
+    const ids = ['start-select', 'quality-select', 'assist', 'show-beam', 'show-target'];
+    let saved: Record<string, string | boolean> = {};
+    try { saved = JSON.parse(localStorage.getItem('utd-ems-settings') ?? '{}'); } catch { /* storage unavailable */ }
+    for (const id of ids) {
+      const el = $<HTMLInputElement>(id);
+      if (id in saved) { if (el.type === 'checkbox') el.checked = !!saved[id]; else if ([...(el as unknown as HTMLSelectElement).options].some(o => o.value === saved[id])) el.value = String(saved[id]); }
+      el.addEventListener('change', () => {
+        saved[id] = el.type === 'checkbox' ? el.checked : el.value;
+        try { localStorage.setItem('utd-ems-settings', JSON.stringify(saved)); } catch { /* storage unavailable */ }
+      });
+    }
+    this.updateDeploy();
+    this.hooks.quality($<HTMLSelectElement>('quality-select').value);
+    if ('start-select' in saved) { this.newCalls(); this.renderList(); }
+  }
+
   get assisted() { return this.assist.checked; }
   get showTarget() { return $<HTMLInputElement>('show-target').checked; }
   get showBeam() { return $<HTMLInputElement>('show-beam').checked; }
@@ -157,6 +184,8 @@ export class Menus {
     replay(this.menu, 'enter');
     document.body.classList.add('menu-open');
     this.hooks.menuOpen(true);
+    // The selected destination's row, in view in the list.
+    requestAnimationFrame(() => this.list.querySelector<HTMLElement>('button.on')?.scrollIntoView({ block: 'nearest' }));
   }
   /** Opens dispatch on the controls page (F1). */
   showControls() { if (this.menu.hidden) this.open(); this.view('controls'); }
@@ -172,6 +201,7 @@ export class Menus {
     for (const p of this.menu.querySelectorAll<HTMLElement>('.tabpanel')) p.hidden = p.dataset.tab !== t;
     $('reroll').hidden = t !== 'locations';
     if (t === 'locations') this.renderList();
+    this.syncBriefMode();
   }
 
   private updateDeploy() { $('deploy-label').textContent = this.startKey === 'sg' ? 'Safety and Grounds' : 'the UEMR apartment'; }
@@ -181,7 +211,7 @@ export class Menus {
     const types = CALL_TYPES.filter(t => (dest.kind === 'lot' ? t.lots || !t.buildings : !t.lots));
     const type = pick(types);
     const from = this.hooks.deployPoint();
-    const r = this.rc.graph.route(this.rc.graph.nearest(from), dest.access);
+    const r = this.rc.routeTo(from, dest);
     return { type, dest, line: pick(type.lines), dist: r ? r.length : null };
   }
 
@@ -288,6 +318,7 @@ export class Menus {
         if (this.picking) {
           if (this.stops[this.stops.length - 1] !== d.name && this.stops.length < 10) this.stops.push(d.name);
           this.renderStops();
+          b.classList.add('on');
           return;
         }
         // A chosen location becomes a call in the brief, started from there.
@@ -318,7 +349,23 @@ export class Menus {
       go.innerHTML = `<svg><use href="#i-play" /></svg>Start ${this.stops.length} call${this.stops.length === 1 ? '' : 's'}`;
       list.appendChild(go);
     }
-    if (this.picking) this.tab('gauntlet');
+    // The stop bar above the destination list: what has been picked, and Start / Cancel.
+    const bar = $('pick-bar');
+    bar.hidden = !this.picking;
+    // Same codes as the destination list: the official abbreviation where there is one.
+    const code = (n: string) => { const a = this.rc.destinations.find(d => d.name === n)?.aliases?.[0]; return a && /^[A-Z0-9]+$/.test(a) ? a : locationCode(n); };
+    $('pick-count').textContent = this.stops.length ? `${this.stops.length} stop${this.stops.length === 1 ? '' : 's'}: ${this.stops.map(code).join(' → ')}` : 'Tap destinations in the order to visit them';
+    const go = $<HTMLButtonElement>('pick-start');
+    go.disabled = this.stops.length < 1;
+    go.lastElementChild!.textContent = `Start ${this.stops.length || ''} call${this.stops.length === 1 ? '' : 's'}`.replace('  ', ' ');
+    this.syncBriefMode();
+  }
+
+  /** The brief panel follows the tab: a call's brief, or the multi-call summary (no single-call Start). */
+  private syncBriefMode() {
+    const multi = !$('dispatch-tabs').querySelector('[data-tab="gauntlet"].on') ? this.picking : true;
+    $('brief').classList.toggle('multi', multi);
+    $('brief-multi-stops').textContent = this.stops.length ? this.stops.map((n, i) => `${i + 1}. ${n}`).join('\n') : 'No stops picked yet.';
   }
 
   /** The call for the stop being driven (a multi-call run gets a call per stop). */
@@ -395,10 +442,10 @@ export class Menus {
     $('res-grid').innerHTML = rows.map(([k, v]) => `<div><small>${k}</small><b>${v}</b></div>`).join('');
     const target = r.optimal / REFERENCE_SPEED;
     const checks: [boolean, string][] = [
-      [r.time <= target * 1.15, `Arrived near the target time (${mmss(target)})`],
-      [r.onNetwork >= 0.95, 'Stayed on roads, walks and lots'],
-      [r.stops.obeyed === r.stops.total, r.stops.total ? 'Slowed for every stop sign' : 'No stop signs on the way'],
-      [r.bumps.slow === r.bumps.total, r.bumps.total ? 'Eased over every speed bump' : 'No speed bumps on the way'],
+      [r.time <= target * 1.15, r.time <= target * 1.15 ? `Arrived within the target time (${mmss(target)})` : `Arrived ${mmss(r.time - target)} after the ${mmss(target)} target`],
+      [r.onNetwork >= 0.95, r.onNetwork >= 0.95 ? 'Stayed on roads, walks and lots' : `${Math.round((1 - r.onNetwork) * 100)}% of the drive off roads and walks`],
+      [r.stops.obeyed === r.stops.total, !r.stops.total ? 'No stop signs on the way' : r.stops.obeyed === r.stops.total ? 'Slowed for every stop sign' : `Too fast at ${r.stops.total - r.stops.obeyed} of ${r.stops.total} stop signs`],
+      [r.bumps.slow === r.bumps.total, !r.bumps.total ? 'No speed bumps on the way' : r.bumps.slow === r.bumps.total ? 'Eased over every speed bump' : `Too fast over ${r.bumps.total - r.bumps.slow} of ${r.bumps.total} speed bumps`],
       [r.hits === 0, r.hits ? `${r.hits} pedestrian contact${r.hits === 1 ? '' : 's'}` : 'No pedestrian contact'],
       [r.collisions === 0, r.collisions ? `${r.collisions} collision${r.collisions === 1 ? '' : 's'}` : 'No collisions'],
     ];
@@ -409,6 +456,8 @@ export class Menus {
     const all = route.concat(trail);
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const p of all) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); }
+    const grow = (a: number, b: number, min: number) => { const m = (a + b) / 2, h = Math.max(b - a, min) / 2; return [m - h, m + h]; };
+    [x0, x1] = grow(x0, x1, 300); [y0, y1] = grow(y0, y1, 120);
     const pad = 30, sc = Math.min((c.width - 2 * pad) / Math.max(1, x1 - x0), (c.height - 2 * pad) / Math.max(1, y1 - y0));
     const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
     const P = (p: Pt) => [c.width / 2 + (p[0] - cx) * sc, c.height / 2 - (p[1] - cy) * sc] as const;

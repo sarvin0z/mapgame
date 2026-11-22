@@ -27,6 +27,18 @@ describe('navigation graph', () => {
     const r = g.route(g.nearest([0, 0]), g.nearest([100, 100]))!;
     expect(r.length).toBeCloseTo(200, 3); // around the L; the stairs are not used
   });
+  it('never routes a walk through a solid building, and ends routes inside the arrival zone', () => {
+    const data = campus(true);
+    // A building straddling the diagonal walk: the route must go around by road instead.
+    (data.buildings as any[]).push({ id: 'b2', name: 'Blocker', kind: 'university', h: 10, style: 'precast', outer: [[40, 40], [60, 40], [60, 60], [40, 60]] });
+    const g = new NavGraph(data);
+    const r = g.route(g.nearest([0, 0]), g.nearest([100, 100]))!;
+    expect(r.length).toBeCloseTo(200, 3);
+    const rc = new RouteChallenge(data, [0, 0], () => true);
+    const d = rc.destinations.find(x => x.name === 'Target Hall')!;
+    const full = rc.routeTo([0, 0], d)!;
+    expect(rc.distanceTo(d, full.pts[full.pts.length - 1])).toBeLessThanOrEqual(6);
+  });
   it('takes a walkway shortcut when it is shorter', () => {
     const g = new NavGraph(campus(true));
     const r = g.route(g.nearest([0, 0]), g.nearest([100, 100]))!;
@@ -52,7 +64,8 @@ describe('route challenge scoring', () => {
   });
   it('penalises cutting across grass and taking detours', () => {
     const grass = run(along([[0, 0], [100, 100]]), p => Math.abs(p[1]) < 5 || Math.abs(p[0] - 100) < 5, 0.25);
-    expect(grass.result!.onNetwork).toBeLessThan(0.2);
+    // The last 25 m up to the building is the normal pull-up and isn't counted as off-network.
+    expect(grass.result!.onNetwork).toBeLessThan(0.3);
     const detour = run(along([[0, 0], [100, 0], [180, 0], [100, 0], [100, 100]]), () => true, 0.25);
     expect(detour.result!.efficiency).toBeLessThan(0.75);
     expect(detour.result!.score).toBeLessThan(900);

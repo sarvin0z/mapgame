@@ -5,6 +5,7 @@
 // the beacon and route from it.
 import type { CampusData, Pt, Bump, StopLine } from '../world/campusData.ts';
 import { NavGraph } from './navGraph.ts';
+import { pointInRing } from '../world/spatial.ts';
 
 /**
  * `target` is the beacon/reference point; arrival is anywhere within ARRIVAL_M of
@@ -35,6 +36,13 @@ export type Phase = 'idle' | 'countdown' | 'running' | 'finished';
 
 const REFERENCE_SPEED = 7; // m/s (~15.7 mph): a brisk but legal average for a campus cart
 export const ARRIVAL_M = 6; // close to any side of the building: buildings have several entrances
+/**
+ * The pull-up from the network to the building (a lawn or a forecourt between the last walk
+ * and the wall) is part of every response, so it is not counted as leaving roads and walks.
+ */
+const APPROACH_M = 25;
+/** Shortest leg the scoring uses: adjacent stops still take a pull-out and a pull-up. */
+const MIN_LEG_M = 40;
 // On a call the cart is an emergency vehicle: it slows for a stop sign rather than halting.
 // Slowing to 8 mph (3.6 m/s) or under on the approach counts.
 const STOP_SPEED = 3.6;
@@ -96,10 +104,12 @@ export class RouteChallenge {
   private recent: string[] = [];
   private controls: Control[] = [];
   private stopsOk = 0; private stopsAll = 0; private bumpsOk = 0; private bumpsAll = 0;
+  private solidRings: Pt[][] = [];
 
   constructor(data: CampusData, public startPoint: Pt, private onNetwork: (p: Pt) => boolean,
     private stops: StopLine[] = [], private bumps: Bump[] = []) {
     this.graph = new NavGraph(data);
+    this.solidRings = (data.buildings ?? []).filter(b => !['canopy', 'skybridge', 'shelter'].includes(b.style) && !b.minH).map(b => b.outer);
     const area = (r: Pt[]) => { let a = 0; for (let i = 0, j = r.length - 1; i < r.length; j = i++) a += (r[j][0] - r[i][0]) * (r[j][1] + r[i][1]); return Math.abs(a / 2); };
     const seen = new Set<string>();
     this.destinations = [];
@@ -162,20 +172,19 @@ export class RouteChallenge {
         let pool = this.destinations.filter(d => this.distanceTo(d, from) > 150 && !this.recent.includes(d.name) && !chosen.includes(d));
         if (!pool.length) pool = this.destinations.filter(d => !chosen.includes(d));
         const order = pool.map(d => ({ d, k: rnd() })).sort((a, b) => a.k - b.k).map(x => x.d);
-        const fromNode = this.graph.nearest(from);
-        const pick = order.slice(0, 20).find(d => this.graph.route(fromNode, d.access));
+        const pick = order.slice(0, 20).find(d => this.routeTo(from, d));
         if (!pick) break;
         chosen.push(pick);
         from = pick.target;
       }
     }
     if (!chosen.length) return false;
-    const r = this.graph.route(this.graph.nearest(this.startPoint), chosen[0].access);
+    const r = this.routeTo(this.startPoint, chosen[0]);
     if (!r) return false;
     this.dest = chosen[0];
     this.queue = chosen.slice(1);
     this.optimal = r;
-    this.optimalTotal = r.length;
+    this.optimalTotal = Math.max(MIN_LEG_M, r.length);
     this.legs = [];
     this.legStart = 0;
     this.assisted = this.assist.route || this.assist.beam;
@@ -200,6 +209,69 @@ export class RouteChallenge {
 
   cancel() { this.phase = 'idle'; this.dest = null; this.optimal = null; }
 
+  /**
+   * Best route from map point `from` to the destination's arrival zone: along roads and walks to
+   * the network point that leaves the least approach (the off-network pull-up weighs 2.5 times a
+   * metre of road), then straight in to just inside the arrival zone (ARRIVAL_M of the walls, or
+   * the lot). The length includes that pull-up.
+   */
+  routeTo(from: Pt, d: Destination): { pts: Pt[]; length: number } | null {
+    const pull = (i: number) => {
+      const p = this.graph.pts[i], q = this.approachPoint(d, p);
+      if (!q) return 0;
+      // A pull-up that would cut through another building is no way in from here.
+      if (this.crossesSolid(d, p, q)) return Infinity;
+      return 2.5 * Math.hypot(q[0] - p[0], q[1] - p[1]);
+    };
+    const r = this.graph.route(this.graph.nearest(from), d.access, pull);
+    if (!r) return null;
+    const end = r.pts[r.pts.length - 1], q = this.approachPoint(d, end);
+    if (!q) return r;
+    return { pts: [...r.pts, q], length: r.length + Math.hypot(q[0] - end[0], q[1] - end[1]) };
+  }
+
+  /** Where the straight pull-up from network point p enters the arrival zone (null when p is already in it). */
+  private approachPoint(d: Destination, p: Pt): Pt | null {
+    if (this.distanceTo(d, p) <= ARRIVAL_M - 1) return null;
+    const q = this.nearestEdgePoint(d, p);
+    const dx = p[0] - q[0], dy = p[1] - q[1], l = Math.hypot(dx, dy) || 1;
+    // For a lot the nearest edge point is already inside the zone; for a building stop 1 m inside it.
+    const off = d.kind === 'lot' ? 0 : ARRIVAL_M - 1;
+    return [q[0] + dx / l * off, q[1] + dy / l * off];
+  }
+
+  /** True when the segment p→q passes through a solid building other than one containing the destination. */
+  private crossesSolid(d: Destination, p: Pt, q: Pt) {
+    const L = Math.hypot(q[0] - p[0], q[1] - p[1]), n = Math.ceil(L);
+    const host = d.outlines[0], hc: Pt = [host.reduce((t, a) => t + a[0], 0) / host.length, host.reduce((t, a) => t + a[1], 0) / host.length];
+    for (let k = 1; k < n; k++) {
+      const s: Pt = [p[0] + (q[0] - p[0]) * k / n, p[1] + (q[1] - p[1]) * k / n];
+      if (!this.graph.solidAt(s) || d.outlines.some(r => pointInRing(s, r))) continue;
+      // Inside a building that also contains the destination (a venue inside a larger hall): allowed.
+      if (this.hostAt(s, hc)) continue;
+      return true;
+    }
+    return false;
+  }
+
+  /** True when the solid building around s also contains point c. */
+  private hostAt(s: Pt, c: Pt) {
+    for (const b of this.solidRings) if (pointInRing(s, b) && pointInRing(c, b)) return true;
+    return false;
+  }
+
+  /** The point on the destination's outline nearest to p. */
+  private nearestEdgePoint(d: Destination, p: Pt): Pt {
+    let best: Pt = p, bd = Infinity;
+    for (const r of d.outlines) for (let i = 0; i < r.length; i++) {
+      const a = r[i], b = r[(i + 1) % r.length], dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2));
+      const q: Pt = [a[0] + dx * t, a[1] + dy * t], dd = Math.hypot(q[0] - p[0], q[1] - p[1]);
+      if (dd < bd) { bd = dd; best = q; }
+    }
+    return best;
+  }
+
   /** Called when the cart touches a pedestrian. */
   pedestrianHit() { if (this.phase === 'running') { this.hits++; this.flash('Pedestrian contact −50', false); } }
 
@@ -222,7 +294,7 @@ export class RouteChallenge {
       const d = Math.hypot(pos[0] - this.last[0], pos[1] - this.last[1]);
       if (d < 20) { // ignore teleports (reset/recover)
         this.driven += d;
-        this.lastOff = !this.onNetwork(pos);
+        this.lastOff = !this.onNetwork(pos) && this.distanceTo(this.dest, pos) > APPROACH_M;
         if (this.lastOff) this.offNetwork += d;
       }
     }
@@ -279,13 +351,13 @@ export class RouteChallenge {
 
   /** Reached the current stop: record the leg, then go on to the next stop or finish. */
   private arrive(pos: Pt) {
-    this.legs.push({ name: this.dest!.name, time: this.time - this.legStart, optimal: this.optimal!.length });
+    this.legs.push({ name: this.dest!.name, time: this.time - this.legStart, optimal: Math.max(MIN_LEG_M, this.optimal!.length) });
     const next = this.queue.shift();
     if (!next) { this.finish(); return; }
-    const r = this.graph.route(this.graph.nearest(pos), next.access);
+    const r = this.routeTo(pos, next);
     this.dest = next;
     this.optimal = r ?? { pts: [pos, next.target], length: Math.hypot(next.target[0] - pos[0], next.target[1] - pos[1]) };
-    this.optimalTotal += this.optimal.length;
+    this.optimalTotal += Math.max(MIN_LEG_M, this.optimal.length);
     this.legStart = this.time;
     this.flash(`Stop ${this.legs.length} reached — next: ${next.name}`, true);
   }
@@ -295,11 +367,11 @@ export class RouteChallenge {
   private finish() {
     const optimal = this.optimalTotal;
     const driven = Math.max(this.driven, 1);
-    // Arriving anywhere within ARRIVAL_M can be shorter than the route to the reference node.
     const onNetwork = 1 - Math.min(1, this.offNetwork / driven);
-    // A shortcut across grass, walls or lots is not a better route: efficiency and pace only
-    // count in proportion to the driving done on roads, walks and lots.
-    const efficiency = Math.max(0, Math.min(1, (optimal - ARRIVAL_M * this.legs.length) / driven)) * onNetwork;
+    // The best route already ends inside the arrival zone. A shortcut across grass, walls or lots
+    // is not a better route: efficiency and pace only count in proportion to the driving done on
+    // roads, walks and lots.
+    const efficiency = Math.max(0, Math.min(1, optimal / driven)) * onNetwork;
     const timeScore = Math.min(1, optimal / REFERENCE_SPEED / Math.max(this.time, 0.1)) * onNetwork;
     const events = this.stopsAll + this.bumpsAll;
     const traffic = events ? (this.stopsOk + this.bumpsOk) / events : 1;

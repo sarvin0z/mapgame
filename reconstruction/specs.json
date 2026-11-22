@@ -5206,7 +5206,8 @@
     "glass": "dark",
     "roof": "parapet",
     "ground": "storefront",
-    "accent": "orangeBalcony"
+    "accent": "orangeBalcony",
+        "accentAt": [154.83, 635.95]
    },
    "priority": 18,
    "front": [

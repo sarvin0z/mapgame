@@ -69,10 +69,11 @@ export function stairBlocks(s: Steps, terrain: HeightSource): StairBlock[] {
   // Where the elevation model shows no real level change (it smooths short flights
   // and the walk is graded around them), the steps are left out and the way is
   // drawn as an ordinary walk rather than as blocks sunk into flat ground.
-  if (Math.abs(h1 - h0) < MIN_STAIR_DROP) return [];
+  // (A flight the user asked to see as stairs is always built: `force`, see sceneEdits.ts.)
+  if (!s.force && Math.abs(h1 - h0) < MIN_STAIR_DROP) return [];
   // A long way with a gentle drop is a sloped walk in the elevation model; steps there
   // would stand proud of the grade and block the walk.
-  if (Math.abs(h1 - h0) / total < MIN_STAIR_GRADE) return [];
+  if (!s.force && Math.abs(h1 - h0) / total < MIN_STAIR_GRADE) return [];
   const byDrop = Math.round(Math.abs(h1 - h0) / 0.16);
   const n = Math.max(2, Math.min(60, s.n && Math.abs(h1 - h0) / s.n > 0.08 ? s.n : byDrop));
   const at = (d: number): { p: Pt; yaw: number } => {

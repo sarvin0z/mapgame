@@ -151,7 +151,10 @@ export function baseLevel(outer: Pt[], T: Terrain) {
 }
 
 function foundation(kit: BuildingKit, outer: Pt[], s: Seat) {
-  if (s.base - s.ground > 0.05) addWalls(kit.concrete, outer, s.ground - 0.4, s.base + 0.02, [0.86, 0.84, 0.8], false, 2, 1);
+  // Set 4 cm proud of the wall, as a plinth is: drawn in the wall's own plane, it fought the
+  // brick for the same pixels over the wall's lowest 0.3 m and flickered.
+  const ring = insetRing(ensureCCW(outer), -0.04) ?? outer;
+  if (s.base - s.ground > 0.05) addWalls(kit.concrete, ring, s.ground - 0.4, s.base + 0.02, [0.86, 0.84, 0.8], false, 2, 1);
 }
 
 // ---------------------------------------------------------------- generic body

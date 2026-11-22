@@ -1,4 +1,5 @@
 import type { LatLon } from '../geo/projection.ts';
+import { applySceneEdits, roadFlares, trimCurbs } from './sceneEdits.ts';
 
 export type Pt = [number, number]; // [east, north] meters
 
@@ -44,7 +45,7 @@ export interface Road {
 
 export interface Area { kind: string; outer: Pt[]; sport?: string; name?: string }
 export interface Barrier { kind: string; pts: Pt[]; h?: number }
-export interface Steps { id: number; pts: Pt[]; w: number; n?: number; handrail?: boolean }
+export interface Steps { id: number; pts: Pt[]; w: number; n?: number; handrail?: boolean; /** Always built as steps, however gentle the grade (a user's scene edit). */ force?: boolean }
 /** Traffic calming on a road node: `dir` is the road direction, `w` its width. */
 export interface Bump { p: Pt; kind: string; dir: Pt; w: number; len?: number }
 export interface Crossing { pts: Pt[]; w: number }
@@ -104,6 +105,11 @@ export async function loadCampus(base = 'data/'): Promise<CampusData> {
   campus.bumps = dedupeBumps(campus.bumps).filter(b => !REMOVED_BUMPS.some(q => Math.hypot(q[0] - b.p[0], q[1] - b.p[1]) < 4));
   campus.medians = openMedians(campus.medians, campus.roads);
   hugRoundabout(campus.roads);
+  applySceneEdits(campus);
+  // Divided roads keep their full width where they split (campus-wide fix; see sceneEdits.ts).
+  const flares = roadFlares(campus.roads);
+  campus.areas.push(...flares);
+  campus.curbs = trimCurbs(campus.curbs, flares);
   for (const b of campus.buildings) {
     Object.assign(b, BUILDING_OVERRIDES[b.name ?? ''] ?? {});
     const fixed = NAME_FIXES[b.name ?? ''];

@@ -36,8 +36,15 @@ export class TouchControls {
       $('m-hud').hidden = false;
       this.joystick();
       this.pads();
-      $('m-menu').addEventListener('click', () => this.hooks.pause());
-      $('m-side').addEventListener('click', e => { const id = (e.target as HTMLElement).closest<HTMLElement>('[data-id]')?.dataset.id; if (id) this.onButton(id); });
+      // Buttons act on finger-down. A browser only turns the *first* finger's tap into a click, so
+      // with a thumb on the drive stick, a tap on another button would otherwise do nothing.
+      // Keyboard and mouse activation still come through as clicks (detail 0 = keyboard).
+      const press = (el: HTMLElement, fn: (e: Event) => void) => {
+        el.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') { e.preventDefault(); fn(e); } });
+        el.addEventListener('click', e => { if ((e as PointerEvent).pointerType === 'mouse' || e.detail === 0) fn(e); });
+      };
+      press($('m-menu'), () => this.hooks.pause());
+      press($('m-side'), e => { const id = (e.target as HTMLElement).closest<HTMLElement>('[data-id]')?.dataset.id; if (id) this.onButton(id); });
     }
     this.apply();
   }

@@ -302,6 +302,8 @@ const AREA_STYLE: Record<string, { layer: keyof typeof LAYER; mat: string; color
   track: { layer: 'pitch', mat: 'dirt', color: [1.25, 0.62, 0.5], uv: 4 },
   construction: { layer: 'pitch', mat: 'dirt', color: [1.0, 0.95, 0.85], uv: 4 },
   parking: { layer: 'parking', mat: 'parking', color: [1, 1, 1], uv: 6 },
+  // Asphalt where a divided road splits (sceneEdits.roadFlares).
+  roadfill: { layer: 'road', mat: 'road', color: [1, 1, 1], uv: 8 },
   plaza: { layer: 'plaza', mat: 'plaza', color: [1, 1, 1], uv: 3 },
   water: { layer: 'water', mat: 'water', color: [0.1, 0.17, 0.16], uv: 10 },
   pool: { layer: 'water', mat: 'water', color: [0.25, 0.62, 0.75], uv: 10 },
@@ -610,6 +612,9 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
           addWalls(kit.concrete, [seg[k], seg[k + 1]], lv.lo - 0.6, lv.base + 0.15, [0.84, 0.82, 0.78], false, 2, 1);
         }
       }
+      // Floor slab at the ground-floor level across the footprint: where a model's ground floor
+      // is open (an arcade, a recessed entrance, glass), it stands on paving, not on the lawn.
+      addFlatPolygon(kit.concrete, fr, b.holes ?? [], lv.base + 0.02, [0.8, 0.79, 0.76]);
       continue;
     }
     buildBuilding(b, T, mats.styles, kit);
@@ -665,6 +670,16 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
     }
     const lanes = r.lanes ?? 0;
     if (r.oneway && lanes >= 2 && r.cls !== 'service') for (const piece of clear(r.pts, jr)) for (let k = 1; k < lanes; k++) dashes(marks.get('w')!, offsetLine(piece, -r.w / 2 + r.w * k / lanes), T, WHITE);
+    // Two-way roads with two or more lanes one way (a turn lane beside a through lane): dashed
+    // white lines between that direction's lanes, as painted. Forward lanes are right of the
+    // centre line, backward lanes left of it.
+    if (!r.oneway && major && r.w >= 6.5 && !r.noLines) {
+      const f = r.lanesF ?? 0, bk = r.lanesB ?? 0;
+      for (const piece of clear(r.pts, jr)) {
+        for (let k = 1; k < f; k++) dashes(marks.get('w')!, offsetLine(piece, -r.w / 2 + (r.w / 2) * k / f), T, WHITE);
+        for (let k = 1; k < bk; k++) dashes(marks.get('w')!, offsetLine(piece, r.w / 2 - (r.w / 2) * k / bk), T, WHITE);
+      }
+    }
     // Lane-use arrows from turn:lanes, placed along the whole way (not the chunk piece).
     const full = r.full ?? r.pts;
     if (r.turnF) laneArrows(marks.get('w')!, full, r.w, r.turnF, r.oneway ? r.lanes ?? 1 : r.lanesF ?? 1, r.oneway ? 0 : r.lanesB ?? 1, T, avoid, owns, paved);
@@ -1143,8 +1158,14 @@ function laneArrows(mb: MeshBuilder, pts: Pt[], w: number, turns: string, lanes:
     const off = oppLanes ? -lw * (i + 0.5) : w / 2 - lw * (i + 0.5);
     const kinds = new Set(s.split(';').map(k => k.trim()).filter(Boolean).map(k => (/left/.test(k) ? -1 : /right/.test(k) ? 1 : 0)));
     if (s.trim() === '' || s.trim() === 'none') return;
-    for (const turn of kinds) {
-      const poly = arrowOutline(turn).map(([x, y]): Pt => [p[0] + u[0] * x + left[0] * (y + off), p[1] + u[1] * x + left[1] * (y + off)]);
+    // A lane's arrows share one shaft (a through-and-right lane is one combined symbol, as
+    // painted), and the whole symbol is centred in the lane: a turn arrow's head reaches 1.7 m
+    // to one side of the shaft. Narrowed if the lane is too tight, 0.3 m clear of its lines.
+    const shapes = [...kinds].map(arrowOutline), ys = shapes.flat().map(q => q[1]);
+    const yMid = (Math.min(...ys) + Math.max(...ys)) / 2, span = Math.max(...ys) - Math.min(...ys);
+    const k = Math.min(1, Math.max(0.4, (lw - 0.6) / span));
+    for (const shape of shapes) {
+      const poly = shape.map(([x, y]): Pt => { const yy = (y - yMid) * k + off; return [p[0] + u[0] * x + left[0] * yy, p[1] + u[1] * x + left[1] * yy]; });
       // Only where the whole arrow lies on the pavement (estimated widths can put a lane over the curb).
       if (!poly.every(paved)) continue;
       addDrapedPolygon(mb, poly, [], T, LIFT.marking + 0.002, WHITE, 4);

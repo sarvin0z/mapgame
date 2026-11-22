@@ -519,20 +519,19 @@ export function signTexture(kind: 'stop' | 'yield') {
 }
 
 /**
- * Rutford Avenue's promenade paving: a 3 m repeat of light and warm-gray
- * square pavers in an even checkerboard.
+ * Rutford Avenue's promenade paving: a 3 m repeat of light and warm-gray bands,
+ * each 0.75 m deep, running straight across the walk (the same two tones as before).
  */
 export function promenadeTexture() {
   seed = 53;
   return canvas(256, 256, (g, w, h) => {
     speckle(g, w, h, [204, 198, 186], 12, 9000, 1);
-    // Even checkerboard of 0.75 m pavers in two tones, with joints of one weight in both directions.
-    const n = 4, c = w / n;
-    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
-      if ((i + j) % 2) { g.fillStyle = 'rgba(150,138,120,0.42)'; g.fillRect(i * c, j * c, c, c); }
-    }
+    // Bands across the walk: v runs along the walk, so alternate rows are the stripes.
+    const n = 4, c = h / n;
+    for (let j = 0; j < n; j++) if (j % 2) { g.fillStyle = 'rgba(150,138,120,0.42)'; g.fillRect(0, j * c, w, c); }
+    // Joints only between bands.
     g.fillStyle = 'rgba(70,62,52,0.28)';
-    for (let k = 0; k < n; k++) { g.fillRect(k * c, 0, 1, h); g.fillRect(0, k * c, w, 1); }
+    for (let k = 0; k < n; k++) g.fillRect(0, k * c, w, 1);
   });
 }
 

@@ -164,13 +164,18 @@
         <h1>Dispatch</h1>
         <p>Respond to calls across campus from <b id="deploy-label">the UEMR apartment</b>.</p>
       </header>
-      <div class="tabs" role="tablist">
+      <div class="tabs" role="tablist" id="dispatch-tabs">
         <button role="tab" class="on" data-tab="locations" aria-selected="true">Any location</button>
         <button role="tab" data-tab="gauntlet">Multi-call</button>
         <button class="ghost small" data-action="random-dest" id="reroll" title="Pick a random destination"><svg><use href="#i-retry" /></svg>Random</button>
       </div>
       <div id="calls" hidden></div>
       <div class="tabpanel" data-tab="locations">
+        <div id="pick-bar" role="status" hidden>
+          <span id="pick-count">Tap destinations in the order to visit them</span>
+          <button class="ghost small" data-action="multi-cancel">Cancel</button>
+          <button class="primary small" id="pick-start" data-action="multi-start" disabled><svg><use href="#i-play" /></svg><span>Start calls</span></button>
+        </div>
         <input id="dest-search" placeholder="Search buildings, lots or codes (BSB, ECSW, Lot J)" autocomplete="off" aria-controls="dest-list" />
         <div id="dest-empty" role="status" hidden>No destinations match “<span id="dest-empty-q"></span>”. Try a building code or part of the name. <button class="ghost small" id="dest-clear">Clear search</button></div>
         <div id="dest-list"></div>
@@ -188,6 +193,12 @@
     </section>
 
     <aside class="brief view" data-view="dispatch" id="brief">
+      <div id="brief-multi">
+        <h2>Multi-call</h2>
+        <p>Several calls back to back from the same cart. Each stop is timed, and so is the whole run.</p>
+        <pre id="brief-multi-stops">No stops picked yet.</pre>
+        <p class="assist-note">Random calls starts straight away. Pick each stop lets you build the list on the destination list, then start it from the bar above it.</p>
+      </div>
       <div class="brief-shot"><img id="brief-img" alt="" /><div class="brief-title"><span class="cc-icon"><svg><use id="brief-icon" href="#i-cross" /></svg></span><div><b id="brief-type">—</b><span id="brief-loc">—</span></div></div></div>
       <p id="brief-text"></p>
       <div class="facts">
@@ -199,8 +210,8 @@
       <h2>Objectives</h2>
       <ul class="objectives" id="brief-obj"></ul>
       <div class="assists">
-        <label class="switch"><input type="checkbox" id="assist" /><i></i>Show the best route <small>−10%</small></label>
-        <label class="switch"><input type="checkbox" id="show-beam" /><i></i>Destination beam <small>−10%</small></label>
+        <label class="switch"><input type="checkbox" id="assist" /><i></i>Show the best route <small>−10% score</small></label>
+        <label class="switch"><input type="checkbox" id="show-beam" /><i></i>Destination beam <small>−10% score</small></label>
         <p class="assist-note" id="assist-note" hidden>The call in progress keeps the assists it started with; changes here apply to the next call.</p>
       </div>
       <button class="primary" data-action="start" id="start-btn"><svg><use href="#i-play" /></svg><span>Start response</span></button>
@@ -212,7 +223,7 @@
         <label>Deploy from <select id="start-select"><option value="uv11">UEMR apartment · UV Building 11</option><option value="sg">Safety and Grounds</option></select></label>
         <select id="time-select" hidden><option value="golden">Golden hour</option></select>
         <label>Graphics <select id="quality-select"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option></select></label>
-        <label class="switch"><input type="checkbox" id="show-target" /><i></i>Show the destination on the map and compass</label>
+        <label class="switch"><input type="checkbox" id="show-target" checked /><i></i>Show the destination on the map and compass</label>
         <h2 class="set-h">Sound</h2>
         <label class="vol">Master <input type="range" id="vol-master" min="0" max="100" step="1" /><output for="vol-master"></output></label>
         <label class="vol">Siren and horn <input type="range" id="vol-siren" min="0" max="100" step="1" /><output for="vol-siren"></output></label>
@@ -236,7 +247,8 @@
         <tr><td><kbd>Space</kbd></td><td>Park brake</td></tr>
         <tr><td><kbd>L</kbd> <kbd>H</kbd> <kbd>B</kbd> <kbd>K</kbd></td><td>Emergency lights, siren, horn, headlights</td></tr>
         <tr><td><kbd>I</kbd> <kbd>C</kbd></td><td>Location card; camera (chase, driver, free)</td></tr>
-        <tr><td><kbd>R</kbd> <kbd>⌫</kbd></td><td>Flip upright; return to start</td></tr>
+        <tr><td><kbd>R</kbd></td><td>Flip the cart upright where it is</td></tr>
+        <tr><td><kbd>⌫</kbd></td><td>Restart the call from the deploy point (timer resets); in free roam, return to the deploy point</td></tr>
         <tr><td><kbd>M</kbd> <kbd>P</kbd> <kbd>G</kbd></td><td>Minimap, performance, graphics quality</td></tr>
         <tr><td><kbd>Esc</kbd> <kbd>F1</kbd></td><td>Dispatch; controls</td></tr>
       </table>

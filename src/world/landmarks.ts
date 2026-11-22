@@ -9,6 +9,8 @@ import { MeshBuilder, addDrapedPolygon, ensureCCW, centroid } from './geometry.t
 import { box, railing, baseLevel } from './buildings.ts';
 import { signSlot } from './textures.ts';
 import { LAYER, LIFT, addMesh, type CampusMaterials, type WorldContext } from './campusBuilder.ts';
+import { CHUNK_SIZE } from './chunks.ts';
+import { EDITS_ON, SEATING_STEPS } from './sceneEdits.ts';
 
 const SIGNED = new Set(['university', 'dormitory', 'public', 'school', 'hospital', 'office', 'apartments', 'yes', 'construction']);
 
@@ -29,8 +31,11 @@ export function buildLandmarks(c: ChunkContent, ctx: WorldContext, mats: CampusM
   if (withSigns) buildSigns(c, ctx, mats, g);
   for (const b of c.buildings) {
     if (b.name === 'Student Union') studentUnion(b, ctx, mats, g, all);
-    if (b.name === 'Comets LANding') cometsLanding(b, ctx, mats, g);
+    if (b.name === 'Comets LANding' && !EDITS_ON) cometsLanding(b, ctx, mats, g);
   }
+  // The Ipe seating steps, moved to the Plinth slope (sceneEdits.ts); built by the chunk they stand in.
+  const S = SEATING_STEPS;
+  if (EDITS_ON && Math.floor(S.top[0] / CHUNK_SIZE) === c.cx && Math.floor(S.top[1] / CHUNK_SIZE) === c.cy) plinthSteps(ctx, mats, g);
   solids = null;
   return out;
 }
@@ -121,6 +126,33 @@ function studentUnion(b: Building, ctx: WorldContext, mats: CampusMaterials, g: 
   addMesh(g.base, stone, mats.layers.plaza, { order: LAYER.plaza + 1 });
 
   void all; // the Union steps are built with Comets LANding, the Union's north wing
+}
+
+/**
+ * The Ipe seating steps on the Plinth slope (user's scene notes 5 and 6): the same treads as
+ * the Union steps, freestanding and square (as wide as they are deep), facing out over the
+ * plaza toward the fountain. The landing at the top meets the ground behind; the front tread
+ * sits on the levelled plaza.
+ */
+function plinthSteps(ctx: WorldContext, mats: CampusMaterials, g: LandmarkGroups) {
+  const T = ctx.terrain, S = SEATING_STEPS;
+  const u: Pt = [-S.face[1], S.face[0]]; // along the steps (width)
+  const at = (across: number, out: number): Pt => [S.top[0] + u[0] * across + S.face[0] * out, S.top[1] + u[1] * across + S.face[1] * out];
+  const yaw = Math.atan2(u[1], u[0]);
+  const n = S.treads, L = S.width, landing = S.landing, tread = S.tread;
+  // The landing meets the ground behind it (sampled across its back edge).
+  const deckY = Math.max(...[-0.5, 0, 0.5].map(t => { const q = at(L * t, -0.5); return T.heightAt(q[0], q[1]); }));
+  const ground = S.ground;
+  const rise = (deckY - ground) / (n + 1);
+  const steps = new MeshBuilder();
+  const c0 = at(0, landing / 2);
+  solidBox(steps, [c0[0], (ground - 0.3 + deckY) / 2, -c0[1]], [L, deckY - ground + 0.3, landing], yaw, [0.52, 0.34, 0.21]);
+  for (let k = 0; k < n; k++) {
+    const depth = (n - k) * tread, top = ground + (k + 1) * rise;
+    const c = at(0, landing + depth / 2);
+    solidBox(steps, [c[0], (ground - 0.3 + top) / 2, -c[1]], [L, top - ground + 0.3, depth], yaw, k % 2 ? [0.5, 0.32, 0.2] : [0.55, 0.36, 0.22]);
+  }
+  addMesh(g.detail, steps, mats.timber, { cast: true });
 }
 
 /**

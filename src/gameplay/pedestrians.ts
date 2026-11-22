@@ -19,6 +19,8 @@ interface Walker {
   dodge: number; dodgeT: number; target: number; hitCooldown: number; phase: number;
   /** Crosswalk user: waits `wait` seconds at each kerb before crossing (yields to the cart). */
   cross?: boolean; wait: number;
+  /** Seconds left hurrying along the way, off the cart's path (someone crossing in front of it). */
+  rush?: number;
   /** Distance culling state (see Pedestrians.ANIM_M / HIDE_M). */
   hidden?: boolean; lazy?: number;
   shirt: THREE.Color; pants: THREE.Color; skin: THREE.Color; hair: THREE.Color; gear: THREE.Color;
@@ -171,13 +173,21 @@ export class Pedestrians {
       const approaching = ahead > -1 && Math.abs(side) < 3.5 && speed > 1;
       // Warned people clear the path quickly; unwarned ones only flinch at the last moment.
       const trigger = (warn && approaching && ahead < 28) || (approaching && ahead < 2.2 && speed > 2.5);
-      if (trigger && w.dodgeT <= 0) {
+      // Someone whose way crosses the cart's path (a crosswalk, a walk across a road) can't get
+      // clear by stepping sideways along it: they hurry on, or back, to the nearer side instead.
+      const across = Math.abs(u[0] * fwd[0] + u[1] * fwd[1]) < 0.6;
+      if (trigger && across && !(w.rush! > 0) && !(w.cross && w.wait > 0)) {
+        const gain = (u[0] * fwd[1] - u[1] * fwd[0]); // d(side)/ds along +u
+        w.dir = Math.sign(side || 1) * Math.sign(gain || 1) >= 0 ? 1 : -1;
+        w.rush = warn ? 3 : 1.5;
+      } else if (trigger && !across && w.dodgeT <= 0) {
         // Move to whichever side of the way is further from the cart's path.
         const away = Math.sign((side >= 0 ? 1 : -1) * (n[0] * fwd[1] - n[1] * fwd[0]) || 1);
         w.dodgeT = warn ? 4 : 2;
         w.dodge = 0;
         w.target = away * (warn ? 3.2 : 1.8);
       }
+      if (w.rush! > 0) w.rush! -= dt;
       const target = w.dodgeT > 0 ? w.target : 0;
       const rate = w.dodgeT > 0 ? (warn ? 4.5 : 2.2) : 1;
       w.dodge += Math.max(-rate * dt, Math.min(rate * dt, target - w.dodge));
@@ -189,7 +199,7 @@ export class Pedestrians {
       }
       const waiting = w.cross === true && w.wait > 0;
       // Walkers pause while stepping aside; riders slow down.
-      const moving = waiting ? 0 : w.dodgeT > 0 ? (w.mode === 'walk' ? 0.3 : 0.5) : 1;
+      const moving = waiting ? 0 : w.rush! > 0 ? 2 : w.dodgeT > 0 ? (w.mode === 'walk' ? 0.3 : 0.5) : 1;
       w.s += w.dir * w.speed * moving * dt;
       if (w.s < 0 || w.s > w.len) {
         w.dir = (w.dir === 1 ? -1 : 1); w.s = Math.max(0, Math.min(w.len, w.s));

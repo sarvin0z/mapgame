@@ -224,7 +224,22 @@ body.menu-open #hud { opacity: 0; pointer-events: none; }
 .gauntlet-row label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
 #multi-count { width: 64px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.3); color: var(--fg); font: 600 15px var(--display); }
 #multi-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-#multi-list button { padding: 7px 11px; border-radius: 8px; background: var(--raise-hi); font-size: 13px; }
+#multi-list button:not(.primary) { padding: 7px 11px; border-radius: 8px; background: var(--raise-hi); font-size: 13px; }
+/* The start button among the stop chips is the orange call to action, not another chip. */
+#multi-list .primary { padding: 8px 14px; font-size: 14px; }
+/* Building a multi-call on the destination list: what has been picked, Cancel and Start. */
+#pick-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 8px 8px 12px; border-radius: var(--r-item);
+  background: rgb(232 117 0 / 0.16); border: 1px solid var(--orange); font-size: 13.5px; }
+#pick-count { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); font-weight: 600; }
+#pick-bar .primary { margin: 0; padding: 7px 12px; font-size: 14px; }
+.primary:disabled { opacity: 0.45; cursor: not-allowed; }
+/* The brief follows the tab: a call, or the multi-call summary (never the single call's Start). */
+#brief-multi { display: none; }
+#brief.multi > :not(#brief-multi) { display: none; }
+#brief.multi #brief-multi { display: grid; gap: 10px; padding: 8px; }
+#brief-multi h2 { margin: 4px 0 0; font: 700 22px var(--display); }
+#brief-multi p { margin: 0; color: #ddd6cc; font-size: 14px; line-height: 1.5; }
+#brief-multi-stops { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--raise); color: var(--fg); font: 500 13.5px/1.6 var(--body); white-space: pre-line; }
 
 /* Brief: the selected call. */
 .brief { padding: 10px 10px 16px; overflow: auto; overscroll-behavior: contain; }
@@ -419,6 +434,8 @@ body.touch-ui { --st: env(safe-area-inset-top); --sb: env(safe-area-inset-bottom
 #m-dist:not(:empty)::before { content: '·'; margin-right: 8px; color: var(--faint); }
 
 #m-side { right: calc(var(--gap) + var(--sr)); top: calc(14px + var(--st)); display: grid; gap: 8px; }
+/* Taps act on finger-down; no double-tap zoom or long-press menu on the HUD buttons. */
+#m-side button, #m-menu { touch-action: none; -webkit-user-select: none; user-select: none; }
 #m-side button { display: grid; place-items: center; width: 50px; height: 44px; border-radius: 14px; background: var(--pill); color: #f4f1ec;
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition-property: color, background-color, scale; transition-duration: 150ms; transition-timing-function: ease-out; }
 #m-side button svg { width: 24px; height: 24px; }

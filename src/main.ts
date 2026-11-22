@@ -66,7 +66,7 @@ const loader = (() => {
   const timer = setInterval(() => { if (stop) clearInterval(timer); else if (performance.now() - last > 90) tick(performance.now()); }, 100);
   return {
     /** A milestone: progress is at least `at`, and may creep up to `cap` before the next one. */
-    set(at: number, cap2: number, msg?: string) { target = Math.max(target, at); cap = Math.max(cap2, target); if (msg) setLoading(msg); },
+    set(at: number, cap2: number, msg?: string) { target = Math.max(target, at); cap = Math.max(cap2, target); shown = Math.max(shown, at - 4); if (msg) setLoading(msg); },
     /** Lets the browser paint the new figure before a long synchronous step. */
     paint: () => new Promise<void>(r => { let done = false; const go = () => { if (!done) { done = true; r(); } }; requestAnimationFrame(() => requestAnimationFrame(go)); setTimeout(go, 80); }),
     /** Runs the count to 100 %; resolves when it shows. */
@@ -292,7 +292,10 @@ async function main() {
       if (q === 'auto') { adaptive.enabled = true; return; }
       adaptive.enabled = false; adaptive.current = q as QualityName; applyQuality(q as QualityName);
     },
-    menuOpen: open => { menuOpen = open; muteVehicle(open); },
+    menuOpen: open => {
+      menuOpen = open; muteVehicle(open);
+      if (!open && rc.phase === 'finished') { rc.cancel(); hud.overlay = {}; beacon.visible = false; }
+    },
     time: t => applyTime(t as TimeOfDay),
     // Read from the form: this runs while Menus is still being constructed.
     deployPoint: () => { const sp = starts[(document.getElementById('start-select') as HTMLSelectElement).value as keyof typeof starts] ?? starts.uv11; return [sp.pos.x, -sp.pos.z]; },
@@ -316,6 +319,9 @@ async function main() {
   }, { capture: true });
   /** Speed bumps and kerbs: a sharp rise in vertical speed; a short cooldown per bump. */
   let lastVy = 0, bumpFeel = 0, lastGear = '';
+  /** Where and when the last collision was counted, and the route re-plan timer. */
+  const lastHit = new THREE.Vector3(Infinity, 0, 0);
+  let lastHitT = -Infinity, replanT = 0;
 
   /**
    * A photo of a destination for the dispatch cards, rendered from the game: from the
@@ -430,7 +436,12 @@ async function main() {
       case 'horn': horn.toggle(); break;
       case 'location': hud.toggleLocation(); break;
       case 'recover': cart.recover(); break;
-      case 'reset': cart.reset(spawn.pos, spawn.heading); break;
+      case 'reset': {
+        if ((rc.phase === 'running' || rc.phase === 'countdown') && rc.dest) {
+          menus.restart([...rc.legs.map(l => l.name), rc.dest.name, ...rc.queue.map(d => d.name)]);
+        } else cart.reset(spawn.pos, spawn.heading);
+        break;
+      }
       case 'help': menus.showControls(); break;
       case 'perf': hud.togglePerf(); break;
       case 'map': hud.toggleMap(); break;
@@ -473,6 +484,7 @@ async function main() {
   }
   void renderer.compileAsync(scene, camera).catch(() => {});
   console.info(`[load] fetch ${Math.round(T_LOAD.fetched - T_LOAD.start)} ms, setup ${Math.round(tWarm - T_LOAD.fetched)} ms, warm ${Math.round(tCompile - tWarm)} ms, compile ${Math.round(performance.now() - tCompile)} ms`);
+  menus.restoreSettings();
   setLoading('Ready');
   await loader.finish();
   loading.classList.add('done');
@@ -580,7 +592,7 @@ async function main() {
     // Route Challenge update, beacon animation, result screen.
     {
       const fw = cart.forward(tmp2);
-      if (!menuOpen) {
+      if (!menuOpen && !(rc.phase === 'countdown' && menus.tipOpen)) {
         rc.update(dt, [cp.x, -cp.z], cart.speed, [fw.x, -fw.z]);
         const hits = peds.update(dt, [cp.x, -cp.z], [fw.x, -fw.z], Math.abs(cart.speed), horn.on || siren.on);
         for (let k = 0; k < hits; k++) rc.pedestrianHit();
@@ -593,6 +605,20 @@ async function main() {
       const t = rc.dest.target;
       beacon.position.set(t[0], terrain.heightAt(t[0], t[1]), -t[1]);
       hud.overlay = { target: menus.showTarget ? t : undefined, route: rc.assist.route ? rc.optimal!.pts : undefined, trail: rc.trail };
+      replanT = 0;
+    }
+    // Off the shown route by more than 18 m for a second: plan a fresh one from here (display only;
+    // the score keeps the original best route), as a satnav does.
+    replanT -= dt;
+    if (rc.phase === 'running' && rc.assist.route && rc.dest && hud.overlay.route && replanT <= 0) {
+      replanT = 1;
+      const here: Pt = [cp.x, -cp.z];
+      if (distToLine(here, hud.overlay.route) > 18) {
+        const r = rc.routeTo(here, rc.dest);
+        if (r) hud.overlay.route = r.pts;
+        replanT = 3; // planning can take up to ~0.1 s on a long route: not more often than this
+
+      }
     }
     // Collisions: a sudden loss of speed far beyond hard braking (over 1.6 g) means the cart hit something.
     {
@@ -603,7 +629,10 @@ async function main() {
       const jumped = cp.distanceTo(lastPos) > 3; // reset or recovery, not a crash
       lastPos.copy(cp);
       if (!jumped && dt > 0 && dv / dt > 16 && lastVel.length() > 2 && v.length() < lastVel.length() - 1.2 && bumpCooldown <= 0) {
-        if (rc.phase === 'running') rc.collision();
+        // A cart wedged against one wall or car bumps it again and again: that is one collision.
+        // Count another only once the cart has got 4 m clear of the last one, or after 6 s.
+        if (rc.phase === 'running' && (cp.distanceTo(lastHit) > 4 || now - lastHitT > 6000)) rc.collision();
+        lastHit.copy(cp); lastHitT = now;
         bumpCooldown = 1.5;
         // Impact feedback scaled by the speed lost: camera shake, a thump, a short buzz on phones.
         const hit = Math.min(1, (lastVel.length() - v.length()) / 6);
@@ -674,6 +703,17 @@ async function main() {
     }
   }
   requestAnimationFrame(frame);
+}
+
+/** Distance from p to the nearest point of a polyline (map coordinates). */
+function distToLine(p: Pt, pts: Pt[]) {
+  let m = Infinity;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1;
+    const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2));
+    m = Math.min(m, Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy));
+  }
+  return m;
 }
 
 /** Destination marker: a tall translucent light column with a ground ring. */

@@ -958,6 +958,21 @@ def build(spec):
         # orange sunshade canopy above it, and a red stair up the side.
         e = longest
         t0, t1 = e["len"] * 0.2, e["len"] * 0.2 + min(14.0, e["len"] * 0.5)
+        if r.get("accentAt"):
+            # Placed on the wall nearest a given map point, centred on it (user's scene note:
+            # the balcony and stair belong on the side facing the footpath). The stair runs
+            # back along the wall from t0, so t0 keeps room for its full run.
+            ax, ay = r["accentAt"][0] - cx, r["accentAt"][1] - cy
+            def dist(e_):
+                dx, dy = e_["b"][0] - e_["a"][0], e_["b"][1] - e_["a"][1]
+                tt = max(0.0, min(1.0, ((ax - e_["a"][0]) * dx + (ay - e_["a"][1]) * dy) / (dx * dx + dy * dy or 1)))
+                return math.hypot(ax - e_["a"][0] - tt * dx, ay - e_["a"][1] - tt * dy)
+            e = min([x for x in es if x["len"] > 12] or es, key=dist)
+            tc = (ax - e["a"][0]) * e["u"][0] + (ay - e["a"][1]) * e["u"][1]
+            span = min(14.0, e["len"] * 0.5)
+            run = max(4, round(fh / 0.18)) * 0.28 + 0.8
+            t0 = max(run, min(e["len"] - span - 1.0, tc - span / 2))
+            t1 = t0 + span
         screen_balcony(B, e, t0, t1, fh, 2.2, 1.3)
         cs = mat("Screen_Orange", "e2552a", 0.5, 0.45)
         def at(t, o):

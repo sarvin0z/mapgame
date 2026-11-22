@@ -2,6 +2,25 @@
 // Heights are relative to the elevation at the map origin. Everything that sits
 // on the ground (roads, buildings, props, the cart) samples `heightAt`.
 import * as THREE from 'three';
+import { EDITS_ON, TERRAIN_EDITS, type TerrainEdit } from './sceneEdits.ts';
+
+function inPoly(p: [number, number], r: [number, number][]) {
+  let q = false;
+  for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+    const a = r[i], b = r[j];
+    if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) q = !q;
+  }
+  return q;
+}
+function distToPoly(p: [number, number], r: [number, number][]) {
+  let m = Infinity;
+  for (let i = 0; i < r.length; i++) {
+    const a = r[i], b = r[(i + 1) % r.length], dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1;
+    const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2));
+    m = Math.min(m, Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy));
+  }
+  return m;
+}
 
 export interface TerrainMeta {
   x0: number; y0: number; nx: number; ny: number; step: number;
@@ -21,7 +40,43 @@ export class Terrain {
       fetch(base + 'terrain.json').then(r => r.json()),
       fetch(base + 'terrain.bin').then(r => r.arrayBuffer()),
     ]);
-    return new Terrain(meta, new Int16Array(buf));
+    const t = new Terrain(meta, new Int16Array(buf));
+    if (EDITS_ON) t.applyEdits(TERRAIN_EDITS);
+    return t;
+  }
+
+  /** Reshapes the height grid (site edits: levelled plazas, a shallower swale). See sceneEdits.ts. */
+  applyEdits(edits: TerrainEdit[]) {
+    const { x0, y0, nx, ny, step } = this.meta, h = this.heights;
+    const smooth = (t: number) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
+    for (const e of edits) {
+      if (e.kind === 'level') {
+        let bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
+        for (const p of e.poly) { bx0 = Math.min(bx0, p[0]); by0 = Math.min(by0, p[1]); bx1 = Math.max(bx1, p[0]); by1 = Math.max(by1, p[1]); }
+        for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+          const x = x0 + i * step, y = y0 + j * step;
+          if (x < bx0 - e.edge || x > bx1 + e.edge || y < by0 - e.edge || y > by1 + e.edge) continue;
+          const d = inPoly([x, y], e.poly) ? 0 : distToPoly([x, y], e.poly);
+          const w = 1 - smooth(d / e.edge);
+          if (w > 0) h[j * nx + i] += (e.h - h[j * nx + i]) * w;
+        }
+      } else {
+        // Plane fitted (least squares) to the ground on the ring at r: the level the dip is raised toward.
+        let sx = 0, sy = 0, sz = 0, sxx = 0, syy = 0, sxy = 0, sxz = 0, syz = 0, n = 0;
+        for (let a = 0; a < 48; a++) {
+          const dx = Math.cos(a / 48 * Math.PI * 2) * e.r, dy = Math.sin(a / 48 * Math.PI * 2) * e.r, z = this.heightAt(e.c[0] + dx, e.c[1] + dy);
+          sx += dx; sy += dy; sz += z; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; sxz += dx * z; syz += dy * z; n++;
+        }
+        const z0 = sz / n, gx = sxz / sxx, gy = syz / syy; // symmetric ring: sx = sy = sxy = 0
+        void sx; void sy; void sxy;
+        for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+          const x = x0 + i * step, y = y0 + j * step, dx = x - e.c[0], dy = y - e.c[1], d = Math.hypot(dx, dy);
+          if (d >= e.r) continue;
+          const plane = z0 + gx * dx + gy * dy, k = j * nx + i;
+          if (h[k] < plane) h[k] += (plane - h[k]) * e.amount * (1 - smooth(d / e.r));
+        }
+      }
+    }
   }
 
   /** A terrain with every height zero (tests and fallbacks). */

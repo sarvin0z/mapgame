@@ -15,6 +15,7 @@ import { pointInRing } from './spatial.ts';
 import { LAYER, LIFT, addMesh, boxInto, railSegment, hash, instanced, type CampusMaterials, type WorldContext } from './campusBuilder.ts';
 import type { Terrain } from './terrain.ts';
 import { blob } from './occlusion.ts';
+import { PLINTH_HEIGHT_SCALE, onSeatingSteps } from './sceneEdits.ts';
 
 const lin = (c: number[]) => c.map(v => Math.pow(v, 2.2));
 const WHITE = lin([0.95, 0.95, 0.93]);
@@ -644,7 +645,7 @@ function buildPlinth(b: Building, T: Terrain, mats: CampusMaterials, g: ExtraGro
   const hole = b.holes?.[0];
   const ground = T.minAlong(b.outer);
   // The canopy stands a little higher than the mapped height (site photos).
-  const top = ground + b.h + 1.5;
+  const top = ground + (b.h + 1.5) * PLINTH_HEIGHT_SCALE;
   const c = hole ? centroid(hole) : centroid(b.outer);
   // Canopy: one flat sheet; the beam-and-fin grid is cut out in the material (see CampusMaterials.louver).
   const shape = new THREE.Shape(ensureCCW(b.outer).map(p => new THREE.Vector2(p[0], p[1])));
@@ -680,6 +681,8 @@ function buildPlinth(b: Building, T: Terrain, mats: CampusMaterials, g: ExtraGro
   if (hole) { addWalls(rim, hole, top - 0.35, top + 0.05, [1, 1, 1], true); addWalls(rim, hole, top - 0.35, top + 0.05, [1, 1, 1], false); }
   const ring = insetRing(b.outer, 1.2) ?? b.outer;
   for (const p of resample([...ring, ring[0]], 9).slice(0, -1)) {
+    // No column standing in the Ipe seating steps (they took over that part of the slope).
+    if (onSeatingSteps(p, 0.5)) continue;
     const y = T.heightAt(p[0], p[1]);
     boxInto(cols, [p[0], (y + top) / 2, -p[1]], [0.3, top - y, 0.3], 0, [1, 1, 1]);
   }
