@@ -15,10 +15,11 @@ import { pointInRing } from './spatial.ts';
 import { LAYER, LIFT, addMesh, boxInto, railSegment, hash, instanced, type CampusMaterials, type WorldContext } from './campusBuilder.ts';
 import type { Terrain } from './terrain.ts';
 import { blob } from './occlusion.ts';
-import { PLINTH_HEIGHT_SCALE, onSeatingSteps } from './sceneEdits.ts';
+import { clippedRows, plinthLayout } from './overheadStructures.ts';
 
 const lin = (c: number[]) => c.map(v => Math.pow(v, 2.2));
 const WHITE = lin([0.95, 0.95, 0.93]);
+const plinthSteel = new THREE.MeshLambertMaterial({ color: 0xeeeeea, vertexColors: true });
 
 /** A parked-car type: all parts merged, coloured per vertex (paint white, the rest by part colour). */
 export interface CarTemplate { name: string; length: number; geometry: THREE.BufferGeometry }
@@ -642,52 +643,35 @@ function buildDoors(c: ChunkContent, ctx: WorldContext, mats: CampusMaterials, g
  * from OSM; the fountain is centered in that open ring.
  */
 function buildPlinth(b: Building, T: Terrain, mats: CampusMaterials, g: ExtraGroups) {
-  const hole = b.holes?.[0];
-  const ground = T.minAlong(b.outer);
-  // The canopy stands a little higher than the mapped height (site photos).
-  const top = ground + (b.h + 1.5) * PLINTH_HEIGHT_SCALE;
-  const c = hole ? centroid(hole) : centroid(b.outer);
-  // Canopy: one flat sheet; the beam-and-fin grid is cut out in the material (see CampusMaterials.louver).
-  const shape = new THREE.Shape(ensureCCW(b.outer).map(p => new THREE.Vector2(p[0], p[1])));
-  if (hole) shape.holes.push(new THREE.Path([...ensureCCW(hole)].reverse().map(p => new THREE.Vector2(p[0], p[1]))));
-  const geo = new THREE.ShapeGeometry(shape, 1);
-  const pos = geo.attributes.position, uv = geo.attributes.uv as THREE.BufferAttribute;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), y = pos.getY(i);
-    uv.setXY(i, Math.hypot(x - c[0], y - c[1]) / 0.55, 0.5);
-    pos.setXYZ(i, x, top, -y);
+  const { top, columnTop, center: c, hole, columns, yaw } = plinthLayout(b, T);
+  const steel = new MeshBuilder();
+  const bar = (a: Pt, end: Pt, height: number, width: number, depth: number) => {
+    const length = Math.hypot(end[0] - a[0], end[1] - a[1]);
+    if (length < .025) return;
+    const angle = Math.atan2(end[1] - a[1], end[0] - a[0]);
+    boxInto(steel, [(a[0] + end[0]) / 2, height, -(a[1] + end[1]) / 2],
+      [length, depth, width], angle, [1, 1, 1]);
+    const dx = Math.sin(angle) * width / 2, dy = Math.cos(angle) * width / 2;
+    const y = height - depth / 2;
+    steel.quad([a[0] - dx, y, -a[1] - dy], [end[0] - dx, y, -end[1] - dy],
+      [end[0] + dx, y, -end[1] + dy], [a[0] + dx, y, -a[1] + dy],
+      [0, -1, 0], [[0, 0], [1, 0], [1, 1], [0, 1]], [.91, .93, .94]);
+  };
+  const openings = hole ? [hole] : [];
+  for (const [a, end] of clippedRows(b.outer, openings, yaw, .22)) bar(a, end, top - .072, .072, .16);
+  for (const [a, end] of clippedRows(b.outer, openings, yaw + Math.PI / 2, 3.22)) bar(a, end, top - .217, .135, .22);
+  for (const ring of [b.outer, ...openings]) {
+    for (const [i, a] of ring.entries()) bar(a, ring[(i + 1) % ring.length], top - .145, .14, .31);
   }
-  // Mapping (x, y) -> (x, top, -y) mirrors the shape, so flip each triangle to face up.
-  const idx = geo.index!;
-  for (let k = 0; k < idx.count; k += 3) { const t = idx.getX(k + 1); idx.setX(k + 1, idx.getX(k + 2)); idx.setX(k + 2, t); }
-  geo.computeVertexNormals();
-  mats.louverCenter.set(c[0], -c[1]);
-  let longest = 0;
-  for (let i = 0; i < b.outer.length; i++) {
-    const p = b.outer[i], q = b.outer[(i + 1) % b.outer.length], l = Math.hypot(q[0] - p[0], q[1] - p[1]);
-    if (l > longest) { longest = l; mats.louverAxis.set((q[0] - p[0]) / l, -(q[1] - p[1]) / l); }
+  for (const { point: [x, north], width } of columns) {
+    const y = T.heightAt(x, north);
+    boxInto(steel, [x, (y + columnTop) / 2, -north],
+      [width, columnTop - y, width], yaw, [.95, .96, .96]);
   }
-  const slats = new THREE.Mesh(geo, mats.louver);
-  slats.customDepthMaterial = mats.louverDepth; // gridded shadow
-  slats.castShadow = true;
-  g.detail.add(slats);
-  // The plaza under the canopy is concrete.
+  addMesh(g.detail, steel, plinthSteel, { cast: true });
   const floor = new MeshBuilder();
-  addDrapedPolygon(floor, b.outer, hole ? [hole] : [], T, LIFT.plaza + 0.006, [0.95, 0.94, 0.92], 2);
+  addDrapedPolygon(floor, b.outer, openings, T, LIFT.plaza + .006, [.95, .94, .92], 2);
   addMesh(g.base, floor, mats.layers.path, { order: LAYER.plaza + 1 });
-  const rim = new MeshBuilder(), cols = new MeshBuilder();
-  addWalls(rim, b.outer, top - 0.35, top + 0.05, [1, 1, 1], false);
-  addWalls(rim, b.outer, top - 0.35, top + 0.05, [1, 1, 1], true);
-  if (hole) { addWalls(rim, hole, top - 0.35, top + 0.05, [1, 1, 1], true); addWalls(rim, hole, top - 0.35, top + 0.05, [1, 1, 1], false); }
-  const ring = insetRing(b.outer, 1.2) ?? b.outer;
-  for (const p of resample([...ring, ring[0]], 9).slice(0, -1)) {
-    // No column standing in the Ipe seating steps (they took over that part of the slope).
-    if (onSeatingSteps(p, 0.5)) continue;
-    const y = T.heightAt(p[0], p[1]);
-    boxInto(cols, [p[0], (y + top) / 2, -p[1]], [0.3, top - y, 0.3], 0, [1, 1, 1]);
-  }
-  addMesh(g.detail, rim, mats.canopyWhite, { cast: true });
-  addMesh(g.detail, cols, mats.canopyWhite, { cast: true });
   if (!hole) return;
   let rh = 0;
   for (const p of hole) rh += Math.hypot(p[0] - c[0], p[1] - c[1]) / hole.length;

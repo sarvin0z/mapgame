@@ -1,0 +1,550 @@
+{
+  "university_commons": {
+    "stone": {
+      "color": "c0aa8e",
+      "pattern": "stone",
+      "material": "facade",
+      "courses": [
+        4,
+        8
+      ]
+    },
+    "pale": {
+      "color": "d1c0a2",
+      "pattern": "stone",
+      "material": "facade",
+      "courses": [
+        3,
+        7
+      ]
+    },
+    "stucco": {
+      "color": "d8c6a8",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 2,
+      "rows": 1
+    },
+    "brick": {
+      "color": "a88b70",
+      "pattern": "brick",
+      "material": "facade",
+      "courses": [
+        4,
+        16
+      ]
+    },
+    "glass": {
+      "color": "406470",
+      "pattern": "glass",
+      "material": "glass",
+      "divisions": 2,
+      "frame": [
+        187,
+        186,
+        171
+      ]
+    },
+    "teal": {
+      "color": "377988",
+      "pattern": "glass",
+      "material": "glass",
+      "divisions": 3,
+      "frame": [
+        197,
+        197,
+        184
+      ]
+    },
+    "door": {
+      "color": "396170",
+      "pattern": "doors",
+      "material": "glass",
+      "divisions": 2
+    },
+    "silver": {
+      "color": "a4b1ba",
+      "pattern": "panels",
+      "material": "metal",
+      "divisions": 4,
+      "rows": 2
+    },
+    "trim": {
+      "color": "e2dbcb",
+      "pattern": "plain",
+      "material": "facade"
+    },
+    "roof": {
+      "color": "575b61",
+      "pattern": "panels",
+      "material": "roof",
+      "divisions": 5,
+      "rows": 10
+    },
+    "concrete": {
+      "color": "a9a89e",
+      "pattern": "plain",
+      "material": "facade"
+    },
+    "ink": {
+      "color": "282a2b",
+      "pattern": "plain",
+      "material": "metal",
+      "labels": [
+        "ANDROMEDA HALL",
+        "CAPELLA HALL",
+        "HELIX HALL",
+        "SIRIUS HALL",
+        "VEGA HALL"
+      ],
+      "labelBackground": "bfc1bc",
+      "boldLabels": true
+    },
+    "room": {
+      "color": "c5b397",
+      "pattern": "punched",
+      "gap": 0.44,
+      "glass": [
+        47,
+        77,
+        91
+      ]
+    },
+    "blue": {
+      "color": "38617e",
+      "pattern": "glass",
+      "material": "glass",
+      "divisions": 3,
+      "frame": [
+        164,
+        174,
+        177
+      ]
+    },
+    "orange": {
+      "color": "a9704f",
+      "pattern": "brick",
+      "material": "facade",
+      "courses": [
+        5,
+        19
+      ]
+    },
+    "darkmetal": {
+      "color": "5d6161",
+      "pattern": "panels",
+      "material": "metal",
+      "divisions": 4,
+      "rows": 4
+    }
+  },
+  "university_village": {
+    "stone": {
+      "color": "c5b797",
+      "pattern": "stone",
+      "material": "facade",
+      "courses": [
+        3,
+        8
+      ]
+    },
+    "panel": {
+      "color": "c7b89b",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 3
+    },
+    "masonry": {
+      "color": "c7b89b",
+      "pattern": "brick",
+      "material": "facade",
+      "courses": [
+        4,
+        15
+      ]
+    },
+    "concrete": {
+      "color": "b5afa1",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 2
+    },
+    "white": {
+      "color": "e7e5dc",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 2
+    },
+    "glass": {
+      "color": "536675",
+      "pattern": "glass",
+      "material": "glass",
+      "divisions": 2
+    },
+    "entry": {
+      "color": "536675",
+      "pattern": "doors",
+      "material": "glass",
+      "divisions": 2
+    },
+    "metal": {
+      "color": "77756b",
+      "pattern": "panels",
+      "material": "metal",
+      "divisions": 5,
+      "rows": 2
+    },
+    "shade": {
+      "color": "5e5e53",
+      "pattern": "ribs",
+      "material": "metal",
+      "divisions": 12
+    },
+    "roof": {
+      "color": "5c6268",
+      "pattern": "panels",
+      "material": "roof",
+      "divisions": 10,
+      "rows": 15
+    },
+    "frame": {
+      "color": "33393c",
+      "pattern": "plain",
+      "material": "facade"
+    },
+    "room": {
+      "color": "c5b395",
+      "pattern": "punched",
+      "material": "facade",
+      "gap": 0.46,
+      "glass": [
+        57,
+        64,
+        60
+      ],
+      "frame": [
+        165,
+        158,
+        145
+      ]
+    }
+  },
+  "northside": {
+    "stone": {
+      "color": "bbb5a7",
+      "pattern": "stone",
+      "material": "facade",
+      "courses": [
+        3,
+        8
+      ]
+    },
+    "panel": {
+      "color": "bbb5a7",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 3
+    },
+    "masonry": {
+      "color": "8b6958",
+      "pattern": "brick",
+      "material": "facade",
+      "courses": [
+        4,
+        15
+      ]
+    },
+    "concrete": {
+      "color": "b5afa1",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 2
+    },
+    "white": {
+      "color": "e7e5dc",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 2
+    },
+    "glass": {
+      "color": "52666c",
+      "pattern": "glass",
+      "material": "glass",
+      "divisions": 2
+    },
+    "entry": {
+      "color": "52666c",
+      "pattern": "doors",
+      "material": "glass",
+      "divisions": 2
+    },
+    "metal": {
+      "color": "818682",
+      "pattern": "panels",
+      "material": "metal",
+      "divisions": 5,
+      "rows": 2
+    },
+    "shade": {
+      "color": "596061",
+      "pattern": "ribs",
+      "material": "metal",
+      "divisions": 12
+    },
+    "roof": {
+      "color": "7b7c7a",
+      "pattern": "panels",
+      "material": "roof",
+      "divisions": 5,
+      "rows": 5
+    },
+    "frame": {
+      "color": "33393c",
+      "pattern": "plain",
+      "material": "facade"
+    },
+    "room": {
+      "color": "bdb5a6",
+      "pattern": "punched",
+      "material": "facade",
+      "gap": 0.42,
+      "glass": [
+        60,
+        72,
+        69
+      ],
+      "frame": [
+        151,
+        153,
+        141
+      ]
+    },
+    "copper": {
+      "color": "ae663c",
+      "pattern": "brick",
+      "material": "facade",
+      "courses": [
+        4,
+        14
+      ]
+    }
+  },
+  "canyon_creek": {
+    "stone": {
+      "color": "c6c0af",
+      "pattern": "stone",
+      "material": "facade",
+      "courses": [
+        3,
+        8
+      ]
+    },
+    "panel": {
+      "color": "c6c0af",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 3
+    },
+    "masonry": {
+      "color": "a2846c",
+      "pattern": "brick",
+      "material": "facade",
+      "courses": [
+        4,
+        15
+      ]
+    },
+    "concrete": {
+      "color": "b5afa1",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 2
+    },
+    "white": {
+      "color": "e7e5dc",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 2
+    },
+    "glass": {
+      "color": "536b69",
+      "pattern": "glass",
+      "material": "glass",
+      "divisions": 2
+    },
+    "entry": {
+      "color": "536b69",
+      "pattern": "doors",
+      "material": "glass",
+      "divisions": 2
+    },
+    "metal": {
+      "color": "555c60",
+      "pattern": "panels",
+      "material": "metal",
+      "divisions": 5,
+      "rows": 2
+    },
+    "shade": {
+      "color": "464e55",
+      "pattern": "ribs",
+      "material": "metal",
+      "divisions": 12
+    },
+    "roof": {
+      "color": "7b7c7a",
+      "pattern": "panels",
+      "material": "roof",
+      "divisions": 5,
+      "rows": 5
+    },
+    "frame": {
+      "color": "33393c",
+      "pattern": "plain",
+      "material": "facade"
+    },
+    "room": {
+      "color": "bfb9a8",
+      "pattern": "punched",
+      "material": "facade",
+      "gap": 0.42,
+      "glass": [
+        63,
+        76,
+        77
+      ]
+    }
+  },
+  "research_service": {
+    "stone": {
+      "color": "c1bcad",
+      "pattern": "stone",
+      "material": "facade",
+      "courses": [
+        3,
+        8
+      ]
+    },
+    "panel": {
+      "color": "c1bcad",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 3
+    },
+    "masonry": {
+      "color": "875b49",
+      "pattern": "brick",
+      "material": "facade",
+      "courses": [
+        4,
+        15
+      ]
+    },
+    "concrete": {
+      "color": "b5afa1",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 2
+    },
+    "white": {
+      "color": "e7e5dc",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 2
+    },
+    "glass": {
+      "color": "3e4e53",
+      "pattern": "glass",
+      "material": "glass",
+      "divisions": 2
+    },
+    "entry": {
+      "color": "3e4e53",
+      "pattern": "doors",
+      "material": "glass",
+      "divisions": 2
+    },
+    "metal": {
+      "color": "8e9395",
+      "pattern": "panels",
+      "material": "metal",
+      "divisions": 5,
+      "rows": 2
+    },
+    "shade": {
+      "color": "4b5153",
+      "pattern": "ribs",
+      "material": "metal",
+      "divisions": 12
+    },
+    "roof": {
+      "color": "7b7c7a",
+      "pattern": "panels",
+      "material": "roof",
+      "divisions": 5,
+      "rows": 5
+    },
+    "frame": {
+      "color": "33393c",
+      "pattern": "plain",
+      "material": "facade"
+    },
+    "precast": {
+      "color": "c8c2b7",
+      "pattern": "stone",
+      "material": "facade",
+      "courses": [
+        3,
+        8
+      ]
+    },
+    "lightmetal": {
+      "color": "acaeaa",
+      "pattern": "ribs",
+      "material": "metal",
+      "divisions": 12
+    },
+    "orange": {
+      "color": "b76942",
+      "pattern": "panels",
+      "material": "metal",
+      "divisions": 3,
+      "rows": 6
+    },
+    "ivory": {
+      "color": "d6cec0",
+      "pattern": "panels",
+      "material": "facade",
+      "divisions": 3,
+      "rows": 4
+    },
+    "room": {
+      "color": "b7b5a9",
+      "pattern": "punched",
+      "material": "facade",
+      "gap": 0.53,
+      "glass": [
+        66,
+        79,
+        82
+      ],
+      "frame": [
+        153,
+        153,
+        146
+      ]
+    }
+  }
+}

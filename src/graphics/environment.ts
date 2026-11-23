@@ -37,7 +37,14 @@ export class Environment {
   constructor(private scene: THREE.Scene, renderer: THREE.WebGLRenderer, mats: CampusMaterials, terrain: Terrain) {
     this.sky = new Sky();
     this.sky.scale.setScalar(10000);
-    this.sky.renderOrder = -100; // before the depth-less ground layers
+    // Fill only pixels the depth-writing terrain and building atlas passes left empty.
+    this.sky.renderOrder = LAYER.terrain + 2;
+    this.sky.material.vertexShader = this.sky.material.vertexShader.replace('gl_Position.z = gl_Position.w;',
+      `#ifdef USE_REVERSED_DEPTH_BUFFER
+        gl_Position.z = 0.0;
+      #else
+        gl_Position.z = gl_Position.w;
+      #endif`);
     this.sky.material.uniforms.mieDirectionalG.value = 0.78;
     // The stock sun disc is ~760x brighter than the sky, which blew out the bloom pass and
     // blinded the driver when heading toward the sun (Field Street at dusk). Keep a visible
@@ -111,22 +118,33 @@ export class Environment {
     const C = CHUNK_SIZE;
     const cx0 = Math.floor(m.x0 / C) * C, cy0 = Math.floor(m.y0 / C) * C;
     const cx1 = Math.floor((m.x0 + (m.nx - 1) * m.step) / C) * C + C, cy1 = Math.floor((m.y0 + (m.ny - 1) * m.step) / C) * C + C;
-    const S = 50, R = 6000;
-    const g = new THREE.PlaneGeometry(2 * R, 2 * R, (2 * R) / S, (2 * R) / S).rotateX(-Math.PI / 2);
-    g.translate((cx0 + cx1) / 2 - ((cx0 + cx1) / 2) % S, 0, -((cy0 + cy1) / 2 - ((cy0 + cy1) / 2) % S));
+    const step = 50, radius = 6000;
+    const axis = (lo: number, hi: number) => {
+      const center = Math.trunc((lo + hi) / (2 * step)) * step;
+      const samples: number[] = [];
+      for (let offset = -radius; offset <= radius; offset += step) {
+        const p = center + offset;
+        // Keep the original edge sampling near the streamed map. The distant skirt
+        // changes only gradually as it fades into the fog.
+        if ((p >= lo - 300 && p <= hi + 300) || (offset + radius) % (4 * step) === 0) samples.push(p);
+      }
+      return samples;
+    };
+    const xs = axis(cx0, cx1), ys = axis(cy0, cy1).reverse();
+    const g = new THREE.PlaneGeometry(1, 1, xs.length - 1, ys.length - 1);
     const pos = g.attributes.position as THREE.BufferAttribute, uv = g.attributes.uv as THREE.BufferAttribute;
     for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), y = -pos.getZ(i);
+      const x = xs[i % xs.length], y = ys[Math.floor(i / xs.length)];
       const inside = x > cx0 + 1 && x < cx1 - 1 && y > cy0 + 1 && y < cy1 - 1;
       const out = Math.hypot(Math.max(cx0 - x, 0, x - cx1), Math.max(cy0 - y, 0, y - cy1));
       const edge = terrain.heightAt(Math.min(Math.max(x, cx0), cx1), Math.min(Math.max(y, cy0), cy1));
       const t = THREE.MathUtils.smoothstep(out, 0, 1500);
-      pos.setY(i, inside ? edge - 6 : edge + (avg - edge) * t - 0.05);
+      pos.setXYZ(i, x, inside ? edge - 6 : edge + (avg - edge) * t - 0.05, -y);
       uv.setXY(i, x / 6, y / 6);
     }
     g.computeVertexNormals();
     const ground = new THREE.Mesh(g, mats.terrain);
-    ground.renderOrder = LAYER.terrain - 1;
+    ground.renderOrder = LAYER.terrain + 1;
     ground.receiveShadow = true;
     ground.name = 'skirt';
     scene.add(ground);

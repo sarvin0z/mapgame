@@ -20,6 +20,11 @@ import json
 import math
 import os
 import sys
+import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.dont_write_bytecode = True
 
 import bmesh
 import bpy
@@ -28,7 +33,7 @@ from mathutils import Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 SPECS, OUTDIR = argv[0], argv[1]
-ONLY = argv[2] if len(argv) > 2 else None
+ONLY = set(argv[2:])
 os.makedirs(OUTDIR, exist_ok=True)
 
 # Ground-level solids that stand outside the OSM footprint (the game's colliders come from
@@ -123,7 +128,17 @@ class Builder:
             self.parts[m.name] = (m, bmesh.new())
         return self.parts[m.name][1]
 
-    def quad(self, m, a, b, c, d):
+    def face(self, m, points, uvs):
+        bm = self.bm(m)
+        face = bm.faces.new([bm.verts.new(P(*point)) for point in points])
+        uv = bm.loops.layers.uv.verify()
+        for loop, value in zip(face.loops, uvs):
+            loop[uv].uv = value
+        return face
+
+    def quad(self, m, a, b, c, d, uvs=None):
+        if uvs is not None:
+            return self.face(m, (a, b, c, d), uvs)
         bm = self.bm(m)
         vs = [bm.verts.new(P(*p)) for p in (a, b, c, d)]
         f = bm.faces.new(vs)
@@ -149,12 +164,13 @@ class Builder:
         for i in ((0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)):
             self.quad(m, *[v[k] for k in i])
 
-    def finish(self, name):
+    def finish(self, name, recalc=True):
         root = bpy.data.objects.new(name, None)
         bpy.context.scene.collection.objects.link(root)
         for mname, (m, bm) in self.parts.items():
             bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.001)
-            bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+            if recalc:
+                bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
             me = bpy.data.meshes.new(name + "_" + mname)
             bm.to_mesh(me)
             bm.free()
@@ -224,13 +240,14 @@ def wall_strip(B, m, e, y0, y1, t0=0.0, t1=None, out=0.0):
     B.quad(m, W(a, y0), W(b, y0), W(b, y1), W(a, y1))
 
 
-def polygon_cap(B, m, ring, y, down=False, holes=()):
+def polygon_cap(B, m, ring, y, down=False, holes=(), atlas_uv=None):
     """Flat cap over `ring`, leaving `holes` (courtyards) open."""
     bm = B.bm(m)
     loops = [list(ring)] + [list(h) for h in holes]
     flat = [p for l in loops for p in l]
     vs = [bm.verts.new(P(*W(p, y))) for p in flat]
     tris = mathutils.geometry.tessellate_polygon([[Vector((p[0], p[1], 0)) for p in l] for l in loops])
+    uv = bm.loops.layers.uv.verify()
     for t in tris:
         a, b, c = (vs[i] for i in t)
         # Wind every triangle to face up (or down).
@@ -239,13 +256,12 @@ def polygon_cap(B, m, ring, y, down=False, holes=()):
         if up == down:
             a, c = c, a
         try:
-            bm.faces.new((a, b, c))
+            face = bm.faces.new((a, b, c))
         except ValueError:
-            pass
-    uv = bm.loops.layers.uv.verify()
-    for face in bm.faces:
+            continue
         for loop in face.loops:
-            loop[uv].uv = (loop.vert.co.x, loop.vert.co.y)
+            xy = (loop.vert.co.x, loop.vert.co.y)
+            loop[uv].uv = atlas_uv(*xy) if atlas_uv else xy
 
 
 # ---------------------------------------------------------------- components
@@ -1288,9 +1304,20 @@ SOLIDS_PATH = os.path.join(OUTDIR, "solids.json")
 SOLIDS = json.load(open(SOLIDS_PATH)) if os.path.exists(SOLIDS_PATH) else {}
 done = []
 for spec in specs:
-    if ONLY and spec["slug"] != ONLY:
+    if ONLY and spec["slug"] not in ONLY:
         continue
-    root = build(spec)
+    textured = "atlasModel" in spec["recipe"]
+    family = None
+    if textured:
+        from atlas_buildings import Model
+
+        for obj in list(bpy.data.objects):
+            bpy.data.objects.remove(obj, do_unlink=True)
+        family = spec["recipe"]["atlasModel"].get("atlasFamily")
+        with tempfile.TemporaryDirectory(prefix="campus-atlas-") as temp:
+            root, SOLIDS[spec["slug"]] = Model(spec, Builder(), polygon_cap, Path(temp)).build()
+    else:
+        root = build(spec)
     if root is None:
         continue
     bpy.ops.object.select_all(action="DESELECT")
@@ -1298,11 +1325,19 @@ for spec in specs:
         o.select_set(True)
     out = os.path.join(OUTDIR, spec["slug"] + ".glb")
     bpy.ops.export_scene.gltf(filepath=out, export_format="GLB", use_selection=True, export_yup=True, export_apply=True,
-                              export_draco_mesh_compression_enable=True, export_draco_mesh_compression_level=7)
+                              export_draco_mesh_compression_enable=True, export_draco_mesh_compression_level=7,
+                              export_image_format="WEBP" if textured else "AUTO", export_image_quality=92,
+                              export_image_webp_fallback=False)
+    if family:
+        from shared_atlas import share_atlas
+
+        share_atlas(out, family)
     done.append(spec["slug"])
     print("exported", out)
 # The index lists every model in the folder, so rebuilding one building keeps the others.
 index = sorted(f[:-4] for f in os.listdir(OUTDIR) if f.endswith(".glb"))
 json.dump(index, open(os.path.join(OUTDIR, "index.json"), "w"))
-json.dump({k: v for k, v in sorted(SOLIDS.items()) if (v["posts"] or v["rings"]) and k in index}, open(SOLIDS_PATH, "w"))
+json.dump({k: v for k, v in sorted(SOLIDS.items())
+           if k in index and any(v.get(field) for field in ("replaceFootprint", "posts", "rings", "volumes", "hulls", "paving"))},
+          open(SOLIDS_PATH, "w"))
 print("total", len(done))

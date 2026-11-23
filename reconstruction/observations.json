@@ -3,7 +3,8 @@
   "buildings": {
     "Founders Building": {
       "refs": [
-        "12_Founders_Building.jpg"
+        "12_Founders_Building.jpg",
+        "PDF photo comparison"
       ],
       "roof": [
         "thin flat roof plane floating above the top floor, projecting ~3 m on all sides, on slender posts",
@@ -23,6 +24,14 @@
       ],
       "features": [
         [
+          "The east face has a three-story glass atrium and projecting vertical white fins. The thin reviewer roof is retained and receives a matching elevated collider.",
+          "high"
+        ],
+        [
+          "Signature deep white fins, tall shaded glazing and glazed ground-floor entrances.",
+          "medium"
+        ],
+        [
           "white vertical fins over the whole facade",
           "high"
         ],
@@ -39,17 +48,56 @@
         "rear facade",
         "rooftop equipment"
       ],
-      "recipe": {
-        "facade": "fins",
-        "finSpacing": 1.8,
-        "finDepth": 0.9,
-        "wall": "white",
-        "glass": "teal",
-        "roof": "floatingPlane",
-        "roofOverhang": 6.0,
-        "ground": "storefront",
-        "roofTilt": 6.0
-      }
+      "modelSlug": "founders_building",
+      "sources": [
+        "https://dox.utdallas.edu/map1011",
+        "https://news.utdallas.edu/campus-community/founders-project-an-old-friend-gets-a-new-look/",
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "East atrium, fins and full-height entrance glass",
+          "eye": [
+            207,
+            224,
+            2.0
+          ],
+          "at": [
+            173,
+            207,
+            8.5
+          ],
+          "lens": 28,
+          "ref": {
+            "file": "12_Founders_Building.jpg"
+          }
+        },
+        {
+          "name": "Thin roof canopy and glazed ground floor",
+          "eye": [
+            200,
+            190,
+            2.4
+          ],
+          "at": [
+            172,
+            210,
+            8.2
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "12_Founders_Building.jpg",
+            "crop": [
+              0.14,
+              0.03,
+              0.96,
+              0.95
+            ]
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Founders North": {
       "refs": [
@@ -74,6 +122,10 @@
       ],
       "features": [
         [
+          "Pale concrete with closely spaced fins and modest punched glazing.",
+          "medium"
+        ],
+        [
           "Rock Garden courtyard with specimen rocks on pedestals",
           "high"
         ]
@@ -81,19 +133,53 @@
       "unknown": [
         "street facades"
       ],
-      "recipe": {
-        "facade": "fins",
-        "finSpacing": 2.4,
-        "finDepth": 0.5,
-        "wall": "concrete",
-        "glass": "darkBlue",
-        "roof": "parapet",
-        "ground": "storefront"
-      }
+      "modelSlug": "founders_north",
+      "sources": [
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            129.35,
+            227.14,
+            2.2
+          ],
+          "at": [
+            88.5,
+            256.82,
+            5.56
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "73_Founders_North_Courtyard.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            113.75,
+            213.09,
+            7.489999999999999
+          ],
+          "at": [
+            88.5,
+            256.82,
+            5.56
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "83_Founders_North_Courtyard_2.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Eugene McDermott Library": {
       "refs": [
-        "02_McDermott_Library.png"
+        "02_McDermott_Library.png",
+        "Eugene McDermott Library - Pergola Entrance.png"
       ],
       "roof": [
         "flat with deep projecting fascia",
@@ -113,6 +199,10 @@
       ],
       "features": [
         [
+          "Tan precast ribbons, dark recessed window bands and open ground-level arcade",
+          "medium"
+        ],
+        [
           "stepped upper floors with deep horizontal precast bands",
           "high"
         ],
@@ -128,20 +218,57 @@
       "unknown": [
         "north facade"
       ],
-      "recipe": {
-        "facade": "precastFrames",
-        "bay": 4.5,
-        "wall": "tan",
-        "glass": "dark",
-        "roof": "fascia",
-        "ground": "recessedColumns",
-        "recess": 3.2,
-        "groundCanopy": 3.5
-      }
+      "modelSlug": "eugene_mcdermott_library",
+      "sources": [
+        "https://development.utdallas.edu/support/giving-societies/the-trellis-society/",
+        "https://websites.utdallas.edu/enhance/new-era/enhancement-facts/",
+        "https://www.utdallas.edu/campus-life/student-spaces/",
+        "https://calendar.utdallas.edu/margaret_mcdermott_trellis_plaza",
+        "https://www.pwpla.com/projects/university-of-texas-at-dallas"
+      ],
+      "compareViews": [
+        {
+          "name": "Horizontal precast bays, shadowed arcade",
+          "eye": [
+            184,
+            103,
+            3
+          ],
+          "at": [
+            238,
+            120,
+            7.3
+          ],
+          "lens": 31,
+          "ref": {
+            "file": "02_McDermott_Library.png"
+          }
+        },
+        {
+          "name": "Trellis and library entry",
+          "eye": [
+            191,
+            169,
+            3.2
+          ],
+          "at": [
+            228,
+            157,
+            6
+          ],
+          "lens": 25,
+          "ref": {
+            "download": "Eugene McDermott Library - Pergola Entrance.png"
+          }
+        }
+      ],
+      "photoPass": "Warmer precast and deeper three-level slotted glazing establish the stacked reveals. The Plinth is represented separately with its mapped slatted canopy and seating.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Natural Science and Engineering Research Lab": {
       "refs": [
-        "03_NSERL.jpg"
+        "03_NSERL.jpg",
+        "NSERL - Curved Green-Glass Aerial.png"
       ],
       "roof": [
         "flat with thin metal cornice",
@@ -161,6 +288,14 @@
       ],
       "features": [
         [
+          "Ground-floor limestone piers sit in front of the recessed glazing. Overlapping original painted steel scales mix green, blue and purple.",
+          "high"
+        ],
+        [
+          "Four-story green glass east wing, fossil limestone and anodized violet-blue panels",
+          "medium"
+        ],
+        [
           "full-height teal glass stair tower",
           "high"
         ],
@@ -170,18 +305,53 @@
         ]
       ],
       "unknown": [
+        "Roof fold depths estimated from photos",
         "rear facade"
       ],
-      "recipe": {
-        "facade": "tileWithBays",
-        "wall": "violetTile",
-        "glass": "teal",
-        "roof": "cornice",
-        "ground": "recessedColumns",
-        "tower": "glass",
-        "recess": 2.5,
-        "groundMat": "limestone"
-      }
+      "modelSlug": "natural_science_and_engineering_research_lab",
+      "sources": [
+        "https://research.utdallas.edu/facilities/nserl",
+        "https://mse-annual-report.utdallas.edu/files/2024/09/MSE-News-Brochure-2021-Web.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "East folded green curtain wall",
+          "eye": [
+            71,
+            719,
+            31
+          ],
+          "at": [
+            -4,
+            731,
+            15
+          ],
+          "lens": 26,
+          "ref": {
+            "download": "NSERL - Curved Green-Glass Aerial.png"
+          }
+        },
+        {
+          "name": "Stone colonnade and jewel-toned scale cladding",
+          "eye": [
+            62,
+            781,
+            4.0
+          ],
+          "at": [
+            16,
+            758,
+            11
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "03_NSERL.jpg"
+          }
+        }
+      ],
+      "photoPass": "Added shallow curtain-wall mullions and relief on anodized scales, sharpened standing seams and kept the pale limestone colonnade. The colour variation is baked; it approximates the anodized oxide finish. Added the folded sheet-metal roof along the concave green wall and interrupted the continuous glass with a tall purple/green stair bay.",
+      "revision": "Building body, GLB bytes and asset entries restored from 0ced19f.",
+      "clearanceNote": "UT Dallas documents NSERL?BSB walkway. Campus OSM snapshot has no separate raised footprint for it, so the restored bodies are unchanged and this span cannot receive a model-level cart probe."
     },
     "Bioengineering Science Building": {
       "refs": [
@@ -205,6 +375,10 @@
       ],
       "features": [
         [
+          "Reference-matched major materials and enclosed footprint. Main glazing bands or apron expressed in geometry.",
+          "medium"
+        ],
+        [
           "stone end walls framing the glass",
           "high"
         ],
@@ -214,20 +388,53 @@
         ]
       ],
       "unknown": [
+        "Precise rear construction and service openings are unverified.",
         "courtyard side"
       ],
-      "recipe": {
-        "facade": "curtainWall",
-        "wall": "limestone",
-        "glass": "dark",
-        "roof": "thinEdge",
-        "ground": "curtain",
-        "endWalls": "stone",
-        "stoneFrame": [
-          0.3,
-          0.8
-        ]
-      }
+      "modelSlug": "bioengineering_science_building",
+      "sources": [
+        "https://engineering-research.utdallas.edu/building-bridges-and-breakthroughs/",
+        "https://research.utdallas.edu/facilities",
+        "https://mse-annual-report.utdallas.edu/files/2024/09/MSE-News-Brochure-2021-Web.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            88.88,
+            568.42,
+            2.2
+          ],
+          "at": [
+            25.52,
+            631.79,
+            13.16
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "04_Bioengineering_Sciences_Building.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -21.97,
+            555.79,
+            14
+          ],
+          "at": [
+            25.52,
+            631.79,
+            13.16
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "04_Bioengineering_Sciences_Building.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "revision": "Building body, GLB bytes and asset entries restored from 0ced19f."
     },
     "Edith O'Donnell Arts & Technology Building": {
       "refs": [
@@ -251,6 +458,14 @@
       ],
       "features": [
         [
+          "Dark navy auditorium shell, pale gallery volume and an inclined curtain wall with projecting steel canopy fingers.",
+          "high"
+        ],
+        [
+          "Reference-matched major materials and enclosed footprint. Main glazing bands or apron expressed in geometry.",
+          "medium"
+        ],
+        [
           "cantilevered sloped roof with lattice trusses",
           "high"
         ],
@@ -260,17 +475,53 @@
         ]
       ],
       "unknown": [
+        "Precise rear construction and service openings are unverified.",
         "back of house facades"
       ],
-      "recipe": {
-        "facade": "curtainWall",
-        "wall": "whiteStucco",
-        "glass": "darkBlue",
-        "roof": "cantileverTruss",
-        "cantilever": 16,
-        "ground": "curtain",
-        "roofRise": 8.0
-      }
+      "modelSlug": "edith_o_donnell_arts_technology_building",
+      "sources": [
+        "https://websites.utdallas.edu/enhance/points/",
+        "https://www.datumengineers.com/our-work/utd-edith-odonnell-arts-and-technology-building.html",
+        "https://news.utdallas.edu/campus-community/edith-odonnell-arts-and-technology-building-transf/"
+      ],
+      "compareViews": [
+        {
+          "name": "Navy shell beside the inclined lobby",
+          "eye": [
+            192,
+            -17,
+            2.75
+          ],
+          "at": [
+            225,
+            12.4,
+            8.4
+          ],
+          "lens": 22,
+          "ref": {
+            "file": "05_Arts_Technology_Building.jpg"
+          }
+        },
+        {
+          "name": "Glazed approach and pale upper volume",
+          "eye": [
+            189,
+            32,
+            2.5
+          ],
+          "at": [
+            224,
+            24,
+            8.0
+          ],
+          "lens": 24,
+          "ref": {
+            "url": "https://datum.imgix.net/projects/utd-edith-odonnell-arts-and-technology-building/Art___Technology_2016.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "revision": "Building body, GLB bytes and asset entries restored from 0ced19f."
     },
     "Cecil H. Green Hall": {
       "refs": [
@@ -294,6 +545,10 @@
       ],
       "features": [
         [
+          "Reference-matched major materials and enclosed footprint. Main glazing bands or apron expressed in geometry.",
+          "medium"
+        ],
+        [
           "upper floors cantilever over a recessed, shaded ground floor",
           "high"
         ],
@@ -302,17 +557,51 @@
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "punched",
-        "bay": 2.6,
-        "wall": "tanAggregate",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "recessedColumns",
-        "recess": 2.4,
-        "reveal": 0.75
-      }
+      "unknown": [
+        "Precise rear construction and service openings are unverified."
+      ],
+      "modelSlug": "cecil_h_green_hall",
+      "sources": [
+        "https://dox.utdallas.edu/map1011"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            272.87,
+            340.64,
+            2.2
+          ],
+          "at": [
+            228.07,
+            314.78,
+            7.12
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "09_Green_Hall.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            259.92,
+            274.02,
+            9.589999999999998
+          ],
+          "at": [
+            228.07,
+            314.78,
+            7.12
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "09_Green_Hall.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Administration Building": {
       "refs": [
@@ -336,25 +625,75 @@
       ],
       "features": [
         [
+          "The main court faces the connector's raised clerestory and dark standing-seam pyramid.",
+          "high"
+        ],
+        [
+          "Reference-matched major materials and enclosed footprint. Main glazing bands or apron expressed in geometry.",
+          "medium"
+        ],
+        [
           "pyramid roof lantern",
           "high"
         ]
       ],
       "unknown": [
+        "Precise rear construction and service openings are unverified.",
         "side facades"
       ],
-      "recipe": {
-        "facade": "bands",
-        "wall": "tan",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "bands",
-        "lantern": "entryPyramid"
-      }
+      "modelSlug": "administration_building",
+      "sources": [
+        "https://magazine.utdallas.edu/2019/02/04/the-making-of-the-admin-building/"
+      ],
+      "compareViews": [
+        {
+          "name": "North court and the roof lantern",
+          "eye": [
+            183,
+            503,
+            7.5
+          ],
+          "at": [
+            182,
+            439,
+            9.7
+          ],
+          "lens": 32,
+          "ref": {
+            "file": "26_Administration_Building.jpg"
+          }
+        },
+        {
+          "name": "Lantern over the recessed entrance",
+          "eye": [
+            183,
+            473,
+            3.9
+          ],
+          "at": [
+            182,
+            434,
+            12.0
+          ],
+          "lens": 37,
+          "ref": {
+            "file": "26_Administration_Building.jpg",
+            "crop": [
+              0.36,
+              0.06,
+              0.88,
+              0.68
+            ]
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Student Services Building": {
       "refs": [
-        "27_Student_Services_Building.jpg"
+        "27_Student_Services_Building.jpg",
+        "PDF photo comparison"
       ],
       "roof": [
         "flat with thin white roof plane",
@@ -374,6 +713,10 @@
       ],
       "features": [
         [
+          "White horizontal sunscreen and curtain glass with four aligned public levels",
+          "medium"
+        ],
+        [
           "white sunshade louvers on every floor",
           "high"
         ],
@@ -383,14 +726,51 @@
         ]
       ],
       "unknown": [],
-      "recipe": {
-        "facade": "louvered",
-        "wall": "white",
-        "glass": "green",
-        "roof": "thinEdge",
-        "ground": "curtain",
-        "screenOut": 2.0
-      }
+      "modelSlug": "student_services_building",
+      "sources": [
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf",
+        "https://union.utdallas.edu/facilities/building-directories/"
+      ],
+      "compareViews": [
+        {
+          "name": "External sunshade lattice",
+          "eye": [
+            192,
+            39,
+            2.7
+          ],
+          "at": [
+            144,
+            13,
+            11
+          ],
+          "lens": 32,
+          "ref": {
+            "file": "27_Student_Services_Building.jpg"
+          }
+        },
+        {
+          "name": "Sunshades facing the reflecting pools",
+          "eye": [
+            190,
+            -36,
+            4
+          ],
+          "at": [
+            140,
+            11,
+            11.6
+          ],
+          "lens": 32,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 10,
+            "image": 0
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Student Services Building Addition": {
       "refs": [
@@ -414,6 +794,10 @@
       ],
       "features": [
         [
+          "Four aligned levels, floating tan frame and dark glass",
+          "medium"
+        ],
+        [
           "projecting charcoal frame boxing out the upper floors",
           "high"
         ]
@@ -421,17 +805,54 @@
       "unknown": [
         "rear"
       ],
-      "recipe": {
-        "facade": "curtainWall",
-        "wall": "charcoal",
-        "glass": "blue",
-        "roof": "frame",
-        "ground": "curtain"
-      }
+      "modelSlug": "student_services_building_addition",
+      "sources": [
+        "https://calendar.utdallas.edu/ssa",
+        "https://union.utdallas.edu/facilities/building-directories/",
+        "https://www.jacobs.com/projects/university-texas-dallas-student-services-building-addition"
+      ],
+      "compareViews": [
+        {
+          "name": "Deep-set glass box framed by limestone",
+          "eye": [
+            35,
+            -33,
+            4
+          ],
+          "at": [
+            82,
+            9,
+            8.3
+          ],
+          "lens": 32,
+          "ref": {
+            "file": "28_Student_Services_Building_Addition.jpg"
+          }
+        },
+        {
+          "name": "Return facade and narrow sunshades",
+          "eye": [
+            42,
+            74,
+            6
+          ],
+          "at": [
+            83,
+            27,
+            9
+          ],
+          "lens": 37,
+          "ref": {
+            "file": "28_Student_Services_Building_Addition.jpg"
+          }
+        }
+      ],
+      "photoPass": "The OSM south flight follows the photographed tall approach, starts at grade and finishes at the raised door on a guarded landing."
     },
     "Science Learning Center": {
       "refs": [
-        "29_Science_Learning_Center.jpg"
+        "29_Science_Learning_Center.jpg",
+        "Sciences Building and SLC UTD Campus Courtyard - Tan and Gray Facades.png"
       ],
       "roof": [
         "flat parapet",
@@ -451,6 +872,10 @@
       ],
       "features": [
         [
+          "Blue tile/glass rhythm inspired by emission spectra.",
+          "medium"
+        ],
+        [
           "blue glass mosaic panel wall",
           "high"
         ]
@@ -458,57 +883,163 @@
       "unknown": [
         "other facades"
       ],
-      "recipe": {
-        "facade": "mosaic",
-        "wall": "stoneGray",
-        "glass": "blue",
-        "roof": "parapet",
-        "ground": "storefront"
-      }
+      "modelSlug": "science_learning_center",
+      "sources": [
+        "https://dox.utdallas.edu/map1011",
+        "https://news.utdallas.edu/campus-community/center-is-a-new-space-to-explore-the-sciences/"
+      ],
+      "compareViews": [
+        {
+          "name": "Blue spectral-tile corner",
+          "eye": [
+            70,
+            231,
+            3.4
+          ],
+          "at": [
+            24,
+            262,
+            8
+          ],
+          "lens": 31,
+          "ref": {
+            "file": "29_Science_Learning_Center.jpg"
+          }
+        },
+        {
+          "name": "Stone return from Sciences courtyard",
+          "eye": [
+            30,
+            319,
+            5
+          ],
+          "at": [
+            5,
+            267,
+            8
+          ],
+          "lens": 31,
+          "ref": {
+            "download": "Sciences Building and SLC UTD Campus Courtyard - Tan and Gray Facades.png"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "revision": "Building body, GLB bytes and asset entries restored from 0ced19f."
     },
     "Sciences Building": {
       "refs": [
-        "13_Sciences_Building.jpg"
+        "reference pics: Covered Entry Arcade, Night Glass Tower, Sciences Building and SLC Courtyard",
+        "data/refs: 13_Sciences_Building.jpg; quality_pdf p01-p04 (seven views)",
+        "Downloads/utd building pics.pdf pp. 1, 6"
       ],
       "roof": [
-        "flat",
+        "Stepped flat roof and raised east stair volume",
         "medium"
       ],
       "materials": [
-        "beige limestone; timber soffits and louvers",
+        "Warm limestone, dark perforated zinc, blue-gray glazing and timber soffit",
         "high"
       ],
       "windows": [
-        "deep-set windows in limestone walls",
-        "medium"
+        "Laboratory bands and tall courtyard glazing, with the teaching/learning commons carried over the portal",
+        "high"
       ],
       "entrances": [
-        "entrance with large metal 'SCIENCES BUILDING' letters on the stone",
+        "Portal follows mapped path 1210264084/1210264085; courtyard entry at the branch of path 1210248171",
         "high"
       ],
       "features": [
         [
-          "wood-slat soffit/louvers",
-          "medium"
+          "Seven round concrete columns under the two-level portal",
+          "high"
         ],
         [
-          "mounted building lettering",
+          "Perforated west and south zinc panels, with relief baked into the atlas",
+          "high"
+        ],
+        [
+          "Quad-facing blue bands with dense, varying-depth gray fins. Original color and tangent-space normal atlases carry repeat detail",
+          "high"
+        ],
+        [
+          "Charcoal quad soffit. Timber slats restricted to the portal canopy",
           "high"
         ]
       ],
       "unknown": [
-        "overall massing"
+        "Precise floor levels of north laboratory wing, exact tower height and portal soffit lighting positions"
       ],
-      "recipe": {
-        "facade": "punched",
-        "bay": 3.4,
-        "wall": "limestone",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "recessedColumns",
-        "timber": true,
-        "recess": 3.0
-      }
+      "sources": [
+        "https://www.datumengineers.com/our-work/utd-science.html",
+        "https://development.utdallas.edu/support/naming-opportunities/sciences-building/",
+        "https://www.stantec.com/content/dam/stantec/files/PDFAssets/sector-brochures/higher-education-brochure.pdf",
+        "https://www.linbeck.com/linbeck-through-the-decades-2008-present/"
+      ],
+      "compareViews": [
+        {
+          "name": "Two-storey portal and teaching wing",
+          "eye": [
+            -46.9,
+            339.5,
+            1.48
+          ],
+          "at": [
+            -43.0,
+            345.3,
+            4.6
+          ],
+          "lens": 19,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 1,
+            "image": 1
+          }
+        },
+        {
+          "name": "Laboratory wing from the science quad",
+          "eye": [
+            -25.0,
+            295.2,
+            1.75
+          ],
+          "at": [
+            0.1,
+            342.6,
+            9.0
+          ],
+          "lens": 25,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 6,
+            "image": 0
+          }
+        },
+        {
+          "name": "Covered entry with dark soffit and portal timber",
+          "eye": [
+            -56.6,
+            341.3,
+            1.6
+          ],
+          "at": [
+            -43.2,
+            342.6,
+            6.4
+          ],
+          "lens": 20,
+          "ref": {
+            "download": "Sciences Building - Covered Entry Arcade.png",
+            "crop": [
+              0.126,
+              0.226,
+              0.88,
+              0.69
+            ]
+          }
+        }
+      ],
+      "photoPass": "Differentiated the north lab zinc screen and classroom wing with recessed blue glazing, a deeper vertical screen profile, and dark soffit. Retained the seven-column portal and timber specifically at the portal."
     },
     "Lloyd V. Berkner Hall": {
       "refs": [
@@ -533,25 +1064,64 @@
       ],
       "features": [
         [
+          "Reference-matched major materials and enclosed footprint. Main glazing bands or apron expressed in geometry.",
+          "medium"
+        ],
+        [
           "stacked precast volumes with deep reveals",
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "punched",
-        "bay": 4.5,
-        "wall": "concrete",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "recessedColumns",
-        "reveal": 0.9,
-        "recess": 2.0
-      }
+      "unknown": [
+        "Precise rear construction and service openings are unverified."
+      ],
+      "modelSlug": "lloyd_v_berkner_hall",
+      "sources": [
+        "https://magazine.utdallas.edu/2020/02/10/lloyd-berkner-a-man-made-to-be-a-comet/",
+        "https://cpb-us-e2.wpmucdn.com/sites.utdallas.edu/dist/e/1154/files/2022/05/1973.06.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            35.57,
+            185.14,
+            2.2
+          ],
+          "at": [
+            -15.95,
+            210.27,
+            9.52
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "89_Lloyd_V_Berkner_Hall_Current.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            14.43,
+            258.88,
+            12.81
+          ],
+          "at": [
+            -15.95,
+            210.27,
+            9.52
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "85_Lloyd_V_Berkner_Hall_1973_Historic.jpg"
+          }
+        }
+      ],
+      "photoPass": "Warm aggregate precast fills the pronounced blank bands. Separate dark punched windows follow the recessed upper bays."
     },
     "Davidson-Gundy Alumni Center": {
       "refs": [
-        "14_Davidson_Gundy_Alumni_Center.jpg"
+        "14_Davidson_Gundy_Alumni_Center.jpg",
+        "PDF photo comparison"
       ],
       "roof": [
         "very thin flat roof plane cantilevering far beyond the walls, warm wood soffit",
@@ -571,21 +1141,59 @@
       ],
       "features": [
         [
+          "Cantilevered eave, timber soffit and glass walls set behind thin columns.",
+          "medium"
+        ],
+        [
           "thin cantilevered roof plane",
           "high"
         ]
       ],
       "unknown": [],
-      "recipe": {
-        "facade": "curtainWall",
-        "wall": "white",
-        "glass": "warm",
-        "roof": "floatingPlane",
-        "roofOverhang": 4.5,
-        "ground": "curtain",
-        "soffit": "light",
-        "frontReach": 11
-      }
+      "modelSlug": "davidson_gundy_alumni_center",
+      "sources": [
+        "https://development.utdallas.edu/davidson-gundy-opens-on-campus/"
+      ],
+      "compareViews": [
+        {
+          "name": "Thin cantilever above the event lawn",
+          "eye": [
+            344,
+            87,
+            3
+          ],
+          "at": [
+            347,
+            45,
+            5.6
+          ],
+          "lens": 25,
+          "ref": {
+            "file": "14_Davidson_Gundy_Alumni_Center.jpg"
+          }
+        },
+        {
+          "name": "Glass meeting spaces and limestone",
+          "eye": [
+            399,
+            65,
+            3
+          ],
+          "at": [
+            358,
+            36,
+            4.6
+          ],
+          "lens": 30,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 9,
+            "image": 0
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Activity Center": {
       "refs": [
@@ -611,19 +1219,62 @@
       ],
       "features": [
         [
+          "Conservative broad tan gym volumes, recessed outside-facing glazing.",
+          "medium"
+        ],
+        [
           "mostly blank precast walls",
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "blank",
-        "wall": "tan",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "entranceOnly",
-        "entryBlock": "glass"
-      }
+      "unknown": [
+        "The cylindrical recreation entrance photo has uncertain attribution."
+      ],
+      "modelSlug": "activity_center",
+      "sources": [
+        "https://catalog.utdallas.edu/2026/undergraduate/resources",
+        "https://commencement.utdallas.edu/graduating-students/school-ceremony-instructions/",
+        "https://utdcomets.com/sports/2025/7/14/utd-activity-center.aspx",
+        "https://utdcomets.com/sports/2009/1/9/ParkingStory.aspx?id=108"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            63.86,
+            45.72,
+            2.2
+          ],
+          "at": [
+            47.3,
+            -72.12,
+            5.77
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "90_Activity_Center_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            134.33,
+            9.04,
+            7.77
+          ],
+          "at": [
+            47.3,
+            -72.12,
+            5.77
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "11_Activity_Center.jpg"
+          }
+        }
+      ],
+      "photoPass": "Buff precast athletics block, darker eastern entry glazing, bronze mullions and a continuous metal parapet break.",
+      "entranceAndSignReview": "UT Dallas Athletics confirms a west offices entrance. Added western glazed entry and mapped south doors, warm running-bond masonry, control joints and matching upper band and coping. Long arena walls retain sparse openings."
     },
     "Student Union": {
       "refs": [
@@ -648,6 +1299,18 @@
       ],
       "features": [
         [
+          "Existing Student Union is w470346956 beside the Plinth, distinct from LANding and the new Student Success Center. Retained the game's separate Ipe seating geometry.",
+          "high"
+        ],
+        [
+          "Kept the recessed stone-topped plaza frontage open",
+          "medium"
+        ],
+        [
+          "Removed the overlapping LANding footprint from the Union shell",
+          "medium"
+        ],
+        [
           "broad timber bleacher steps down to the plaza",
           "high"
         ],
@@ -663,15 +1326,57 @@
       "unknown": [
         "north side (OSM marks the Student Success Center expansion under construction)"
       ],
-      "recipe": {
-        "facade": "bands",
-        "wall": "tanAggregate",
-        "glass": "dark",
-        "roof": "fascia",
-        "ground": "recessedColumns",
-        "recess": 4,
-        "timber": true
-      }
+      "modelSlug": "student_union",
+      "sources": [
+        "https://union.utdallas.edu/facilities/building-directories/",
+        "https://www.utdallas.edu/about-us/history-traditions/interactive-timeline/",
+        "https://websites.utdallas.edu/enhance/points/",
+        "https://www.openstreetmap.org/way/470346956",
+        "https://www.pwpla.com/projects/university-of-texas-at-dallas"
+      ],
+      "compareViews": [
+        {
+          "name": "Older Union above the Ipe seating steps",
+          "render": "final_union_plinth.png",
+          "eye": [
+            180,
+            170,
+            2.4
+          ],
+          "at": [
+            156,
+            152,
+            5.5
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "91_Student_Union_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Tan apron at the edge of the Plinth",
+          "eye": [
+            180,
+            152,
+            2.2
+          ],
+          "at": [
+            154,
+            155,
+            6.15
+          ],
+          "lens": 26,
+          "ref": {
+            "file": "10_Student_Union_Plaza.jpg"
+          }
+        }
+      ],
+      "OSM": {
+        "id": "w470346956",
+        "other": "w1482479187",
+        "placement": "Existing low Union beside the Plinth. New complex stands northeast on the former Green Center site."
+      },
+      "photoPass": "Frontage retains the thick tan masonry apron, deep shaded storefronts and the original Plinth seating. Added dark storefront frames and corrected the masonry colour beside McDermott Mall."
     },
     "Karl Hoblitzelle Hall": {
       "refs": [
@@ -696,21 +1401,58 @@
       ],
       "features": [
         [
+          "Reference-matched major materials and enclosed footprint. Main glazing bands or apron expressed in geometry.",
+          "medium"
+        ],
+        [
           "deep overhang shading the front",
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "blank",
-        "wall": "tan",
-        "glass": "dark",
-        "roof": "fascia",
-        "ground": "recessedColumns",
-        "recess": 3,
-        "fasciaDepth": 2.2,
-        "fasciaH": 1.8
-      }
+      "unknown": [
+        "Precise rear construction and service openings are unverified."
+      ],
+      "modelSlug": "karl_hoblitzelle_hall",
+      "sources": [
+        "https://dox.utdallas.edu/map1011"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -88.58,
+            177.26,
+            2.2
+          ],
+          "at": [
+            -124.76,
+            129.25,
+            3.48
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "97_Karl_Hoblitzelle_Hall_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -177.84,
+            101.03,
+            4.6899999999999995
+          ],
+          "at": [
+            -124.76,
+            129.25,
+            3.48
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "71_Karl_Hoblitzelle_Hall_2025.png"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "University Theatre": {
       "refs": [
@@ -734,20 +1476,59 @@
       ],
       "features": [
         [
+          "Reference-matched major materials and enclosed footprint. Main glazing bands or apron expressed in geometry.",
+          "medium"
+        ],
+        [
           "blank tan walls with a recessed entry",
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "blank",
-        "wall": "concrete",
-        "glass": "dark",
-        "roof": "fascia",
-        "ground": "entranceOnly",
-        "fasciaDepth": 3.5,
-        "fasciaH": 3.2
-      }
+      "unknown": [
+        "Precise rear construction and service openings are unverified."
+      ],
+      "modelSlug": "university_theatre",
+      "sources": [
+        "https://dox.utdallas.edu/map1011"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            165.63,
+            269.61,
+            2.2
+          ],
+          "at": [
+            148.52,
+            290.75,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "81_University_Theatre_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            170.8,
+            306.35,
+            6.369999999999999
+          ],
+          "at": [
+            148.52,
+            290.75,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "81_University_Theatre_Exterior.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Waterview Science and Technology Center": {
       "refs": [
@@ -769,17 +1550,55 @@
         "recessed glass entrance at a brick pier",
         "high"
       ],
-      "features": [],
-      "unknown": [],
-      "recipe": {
-        "facade": "punched",
-        "bay": 4,
-        "wall": "redBrick",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "punched",
-        "entryBay": 6.0
-      }
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Side elevations lack complete photographic coverage."
+      ],
+      "modelSlug": "waterview_science_and_technology_center",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -643.06,
+            756.92,
+            2.2
+          ],
+          "at": [
+            -662.4,
+            684.75,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "98_Waterview_Science_Technology_Center_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -715.24,
+            737.58,
+            4.27
+          ],
+          "at": [
+            -662.4,
+            684.75,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "98_Waterview_Science_Technology_Center_Exterior.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Synergy Park North": {
       "refs": [
@@ -801,16 +1620,55 @@
         "entrance between brown pilasters",
         "high"
       ],
-      "features": [],
-      "unknown": [],
-      "recipe": {
-        "facade": "bands",
-        "wall": "white",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "curtain",
-        "entryPilasters": "8a5a3c"
-      }
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Side elevations lack complete photographic coverage."
+      ],
+      "modelSlug": "synergy_park_north",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -108.84,
+            855.89,
+            2.2
+          ],
+          "at": [
+            -178.34,
+            902.76,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "86_Synergy_Park_North_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -103.0,
+            939.51,
+            6.369999999999999
+          ],
+          "at": [
+            -178.34,
+            902.76,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "86_Synergy_Park_North_Exterior.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Satellite Utility Plant": {
       "refs": [
@@ -834,18 +1692,56 @@
       ],
       "features": [
         [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ],
+        [
           "full-width silver louver screen",
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "louverScreen",
-        "wall": "white",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "blank"
-      }
+      "unknown": [
+        "Side elevations lack complete photographic coverage."
+      ],
+      "modelSlug": "satellite_utility_plant",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            548.94,
+            47.13,
+            2.2
+          ],
+          "at": [
+            502.9,
+            28.53,
+            7.9
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "84_Satellite_Utility_Plant_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            509.81,
+            77.7,
+            10.639999999999999
+          ],
+          "at": [
+            502.9,
+            28.53,
+            7.9
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "84_Satellite_Utility_Plant_Exterior.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Facilities Management": {
       "refs": [
@@ -869,21 +1765,56 @@
       ],
       "features": [
         [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ],
+        [
           "'FACILITIES MANAGEMENT' lettering on the dark metal",
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "punched",
-        "wall": "greyStucco",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "punched",
-        "bay": 6,
-        "wainscot": 1.3,
-        "entryTower": "corrugated"
-      }
+      "unknown": [
+        "Side elevations lack complete photographic coverage."
+      ],
+      "modelSlug": "facilities_management",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            311.4,
+            695.43,
+            2.2
+          ],
+          "at": [
+            283.68,
+            712.08,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "15_Facilities_Management.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            311.96,
+            727.76,
+            4.27
+          ],
+          "at": [
+            283.68,
+            712.08,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "15_Facilities_Management.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Parking Structure 4": {
       "refs": [
@@ -921,11 +1852,29 @@
       "recipe": {
         "type": "garage",
         "screen": "fins"
-      }
+      },
+      "modelSlug": "parking_structure_4",
+      "compareViews": [
+        {
+          "name": "Mapped parking structure and retained fin screen",
+          "render": "parking4_capture_a.png",
+          "ref": {
+            "file": "66_Parking_Structure_4_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Second approach. Shared reference angle",
+          "render": "parking4_capture_b.png",
+          "ref": {
+            "file": "66_Parking_Structure_4_Exterior.jpg"
+          }
+        }
+      ]
     },
     "Dining Hall West": {
       "refs": [
-        "08_Dining_Hall_West.jpg"
+        "08_Dining_Hall_West.jpg",
+        "PDF photo comparison"
       ],
       "roof": [
         "flat white roof with overhang",
@@ -945,6 +1894,10 @@
       ],
       "features": [
         [
+          "Low blue-green waterfront windows and white roof canopy",
+          "medium"
+        ],
+        [
           "deck over the pond",
           "medium"
         ]
@@ -952,62 +1905,148 @@
       "unknown": [
         "entrance side"
       ],
-      "recipe": {
-        "facade": "curtainWall",
-        "wall": "white",
-        "glass": "teal",
-        "roof": "floatingPlane",
-        "roofOverhang": 2.5,
-        "ground": "curtain"
-      }
+      "modelSlug": "dining_hall_west",
+      "sources": [
+        "https://catalog.utdallas.edu/2026/undergraduate/resources"
+      ],
+      "compareViews": [
+        {
+          "name": "Single-storey glazed dining pavilion from water",
+          "eye": [
+            -413,
+            383,
+            2.75
+          ],
+          "at": [
+            -400,
+            451,
+            4.0
+          ],
+          "lens": 32,
+          "ref": {
+            "file": "08_Dining_Hall_West.jpg"
+          }
+        },
+        {
+          "name": "Low continuous white overhang",
+          "eye": [
+            -452,
+            425,
+            3.8
+          ],
+          "at": [
+            -405,
+            460,
+            4.45
+          ],
+          "lens": 31,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 15,
+            "image": 0
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Callier Center Richardson Addition": {
       "refs": [
+        "reference pics: Callier Center - Red Stair and Entry.png",
+        "01_Callier_Center.jpg",
         "45_Callier_Center_Richardson_Addition.jpg",
-        "01_Callier_Center.jpg"
+        "Metal Architecture published exterior photos"
       ],
       "roof": [
-        "flat",
+        "Two-height flat roof",
         "medium"
       ],
       "materials": [
-        "silver vertical metal fins; orange perforated screen balcony; glass",
+        "Silver and gray aluminum scrim with limestone, dark storefronts and orange perforated screens",
         "high"
       ],
       "windows": [
-        "glazed ground floor; screened upper floor",
+        "Recessed glazed south entry and upper screening with vertical ribs",
         "high"
       ],
       "entrances": [
-        "glazed entrance with a red exterior stair to the orange balcony",
+        "South-facing student entrance and red stair; door locations retain the nearest mapped entrances",
         "high"
       ],
       "features": [
         [
-          "orange perforated balcony screen",
-          "high"
-        ],
-        [
-          "red stair",
+          "Orange perforated canopy and balcony screen with red stair",
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "fins",
-        "finSpacing": 0.6,
-        "finDepth": 0.3,
-        "wall": "silver",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "storefront",
-        "accent": "orangeBalcony",
-        "accentAt": [154.83, 635.95]
-      }
+      "unknown": [
+        "Exact ribs and rear elevation dimensions; screen perforation is represented in texture"
+      ],
+      "sources": [
+        "https://www.centria.com/design_gallery/callier-center-for-communication-disorders/",
+        "https://www.metalarchitecture.com/articles/riding-the-waves/",
+        "https://www.metalarchitecture.com/media/archive/centrias-callier-2.jpg"
+      ],
+      "compareViews": [
+        {
+          "name": "Orange balcony and red stair at the south entry",
+          "eye": [
+            148.4,
+            608.0,
+            1.68
+          ],
+          "at": [
+            158.65,
+            637.9,
+            4.12
+          ],
+          "lens": 32,
+          "ref": {
+            "file": "01_Callier_Center.jpg"
+          }
+        },
+        {
+          "name": "Wide south elevation and recessed entry canopy",
+          "eye": [
+            116.15,
+            599.9,
+            3.5
+          ],
+          "at": [
+            168.8,
+            640.4,
+            4.55
+          ],
+          "lens": 34,
+          "ref": {
+            "url": "https://www.metalarchitecture.com/media/archive/centrias-callier-2.jpg"
+          }
+        },
+        {
+          "name": "Canopy, perforated stair screen and balcony",
+          "eye": [
+            154.5,
+            612.4,
+            1.82
+          ],
+          "at": [
+            153.1,
+            637.5,
+            4.58
+          ],
+          "lens": 37,
+          "ref": {
+            "file": "45_Callier_Center_Richardson_Addition.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "revision": "Building body, GLB bytes and asset entries restored from 0ced19f."
     },
     "Helix Hall": {
       "refs": [
-        "95_Helix_Hall_Residence_Hall_Southwest.jpg"
+        "95_Helix_Hall_Residence_Hall_Southwest.jpg",
+        "quality_pdf/p14_2.png"
       ],
       "roof": [
         "gray hip roofs over each wing",
@@ -1026,67 +2065,163 @@
         "high"
       ],
       "features": [
+        [
+          "Mapped curved pavilion and selected glass bands",
+          "medium"
+        ],
+        [
+          "Common limestone, silver and residential window atlas",
+          "medium"
+        ],
         [
           "white curved rotunda with horizontal glass bands at the entrance",
           "high"
         ]
       ],
       "unknown": [
+        "Rear color transitions and exact wing roof form inferred conservatively.",
         "wing-by-wing roof details"
       ],
-      "recipe": {
-        "facade": "hall",
-        "wall": "beigeStucco",
-        "glass": "dark",
-        "roof": "hip",
-        "ground": "punched",
-        "rotunda": "pavilion",
-        "frontClear": 16.5
-      }
+      "modelSlug": "helix_hall",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/university-commons/",
+        "https://services.utdallas.edu/mail/mailstops/?sort=2",
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Southwest rotunda and residential wings",
+          "eye": [
+            -318,
+            411,
+            14.2
+          ],
+          "at": [
+            -282,
+            454,
+            8.2
+          ],
+          "lens": 32,
+          "ref": {
+            "file": "95_Helix_Hall_Residence_Hall_Southwest.jpg",
+            "crop": [
+              0,
+              0,
+              1,
+              0.805
+            ]
+          }
+        },
+        {
+          "name": "Helix rotunda and paired wing fronts",
+          "eye": [
+            -310,
+            431,
+            11.4
+          ],
+          "at": [
+            -284,
+            451,
+            7.92
+          ],
+          "lens": 34,
+          "ref": {
+            "file": "95_Helix_Hall_Residence_Hall_Southwest.jpg",
+            "crop": [
+              0.18,
+              0.11,
+              0.81,
+              0.805
+            ]
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "signPass": "Dark metal letters on the pale curved sign band, sized to the entrance facade.",
+      "entranceAndSignReview": "Gable-adjacent sign follows the curved white entrance band, consistent with the matching Commons hall entrance design."
     },
     "Sirius Hall": {
       "refs": [
-        "06_Sirius_Hall.jpg",
-        "58_Sirius_Hall_Exterior_2024.jpg"
+        "reference pics: Sirius Hall - Curved Glass Entrance.png",
+        "06_Sirius_Hall.jpg and 58_Sirius_Hall_Exterior_2024.jpg (same angle)",
+        "Downloads/utd building pics.pdf p. 14"
       ],
       "roof": [
-        "gray hip roofs over each wing",
+        "Flat rotunda cap and low hipped wing roofs",
         "medium"
       ],
       "materials": [
-        "tan/beige stucco with white trim bands",
+        "Warm limestone, stucco and brick wings, pale silver panel band with blue-green glazing",
         "high"
       ],
       "windows": [
-        "paired punched windows with white frames on every floor",
+        "Four aligned residential levels; horizontal ribbon glazing on the mapped curved entry",
         "high"
       ],
       "entrances": [
-        "main entrance in a white curved rotunda with glass bands, reached by steps",
+        "Southeast curved pavilion and mapped courtyard doors",
         "high"
       ],
       "features": [
         [
-          "white curved rotunda with glass bands over the entrance steps",
+          "Stacked limestone bays and broad silver fascia with lettering",
           "high"
         ]
       ],
       "unknown": [
-        "wing-by-wing roof details"
+        "Rear materials and detailed wing roof slopes"
       ],
-      "recipe": {
-        "facade": "hall",
-        "wall": "beigeStucco",
-        "glass": "dark",
-        "roof": "hip",
-        "ground": "punched",
-        "rotunda": "pavilion",
-        "frontClear": 8.0
-      }
+      "sources": [
+        "https://www.utdallas.edu/first-residence-hall-opens/",
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Curved limestone entry and stairs",
+          "eye": [
+            -75,
+            426,
+            1.0
+          ],
+          "at": [
+            -96.6,
+            450,
+            6.4
+          ],
+          "lens": 44,
+          "ref": {
+            "file": "06_Sirius_Hall.jpg"
+          }
+        },
+        {
+          "name": "Silver spandrel, teal glazing and clerestory",
+          "eye": [
+            -108,
+            420,
+            1.1
+          ],
+          "at": [
+            -97.5,
+            450,
+            8.0
+          ],
+          "lens": 43,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 14,
+            "image": 3
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "signPass": "Dark metal letters on the pale curved sign band, sized to the entrance facade.",
+      "entranceAndSignReview": "Curved sign band follows the cladding with dark individual letter shapes as in the entrance photograph."
     },
     "Vega Hall": {
       "refs": [
-        "57_University_Commons_Residence_Halls.jpg"
+        "57_University_Commons_Residence_Halls.jpg",
+        "Vega Hall - Night Front Entrance.png",
+        "quality_pdf/p13_3.png"
       ],
       "roof": [
         "gray hip roofs over each wing",
@@ -1106,26 +2241,73 @@
       ],
       "features": [
         [
+          "Mapped curved pavilion and selected glass bands",
+          "medium"
+        ],
+        [
+          "Common limestone, silver and residential window atlas",
+          "medium"
+        ],
+        [
           "same University Commons design as Sirius and Helix",
           "low"
         ]
       ],
       "unknown": [
+        "Rear color transitions and exact wing roof form inferred conservatively.",
         "wing-by-wing roof details"
       ],
-      "recipe": {
-        "facade": "hall",
-        "wall": "beigeStucco",
-        "glass": "dark",
-        "roof": "hip",
-        "ground": "punched",
-        "rotunda": "pavilion",
-        "frontClear": 10.0
-      }
+      "modelSlug": "vega_hall",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/university-commons/",
+        "https://services.utdallas.edu/mail/mailstops/?sort=2",
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Mapped residential entry",
+          "eye": [
+            -446,
+            536,
+            3
+          ],
+          "at": [
+            -402,
+            578,
+            7.3
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Vega Hall - Night Front Entrance.png"
+          }
+        },
+        {
+          "name": "Glazing and wing rhythms",
+          "eye": [
+            -439,
+            556,
+            5
+          ],
+          "at": [
+            -404,
+            578,
+            8
+          ],
+          "lens": 31,
+          "ref": {
+            "file": "quality_pdf/p13_3.png"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "signPass": "Dark metal letters on the pale curved sign band, sized to the entrance facade.",
+      "entranceAndSignReview": "Enlarged dark metal letters on the pale upper band from the night entrance photograph."
     },
     "Capella Hall": {
       "refs": [
-        "57_University_Commons_Residence_Halls.jpg"
+        "57_University_Commons_Residence_Halls.jpg",
+        "quality_pdf/p13_2.png",
+        "PDF photo comparison"
       ],
       "roof": [
         "gray hip roofs over each wing",
@@ -1145,28 +2327,85 @@
       ],
       "features": [
         [
+          "Mapped curved pavilion and selected glass bands",
+          "medium"
+        ],
+        [
+          "Common limestone, silver and residential window atlas",
+          "medium"
+        ],
+        [
           "same University Commons design as Sirius and Helix",
           "low"
         ]
       ],
       "unknown": [
+        "Rear color transitions and exact wing roof form inferred conservatively.",
         "wing-by-wing roof details"
       ],
-      "recipe": {
-        "facade": "hall",
-        "wall": "beigeStucco",
-        "glass": "dark",
-        "roof": "hip",
-        "ground": "punched",
-        "rotunda": "pavilion",
-        "frontClear": 9.0
-      }
+      "modelSlug": "capella_hall",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/university-commons/",
+        "https://services.utdallas.edu/mail/mailstops/?sort=2",
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Capella courtyard between the north residence wings",
+          "eye": [
+            -130,
+            684,
+            16
+          ],
+          "at": [
+            -129,
+            626,
+            8.9
+          ],
+          "lens": 34,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 19,
+            "image": 0
+          }
+        },
+        {
+          "name": "Courtyard-facing residential window bays",
+          "eye": [
+            -149,
+            681,
+            19
+          ],
+          "at": [
+            -130,
+            624,
+            9.0
+          ],
+          "lens": 34,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 19,
+            "image": 0,
+            "crop": [
+              0.05,
+              0.155,
+              0.95,
+              0.94
+            ]
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "signPass": "Dark metal letters on the pale curved sign band, sized to the entrance facade.",
+      "entranceAndSignReview": "Dark entrance-band sign follows the curved fa?ade shown in the referenced dusk view."
     },
     "Andromeda Hall": {
       "refs": [
         "46_Andromeda_Hall_Current.jpg",
         "92_Andromeda_Hall_Exterior_2015.jpg",
-        "42_Residence_Hall_West.jpg"
+        "42_Residence_Hall_West.jpg",
+        "Andromeda Hall - Front Entrance.png",
+        "Andromeda Hall - Angled Entry and Drop-Off.png"
       ],
       "roof": [
         "flat with parapet",
@@ -1186,6 +2425,14 @@
       ],
       "features": [
         [
+          "Mapped curved pavilion and selected glass bands",
+          "medium"
+        ],
+        [
+          "Common limestone, silver and residential window atlas",
+          "medium"
+        ],
+        [
           "blue glass towers",
           "high"
         ],
@@ -1194,18 +2441,54 @@
           "high"
         ]
       ],
-      "unknown": [],
-      "recipe": {
-        "facade": "hall",
-        "wall": "beigeStucco",
-        "glass": "blue",
-        "roof": "parapet",
-        "ground": "punched",
-        "rotunda": "silver",
-        "tower": "glass",
-        "brickBays": true,
-        "frontClear": 10.0
-      }
+      "unknown": [
+        "Rear color transitions and exact wing roof form inferred conservatively."
+      ],
+      "modelSlug": "andromeda_hall",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/university-commons/",
+        "https://services.utdallas.edu/mail/mailstops/?sort=2",
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Mapped residential entry",
+          "eye": [
+            -391,
+            550,
+            3
+          ],
+          "at": [
+            -405,
+            517,
+            8.9
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Andromeda Hall - Front Entrance.png"
+          }
+        },
+        {
+          "name": "Glazing and wing rhythms",
+          "eye": [
+            -437,
+            547,
+            5
+          ],
+          "at": [
+            -406,
+            518,
+            9.35
+          ],
+          "lens": 31,
+          "ref": {
+            "download": "Andromeda Hall - Angled Entry and Drop-Off.png"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "signPass": "Dark metal letters on the pale curved sign band, sized to the entrance facade.",
+      "entranceAndSignReview": "Road-facing dark metal hall letters on the pale curved spandrel, sized and wrapped across its mapped facets."
     },
     "Canyon Creek Heights South (CH6)": {
       "refs": [
@@ -1231,22 +2514,57 @@
       ],
       "features": [
         [
+          "Shared neutral panels and warm brick family. Four aligned mapped residential levels.",
+          "medium"
+        ],
+        [
           "alternating brick and stucco vertical bays",
           "high"
         ]
       ],
       "unknown": [],
-      "recipe": {
-        "facade": "hall",
-        "wall": "beigeStucco",
-        "glass": "dark",
-        "roof": "cornice",
-        "ground": "punched",
-        "brickBays": true,
-        "bayMat": "canyonBrick",
-        "frontClear": 13.0,
-        "entryLobby": true
-      }
+      "modelSlug": "canyon_creek_heights_south_ch6",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/canyon-creek-heights/",
+        "https://housing.utdallas.edu/housing-options/housing-availability/"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -437.25,
+            -652.98,
+            2.2
+          ],
+          "at": [
+            -475.1,
+            -578.69,
+            6.66
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "43_Canyon_Creek_Heights_South.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -543.41,
+            -626.51,
+            8.959999999999999
+          ],
+          "at": [
+            -475.1,
+            -578.69,
+            6.66
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "35_Canyon_Creek_Heights_Aerial.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Canyon Creek Heights North (CH7)": {
       "refs": [
@@ -1272,26 +2590,64 @@
       ],
       "features": [
         [
+          "Shared neutral panels and warm brick family. Four aligned mapped residential levels.",
+          "medium"
+        ],
+        [
           "alternating brick and stucco vertical bays",
           "high"
         ]
       ],
       "unknown": [],
-      "recipe": {
-        "facade": "hall",
-        "wall": "beigeStucco",
-        "glass": "dark",
-        "roof": "cornice",
-        "ground": "punched",
-        "brickBays": true,
-        "bayMat": "canyonBrick",
-        "frontClear": 9.5,
-        "entryLobby": true
-      }
+      "modelSlug": "canyon_creek_heights_north_ch7",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/canyon-creek-heights/",
+        "https://housing.utdallas.edu/housing-options/housing-availability/"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -425.51,
+            -561.74,
+            2.2
+          ],
+          "at": [
+            -471.64,
+            -471.21,
+            6.66
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "48_Canyon_Creek_Heights_Housing.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -554.87,
+            -529.49,
+            8.959999999999999
+          ],
+          "at": [
+            -471.64,
+            -471.21,
+            6.66
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "35_Canyon_Creek_Heights_Aerial.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Engineering and Computer Science West": {
       "refs": [
-        "69_Engineering_Computer_Science_Complex.jpg"
+        "69_Engineering_Computer_Science_Complex.jpg",
+        "710_ECSW_1.png",
+        "710_ECSW_2.png",
+        "710_ECSW_4.png"
       ],
       "roof": [
         "flat",
@@ -1311,6 +2667,14 @@
       ],
       "features": [
         [
+          "Four-level glazed facades with dark steel trim and a white courtyard trellis",
+          "medium"
+        ],
+        [
+          "East-to-courtyard covered passage follows mapped footway 1209819981",
+          "medium"
+        ],
+        [
           "limestone sign wall at the base",
           "medium"
         ],
@@ -1321,22 +2685,74 @@
         [
           "full-height glass stair tower",
           "medium"
+        ],
+        [
+          "Upper atrium cage and elevated glazed court link, with clearance below",
+          "medium"
         ]
       ],
       "unknown": [
         "which facade the photo shows (complex not isolated)"
       ],
-      "recipe": {
-        "facade": "bands",
-        "bandWall": 0.62,
-        "wall": "limestone",
-        "glass": "blue",
-        "roof": "parapet",
-        "ground": "bands",
-        "tower": "glass",
-        "entryPavilion": true,
-        "frontClear": 15.5
-      }
+      "modelSlug": "engineering_and_computer_science_west",
+      "sources": [
+        "https://www.smithgroup.com/news/2019/university-of-texas-at-dallas-engineering-building-honored-in-rd-magazines-lab-of-the",
+        "https://www.smithgroup.com/projects/university-of-texas-at-dallas-engineering-building"
+      ],
+      "compareViews": [
+        {
+          "name": "Glazed east corner and dark exoskeleton",
+          "eye": [
+            -56,
+            73,
+            4.1
+          ],
+          "at": [
+            -96,
+            49,
+            11
+          ],
+          "lens": 24,
+          "ref": {
+            "file": "710_ECSW_1.png"
+          }
+        },
+        {
+          "name": "Shaded courtyard and glass bridge",
+          "eye": [
+            -146.7,
+            22.9,
+            5.2
+          ],
+          "at": [
+            -121,
+            34,
+            13.5
+          ],
+          "lens": 20,
+          "ref": {
+            "file": "710_ECSW_2.png"
+          }
+        },
+        {
+          "name": "Roof and courtyard trellis",
+          "eye": [
+            -32,
+            -53,
+            58
+          ],
+          "at": [
+            -127,
+            35,
+            9
+          ],
+          "lens": 29,
+          "ref": {
+            "file": "710_ECSW_4.png"
+          }
+        }
+      ],
+      "photoPass": "Gave the curtain wall deep dark mullions, green glazing and a thin open upper frame. The documented courtyard shade system and corner circulation stay open."
     },
     "Research and Operations Center": {
       "refs": [
@@ -1360,6 +2776,10 @@
       ],
       "features": [
         [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ],
+        [
           "horizontal dark brick bands every ~1.5 m",
           "high"
         ],
@@ -1369,23 +2789,51 @@
         ]
       ],
       "unknown": [
+        "Side elevations lack complete photographic coverage.",
         "rear facades",
         "which face the photo shows (assumed the OSM entrance face)"
       ],
-      "recipe": {
-        "facade": "blank",
-        "wall": "redBrick",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "entranceOnly",
-        "stripes": {
-          "colors": [
-            "6b3224"
+      "modelSlug": "research_and_operations_center",
+      "sources": [
+        "https://research.utdallas.edu/facilities"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -594.62,
+            70.78,
+            2.2
           ],
-          "every": 1.5,
-          "h": 0.3
+          "at": [
+            -641.22,
+            51.0,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "79_Research_Operations_Center.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -635.05,
+            101.25,
+            4.27
+          ],
+          "at": [
+            -641.22,
+            51.0,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "79_Research_Operations_Center.jpg"
+          }
         }
-      }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Reasearch Operations Center West": {
       "refs": [
@@ -1409,6 +2857,10 @@
       ],
       "features": [
         [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ],
+        [
           "horizontal multicoloured panel bands",
           "high"
         ],
@@ -1418,28 +2870,51 @@
         ]
       ],
       "unknown": [
+        "Side elevations lack complete photographic coverage.",
         "rear facade",
         "exact band pattern (randomised in the model)"
       ],
-      "recipe": {
-        "facade": "blank",
-        "wall": "whiteStucco",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "entranceOnly",
-        "stripes": {
-          "colors": [
-            "e2702a",
-            "b5532a",
-            "9aa0a3",
-            "d98a4a"
+      "modelSlug": "reasearch_operations_center_west",
+      "sources": [
+        "https://research.utdallas.edu/facilities"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -712.87,
+            42.44,
+            2.2
           ],
-          "every": 0.75,
-          "h": 0.55,
-          "random": true
+          "at": [
+            -775.34,
+            46.81,
+            4.94
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "80_Research_Operations_Center_West.jpg"
+          }
         },
-        "endBlock": "5b6c7a"
-      }
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -740.32,
+            98.73,
+            6.6499999999999995
+          ],
+          "at": [
+            -775.34,
+            46.81,
+            4.94
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "80_Research_Operations_Center_West.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Police Building": {
       "refs": [
@@ -1463,23 +2938,58 @@
       ],
       "features": [
         [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ],
+        [
           "glazed entrance bay set back under the eave",
           "high"
         ]
       ],
       "unknown": [
+        "Side elevations lack complete photographic coverage.",
         "rear facades",
         "which face the photo shows (assumed the OSM entrance face)"
       ],
-      "recipe": {
-        "facade": "punched",
-        "bay": 7.5,
-        "wall": "creamMetal",
-        "glass": "dark",
-        "roof": "cornice",
-        "ground": "punched",
-        "storefrontBay": 8.0
-      }
+      "modelSlug": "police_building",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            456.56,
+            684.59,
+            2.2
+          ],
+          "at": [
+            432.47,
+            653.76,
+            2.39
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "78_UT_Dallas_Police_Building.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            417.82,
+            690.04,
+            3.2199999999999998
+          ],
+          "at": [
+            432.47,
+            653.76,
+            2.39
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "78_UT_Dallas_Police_Building.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Safety and Grounds": {
       "refs": [
@@ -1501,19 +3011,55 @@
         "dark-framed glazed entrance bay with double doors (sign reads Environmental Health & Safety, SG)",
         "high"
       ],
-      "features": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
       "unknown": [
+        "Side elevations lack complete photographic coverage.",
         "rear facades"
       ],
-      "recipe": {
-        "facade": "punched",
-        "bay": 9.0,
-        "wall": "creamMetal",
-        "glass": "dark",
-        "roof": "cornice",
-        "ground": "punched",
-        "storefrontBay": 5.0
-      }
+      "modelSlug": "safety_and_grounds",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            354.24,
+            582.23,
+            2.2
+          ],
+          "at": [
+            322.33,
+            565.97,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "77_Environmental_Health_Safety_Building.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            324.2,
+            601.73,
+            4.27
+          ],
+          "at": [
+            322.33,
+            565.97,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "77_Environmental_Health_Safety_Building.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "North Lab": {
       "refs": [
@@ -1537,22 +3083,57 @@
       ],
       "features": [
         [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ],
+        [
           "roll-up service doors",
           "high"
         ]
       ],
       "unknown": [
+        "Side elevations lack complete photographic coverage.",
         "door positions on unseen faces (doors placed on the longest face only)"
       ],
-      "recipe": {
-        "facade": "punched",
-        "bay": 11.0,
-        "wall": "creamMetal",
-        "glass": "dark",
-        "roof": "cornice",
-        "ground": "punched",
-        "rollDoors": 2
-      }
+      "modelSlug": "north_lab",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            106.83,
+            451.53,
+            2.2
+          ],
+          "at": [
+            99.59,
+            503.05,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "75_North_Lab_Official.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            147.82,
+            483.56,
+            4.27
+          ],
+          "at": [
+            99.59,
+            503.05,
+            3.17
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "75_North_Lab_Official.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Housing Storage Warehouse": {
       "refs": [
@@ -1576,26 +3157,58 @@
       ],
       "features": [
         [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ],
+        [
           "stone wainscot",
           "high"
         ]
       ],
       "unknown": [
+        "Side elevations lack complete photographic coverage.",
         "identity: the photo is titled Housing Operations Bulk Storage Building; matched to the OSM Housing Storage Warehouse by name and size (medium)",
         "rear facade"
       ],
-      "recipe": {
-        "facade": "punched",
-        "bay": 6.0,
-        "wall": "greyStucco",
-        "glass": "dark",
-        "roof": "hip",
-        "roofRise": 1.6,
-        "roofMat": "metal",
-        "ground": "punched",
-        "wainscot": 1.0,
-        "storefrontBay": 4.0
-      }
+      "modelSlug": "housing_storage_warehouse",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -280.12,
+            582.44,
+            2.2
+          ],
+          "at": [
+            -279.6,
+            612.51,
+            2.39
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "96_Housing_Operations_Bulk_Storage_Building.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -253.81,
+            597.02,
+            3.2199999999999998
+          ],
+          "at": [
+            -279.6,
+            612.51,
+            2.39
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "96_Housing_Operations_Bulk_Storage_Building.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Modular Lab 2": {
       "refs": [
@@ -1617,18 +3230,55 @@
         "dark double doors under a projecting metal canopy",
         "high"
       ],
-      "features": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
       "unknown": [
+        "Side elevations lack complete photographic coverage.",
         "rear facade"
       ],
-      "recipe": {
-        "facade": "punched",
-        "bay": 3.2,
-        "wall": "tan",
-        "glass": "dark",
-        "roof": "cornice",
-        "ground": "punched"
-      }
+      "modelSlug": "modular_lab_2",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            -257.04,
+            91.74,
+            2.2
+          ],
+          "at": [
+            -280.15,
+            118.34,
+            2.24
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "82_Modular_Lab_2.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            -245.56,
+            125.06,
+            3.01
+          ],
+          "at": [
+            -280.15,
+            118.34,
+            2.24
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "82_Modular_Lab_2.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
     },
     "Recreation Center West": {
       "refs": [
@@ -1652,6 +3302,10 @@
       ],
       "features": [
         [
+          "Upper glazing projects over a live pedestrian passage, with four columns",
+          "medium"
+        ],
+        [
           "projecting upper glass box on round columns with the REC CENTER WEST name band",
           "high"
         ]
@@ -1660,15 +3314,49 @@
         "which face the entrance is on (placed on the OSM entrance face)",
         "rest of the facades"
       ],
-      "recipe": {
-        "facade": "blank",
-        "wall": "tan",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "entranceOnly",
-        "wainscot": 2.2,
-        "upperGlassBox": 9.0
-      }
+      "modelSlug": "recreation_center_west",
+      "sources": [
+        "https://studentaffairs.utdallas.edu/units/",
+        "https://catalog.utdallas.edu/2026/undergraduate/resources"
+      ],
+      "compareViews": [
+        {
+          "name": "Glazed upper box and round columns",
+          "eye": [
+            -474,
+            497,
+            2.6
+          ],
+          "at": [
+            -456,
+            482,
+            4.65
+          ],
+          "lens": 25,
+          "ref": {
+            "file": "49_Rec_Center_West_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Entrance massing from the residence walk",
+          "eye": [
+            -431,
+            512,
+            4
+          ],
+          "at": [
+            -460,
+            479,
+            5.8
+          ],
+          "lens": 31,
+          "ref": {
+            "file": "49_Rec_Center_West_Exterior.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
     },
     "Physics Annex": {
       "refs": [
@@ -1692,23 +3380,2658 @@
       ],
       "features": [
         [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ],
+        [
           "communications tower behind (not modelled)",
           "high"
         ]
       ],
       "unknown": [
+        "Side elevations lack complete photographic coverage.",
         "rear facades",
         "stair positions (S-01: door stoops still have no colliders)"
       ],
-      "recipe": {
-        "facade": "punched",
-        "bay": 9.0,
-        "wall": "tan",
-        "glass": "dark",
-        "roof": "parapet",
-        "ground": "punched",
-        "serviceDoors": 2
-      }
+      "modelSlug": "physics_annex",
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            40.34,
+            429.54,
+            2.2
+          ],
+          "at": [
+            34.78,
+            412.42,
+            2.24
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "76_Physics_Annex_Official.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            22.73,
+            425.8,
+            3.01
+          ],
+          "at": [
+            34.78,
+            412.42,
+            2.24
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "76_Physics_Annex_Official.jpg"
+          }
+        }
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Callier Center Richardson": {
+      "refs": [
+        "UT Dallas 2003 archive exterior, one distinct photo with two framings"
+      ],
+      "sources": [
+        "https://calliercenter.utdallas.edu/about-callier/60-years-of-caring/",
+        "https://calliercenter.utdallas.edu/wp-content/uploads/2019/02/callier-richardson-bldg-lg-768x367.jpg",
+        "https://www.metalarchitecture.com/articles/riding-the-waves/",
+        "https://calliercenter.utdallas.edu/wp-content/uploads/2019/10/Callier-Richardson-Map.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Northwest curved clinic and entrance canopy",
+          "eye": [
+            90.2,
+            755.5,
+            1.85
+          ],
+          "at": [
+            123.5,
+            744.25,
+            3.1
+          ],
+          "lens": 36,
+          "ref": {
+            "url": "https://calliercenter.utdallas.edu/wp-content/uploads/2019/02/callier-richardson-bldg-lg-768x367.jpg",
+            "crop": [
+              0,
+              0.23,
+              0.65,
+              0.83
+            ]
+          }
+        },
+        {
+          "name": "Upper lights and roof lantern over the original entry",
+          "eye": [
+            106.2,
+            765.5,
+            2.0
+          ],
+          "at": [
+            121.3,
+            746.4,
+            4.66
+          ],
+          "lens": 39,
+          "ref": {
+            "url": "https://calliercenter.utdallas.edu/wp-content/uploads/2019/02/callier-richardson-bldg-lg-768x367.jpg",
+            "crop": [
+              0.1,
+              0.32,
+              0.62,
+              0.75
+            ]
+          }
+        }
+      ],
+      "roof": [
+        "One-storey roof and glazed lantern",
+        "high"
+      ],
+      "materials": [
+        "Warm limestone and dark storefront glass with metal entrance trim",
+        "high"
+      ],
+      "windows": [
+        "Tall vertical glazing below small upper lights in curved entrance",
+        "high"
+      ],
+      "entrances": [
+        "Curved original entrance and OSM clinic/courtyard door nodes",
+        "medium"
+      ],
+      "features": [
+        [
+          "Low arc and glazed lantern above the projecting entry roof",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "Present-day rear and roof details; archive predates the 2016 renovation"
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "revision": "Restored the procedural callier style from 0ced19f. Retained current approach geometry as an accessory.",
+      "entranceAndSignReview": "Glazed double entrance in the northwest chamfer uses the mapped patient approach and retained ramp. Shallow bronze-toned hood follows the Callier archive photo. The closed door face keeps the existing solid building collider."
+    },
+    "Crow Museum of Asian Art": {
+      "refs": [
+        "reference pics: Crow Museum of Asian Art - Exterior Entrance.png",
+        "Downloads/utd building pics.pdf pp. 2, 7"
+      ],
+      "sources": [
+        "https://www.morphosis.com/architecture/288/",
+        "https://magazine.texasarchitects.org/2025/12/17/as-the-crow-flies/",
+        "https://wells.build/projects/crow-museum-of-asian-art/",
+        "https://crowmuseum.org/ut-dallas-campus-the-edith-and-peter-odonnell-jr-athenaeum/",
+        "https://www.openstreetmap.org/way/1128100173",
+        "https://www.openstreetmap.org/way/1443116530",
+        "https://www.morphosis.com/architecture/299/",
+        "https://www.pci.org/PCI/PCI/Project_Resources/Project_Profile/Project_Profile_Details.aspx?ID=264710"
+      ],
+      "compareViews": [
+        {
+          "name": "East plaza and splayed concrete supports",
+          "eye": [
+            329,
+            -192,
+            1.13
+          ],
+          "at": [
+            319,
+            -216,
+            6
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Crow Museum of Asian Art - Exterior Entrance.png"
+          }
+        },
+        {
+          "name": "North reading window and gallery overhang",
+          "eye": [
+            340,
+            -160,
+            1.35
+          ],
+          "at": [
+            308,
+            -198,
+            7.95
+          ],
+          "lens": 31,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 7,
+            "image": 6
+          }
+        },
+        {
+          "name": "Gallery folds from the plaza",
+          "eye": [
+            350,
+            -242,
+            1.54
+          ],
+          "at": [
+            316,
+            -215,
+            7.8
+          ],
+          "lens": 30,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 7,
+            "image": 9
+          }
+        }
+      ],
+      "roof": [
+        "Flat gallery roof behind shaped precast elevations",
+        "medium"
+      ],
+      "materials": [
+        "White ribbed and sculpted precast, blue-gray tinted glass and silver lettering",
+        "high"
+      ],
+      "windows": [
+        "Tall framed reading room with recessed dark glass; transparent, inset lobby",
+        "high"
+      ],
+      "entrances": [
+        "Plaza entry beneath lifted gallery plus original OSM entrance nodes",
+        "high"
+      ],
+      "features": [
+        [
+          "V-shaped supports and open undercroft on the eastern plaza edge",
+          "high"
+        ],
+        [
+          "Raised folded east shell and deep north reading-room glazing with warm lobby below",
+          "high"
+        ]
+      ],
+      "unknown": [
+        "As-built ground-floor dimensions, panel pattern and precise support spacing are approximated"
+      ],
+      "OSM": {
+        "id": "w1128100173",
+        "mapName": "Edith and Peter O’Donnell Jr. Athenaeum",
+        "modelSlug": "crow_museum_of_asian_art",
+        "verification": "The museum directory identifies 777 Loop Road SW as APC (Phase I). The published Morphosis site plan places Phase I at the north end of the plaza, with the Music Building directly south. Mapped way w1128100173 is the northern footprint (north edge -188 m), w1443116530 is the separate southern footprint (north edge approximately -260 m). The map orientation, recesses and projecting north room match the museum plan."
+      },
+      "photoPass": "Fine-scale relief and sheen on white precast; recessed cantilever windows carry projecting mullions and retain their angled glazed slots. Renewed warm lobby glazing with no ramp or undercroft obstruction. Chamfered and tapered V-braces land at their mapped positions on shallow footings. Raised precast relief, roof creases and folded soffit trim share the opaque batch. Recessed windows have physical transoms and entry canopies have an articulated underside."
+    },
+    "Engineering and Computer Science North": {
+      "modelSlug": "engineering_and_computer_science_north",
+      "refs": [
+        "69_Engineering_Computer_Science_Complex.jpg"
+      ],
+      "sources": [],
+      "features": [
+        [
+          "Cream precast and blue ribbon glazing",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Shared complex photo. Side-specific features and additional entrance canopies are unverified."
+      ]
+    },
+    "Engineering and Computer Science South": {
+      "modelSlug": "engineering_and_computer_science_south",
+      "refs": [
+        "69_Engineering_Computer_Science_Complex.jpg"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            52.47,
+            19.38,
+            2.2
+          ],
+          "at": [
+            -8.19,
+            46.38,
+            7.25
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "69_Engineering_Computer_Science_Complex.jpg"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            2.2,
+            -19.2,
+            9.764999999999999
+          ],
+          "at": [
+            -8.19,
+            46.38,
+            7.25
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "69_Engineering_Computer_Science_Complex.jpg"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Cream precast and blue ribbon glazing",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Shared complex photo. Side-specific features and additional entrance canopies are unverified."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
+    },
+    "Comets LANding": {
+      "modelSlug": "comets_landing",
+      "refs": [
+        "PDF photo comparison"
+      ],
+      "sources": [
+        "https://union.utdallas.edu/about/into-the-future/",
+        "https://esports.utdallas.edu/gaming-center/",
+        "https://fed.utdallas.edu/download/Bulletin_2025.pdf",
+        "https://fed.utdallas.edu/download/A_Campus_Transformed.pdf",
+        "https://www.instagram.com/ut_dallas/p/Df7cmtHF0Ef/",
+        "https://www.smithgroup.com/projects/university-of-texas-at-dallas-comets-landing-esports-facility"
+      ],
+      "compareViews": [
+        {
+          "name": "Glazed facade on the student mall",
+          "eye": [
+            105,
+            183,
+            2.3
+          ],
+          "at": [
+            119,
+            151,
+            5.5
+          ],
+          "lens": 32,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 9,
+            "image": 6
+          }
+        },
+        {
+          "name": "Esports entrance and vertical frame",
+          "eye": [
+            146,
+            184,
+            3.5
+          ],
+          "at": [
+            123,
+            149,
+            5.5
+          ],
+          "lens": 29,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 9,
+            "image": 9
+          }
+        }
+      ],
+      "features": [
+        [
+          "Official two-floor program, green-gray glass and gray mullions",
+          "medium"
+        ]
+      ],
+      "unknown": [],
+      "photoPass": "Grey curtain-wall frame, separate mullions and transoms, recessed entries and rooftop equipment. User-directed three facade levels and 15.5 m envelope. UT Dallas describes two occupied floors.",
+      "entranceAndSignReview": "The SmithGroup exterior photograph shows a teal box-frame around the main glazed entry, a second glazed doorway, and a projecting roof edge. Enlarged both entrance bays, fitted the north mullions and joined the retained ramp to the mapped pedestrian approach.",
+      "signReview": "SmithGroup's north exterior photograph shows clear upper glazing and a small white uppercase wordmark with a warm orange LAN outline visible through the ground-floor glass between the entrances. The upper banner was removed. The lower lettering is geometry batched with the opaque facade, seated at the glazing face to reproduce the interior sign's appearance through the game's opaque glass."
+    },
+    "Parking Structure 3": {
+      "modelSlug": "parking_structure_3",
+      "refs": [
+        "65_Visitor_Center_New_Location_2025.jpg",
+        "UT Dallas Visitor Center - Glass Exterior.png"
+      ],
+      "sources": [
+        "https://news.utdallas.edu/campus-community/fall-campus-update-2025/",
+        "https://www.utdallas.edu/visitors/directions/"
+      ],
+      "compareViews": [
+        {
+          "name": "Visitor Center storefront at Parking Structure 3",
+          "eye": [
+            -74,
+            463,
+            2.6
+          ],
+          "at": [
+            -46,
+            483,
+            3
+          ],
+          "lens": 29,
+          "ref": {
+            "file": "65_Visitor_Center_New_Location_2025.jpg"
+          }
+        },
+        {
+          "name": "Glazed visitor corner beneath the parking deck",
+          "eye": [
+            -77,
+            498,
+            3.1
+          ],
+          "at": [
+            -48,
+            484,
+            4.5
+          ],
+          "lens": 30,
+          "ref": {
+            "download": "UT Dallas Visitor Center - Glass Exterior.png"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Current Visitor Center occupies the mapped PS3 ground level, with open parking decks overhead",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Parking-deck interiors and vehicular ramps have no usable architectural reference."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Performance Hall and Music Building": {
+      "modelSlug": "performance_hall_and_music_building",
+      "refs": [
+        "PDF photo comparison"
+      ],
+      "sources": [
+        "https://www.morphosis.com/architecture/299/",
+        "https://oda.utdallas.edu/"
+      ],
+      "compareViews": [
+        {
+          "name": "White lifted music rehearsal bar",
+          "eye": [
+            346,
+            -263,
+            4.3
+          ],
+          "at": [
+            309,
+            -292,
+            9.5
+          ],
+          "lens": 30,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 17,
+            "image": 1
+          }
+        },
+        {
+          "name": "Relationship to the Crow Museum",
+          "eye": [
+            347,
+            -315,
+            5.3
+          ],
+          "at": [
+            309,
+            -280,
+            8.2
+          ],
+          "lens": 35,
+          "ref": {
+            "pdf": "utd building pics.pdf",
+            "page": 17,
+            "image": 0
+          }
+        }
+      ],
+      "features": [
+        [
+          "Phase II on the separate southern OSM footprint. Sculpted precast and plaza-side opening.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "The local PDF view is construction-era. Final glazing, footprint seat and roof details remain estimates."
+      ],
+      "photoPass": "Gave the lifted hall its textured white panel skin, slot glazing and upright frames on its dark lobby. The undercroft and V-brace positions remain unchanged. Chamfered and tapered V-braces land at their mapped positions on shallow footings. Raised precast relief, roof creases and folded soffit trim share the opaque batch. Recessed windows have physical transoms and entry canopies have an articulated underside."
+    },
+    "Naveen Jindal School of Management": {
+      "modelSlug": "naveen_jindal_school_of_management",
+      "refs": [
+        "78_JSOM_4.png",
+        "78_JSOM_2.png"
+      ],
+      "sources": [
+        "https://jindal.utdallas.edu/about-the-jindal-school-of-management/",
+        "https://www.stantec.com/en/projects/united-states-projects/u/u-of-tx-dallas-school-of-management-phase2",
+        "https://news.utdallas.edu/news-2024/files/2021/03/skybridges-fall-2015.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "Street approach",
+          "eye": [
+            217.21,
+            -163.45,
+            2.2
+          ],
+          "at": [
+            309.23,
+            -86.24,
+            8.71
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "78_JSOM_4.png"
+          }
+        },
+        {
+          "name": "Oblique elevation",
+          "eye": [
+            249.17,
+            -190.27,
+            11.725
+          ],
+          "at": [
+            309.23,
+            -86.24,
+            8.71
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "78_JSOM_2.png"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Banded white arc, green glazing and cream limestone wings on the consolidated OSM relations",
+          "medium"
+        ]
+      ],
+      "unknown": [],
+      "photoPass": "The mapped curved entry stays continuous; reduced glass spans and added aligned mullions, pale stone spandrels and recessed window bands.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph.",
+      "clearanceNote": "The UT Dallas skybridge map identifies JO as the Jonsson Academic Center. The snapshot does not name a JSOM bridge; the actual mapped raised footprint probes are recorded by OSM ID."
+    },
+    "Charles and Nancy Davidson Building": {
+      "modelSlug": "charles_and_nancy_davidson_building",
+      "refs": [
+        "78_JSOM_1.png",
+        "78_JSOM_2.png"
+      ],
+      "sources": [
+        "https://managementmagazine.utdallas.edu/autumn-2024-issue/"
+      ],
+      "features": [
+        [
+          "Conservative modern masonry and glazing on the separately named Davidson footprint.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "The supplied complex images do not reliably assign individual bays to this numbered building."
+      ]
+    },
+    "Physics Building": {
+      "modelSlug": "physics_building",
+      "refs": [
+        "Physics Building - Golden Hour Entry.png"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Round entry canopy and gold limestone",
+          "eye": [
+            -23,
+            432,
+            2.1
+          ],
+          "at": [
+            -7,
+            423,
+            4.4
+          ],
+          "lens": 26,
+          "ref": {
+            "download": "Physics Building - Golden Hour Entry.png"
+          }
+        },
+        {
+          "name": "Secondary elevation with punched openings",
+          "eye": [
+            -29,
+            444,
+            4
+          ],
+          "at": [
+            -3,
+            422,
+            4.1
+          ],
+          "lens": 33,
+          "ref": {
+            "download": "Physics Building - Golden Hour Entry.png"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Round entrance canopy with support columns; height estimated from visible floor bands.",
+          "medium"
+        ]
+      ],
+      "unknown": [],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
+    },
+    "University Village Building 2": {
+      "modelSlug": "university_village_2",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 12": {
+      "modelSlug": "university_village_12",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 4": {
+      "modelSlug": "university_village_4",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 6": {
+      "modelSlug": "university_village_6",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 11": {
+      "modelSlug": "university_village_11",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 9": {
+      "modelSlug": "university_village_9",
+      "refs": [
+        "101_University_Village_Official_Photo.jpg",
+        "47_University_Village_Housing.jpg"
+      ],
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/",
+        "https://housing.utdallas.edu/housing-options/university-village/"
+      ],
+      "compareViews": [
+        {
+          "name": "Phase 1 community garden and adjoining apartments",
+          "eye": [
+            -420.8,
+            -201.04,
+            2.2
+          ],
+          "at": [
+            -450.81,
+            -188.73,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Phase 1 UTD Residential Area - Community Garden and Apartments.png"
+          }
+        },
+        {
+          "name": "Phase 1 community garden and adjoining apartments",
+          "eye": [
+            -438.3,
+            -218.65,
+            6.369999999999999
+          ],
+          "at": [
+            -450.81,
+            -188.73,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Phase 1 UTD Residential Area - Community Garden and Apartments.png"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ],
+      "photoPass": "Mapped garden-edge block. Recessed glazing and shared pale masonry atlas, with the stepped block and roofs held inside the OSM perimeter."
+    },
+    "University Village Building 3": {
+      "modelSlug": "university_village_3",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 7": {
+      "modelSlug": "university_village_7",
+      "refs": [
+        "101_University_Village_Official_Photo.jpg",
+        "47_University_Village_Housing.jpg"
+      ],
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/",
+        "https://housing.utdallas.edu/housing-options/university-village/"
+      ],
+      "compareViews": [
+        {
+          "name": "Phase 1 community garden and adjoining apartments",
+          "eye": [
+            -495.42,
+            -138.43,
+            2.2
+          ],
+          "at": [
+            -517.82,
+            -159.26,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Phase 1 UTD Residential Area - Community Garden and Apartments.png"
+          }
+        },
+        {
+          "name": "Phase 1 community garden and adjoining apartments",
+          "eye": [
+            -487.26,
+            -160.37,
+            6.369999999999999
+          ],
+          "at": [
+            -517.82,
+            -159.26,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Phase 1 UTD Residential Area - Community Garden and Apartments.png"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ],
+      "photoPass": "Mapped garden-edge block. Recessed glazing and shared pale masonry atlas, with the stepped block and roofs held inside the OSM perimeter."
+    },
+    "University Village Building 8": {
+      "modelSlug": "university_village_8",
+      "refs": [
+        "101_University_Village_Official_Photo.jpg",
+        "47_University_Village_Housing.jpg"
+      ],
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/",
+        "https://housing.utdallas.edu/housing-options/university-village/"
+      ],
+      "compareViews": [
+        {
+          "name": "Phase 1 community garden and adjoining apartments",
+          "eye": [
+            -554.58,
+            -243.21,
+            2.2
+          ],
+          "at": [
+            -546.94,
+            -211.51,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Phase 1 UTD Residential Area - Community Garden and Apartments.png"
+          }
+        },
+        {
+          "name": "Phase 1 community garden and adjoining apartments",
+          "eye": [
+            -574.76,
+            -228.52,
+            6.369999999999999
+          ],
+          "at": [
+            -546.94,
+            -211.51,
+            4.73
+          ],
+          "lens": 27,
+          "ref": {
+            "download": "Phase 1 UTD Residential Area - Community Garden and Apartments.png"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ],
+      "photoPass": "Mapped garden-edge block. Recessed glazing and shared pale masonry atlas, with the stepped block and roofs held inside the OSM perimeter."
+    },
+    "University Village Building 35": {
+      "modelSlug": "university_village_35",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 36": {
+      "modelSlug": "university_village_36",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 33": {
+      "modelSlug": "university_village_33",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 34": {
+      "modelSlug": "university_village_34",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 10": {
+      "modelSlug": "university_village_10",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 65": {
+      "modelSlug": "university_village_65",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 66": {
+      "modelSlug": "university_village_66",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 67": {
+      "modelSlug": "university_village_67",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 59": {
+      "modelSlug": "university_village_59",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 56": {
+      "modelSlug": "university_village_56",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 55": {
+      "modelSlug": "university_village_55",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 54": {
+      "modelSlug": "university_village_54",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 53": {
+      "modelSlug": "university_village_53",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 57": {
+      "modelSlug": "university_village_57",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 58": {
+      "modelSlug": "university_village_58",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 46": {
+      "modelSlug": "university_village_46",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 43": {
+      "modelSlug": "university_village_43",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 44": {
+      "modelSlug": "university_village_44",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 38": {
+      "modelSlug": "university_village_38",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 40": {
+      "modelSlug": "university_village_40",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 41": {
+      "modelSlug": "university_village_41",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 39": {
+      "modelSlug": "university_village_39",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 5": {
+      "modelSlug": "university_village_5",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "Phase 4 Clubhouse": {
+      "modelSlug": "phase_4_clubhouse",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 45": {
+      "modelSlug": "university_village_45",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 51": {
+      "modelSlug": "university_village_51",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 48": {
+      "modelSlug": "university_village_48",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 49": {
+      "modelSlug": "university_village_49",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 50": {
+      "modelSlug": "university_village_50",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 61": {
+      "modelSlug": "university_village_61",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 62": {
+      "modelSlug": "university_village_62",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 63": {
+      "modelSlug": "university_village_63",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Leasing Office": {
+      "modelSlug": "university_village_leasing_office",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 23": {
+      "modelSlug": "university_village_23",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 15": {
+      "modelSlug": "university_village_15",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 16": {
+      "modelSlug": "university_village_16",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 21": {
+      "modelSlug": "university_village_21",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 19": {
+      "modelSlug": "university_village_19",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 20": {
+      "modelSlug": "university_village_20",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 17": {
+      "modelSlug": "university_village_17",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 18": {
+      "modelSlug": "university_village_18",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 22": {
+      "modelSlug": "university_village_22",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 14": {
+      "modelSlug": "university_village_14",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "Phase 2 Clubhouse": {
+      "modelSlug": "phase_2_clubhouse",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "Phase 8 Clubhouse": {
+      "modelSlug": "phase_8_clubhouse",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 26": {
+      "modelSlug": "university_village_26",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 25": {
+      "modelSlug": "university_village_25",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "Clubhouse": {
+      "modelSlug": "clubhouse",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 31": {
+      "modelSlug": "university_village_31",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 27": {
+      "modelSlug": "university_village_27",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 30": {
+      "modelSlug": "university_village_30",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 29": {
+      "modelSlug": "university_village_29",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 28": {
+      "modelSlug": "university_village_28",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "Phase 1 Clubhouse": {
+      "modelSlug": "phase_1_clubhouse",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "Phase 1 Laundry": {
+      "modelSlug": "phase_1_laundry",
+      "refs": [
+        "101_University_Village_Official_Photo.jpg",
+        "47_University_Village_Housing.jpg"
+      ],
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "University Village Building 24": {
+      "modelSlug": "university_village_24",
+      "sources": [
+        "https://housing.utdallas.edu/housing-options/"
+      ],
+      "features": [
+        [
+          "Shared tan masonry palette and conservative punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Family-level comparison. No building-specific elevation was verified."
+      ]
+    },
+    "Northside Building 2": {
+      "modelSlug": "northside_building_2",
+      "refs": [
+        "24_Northside_Phase_1.jpg",
+        "60_Northside_Entrance_2025.jpg"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Mapped residence. Family comparative elevation",
+          "eye": [
+            187.45,
+            814.04,
+            2.2
+          ],
+          "at": [
+            138.06,
+            879.58,
+            9.83
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "24_Northside_Phase_1.jpg"
+          }
+        },
+        {
+          "name": "Massing and window rhythm",
+          "eye": [
+            75.2,
+            826.83,
+            13.229999999999999
+          ],
+          "at": [
+            138.06,
+            879.58,
+            9.83
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "60_Northside_Entrance_2025.jpg"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Northside Building 6": {
+      "modelSlug": "northside_building_6",
+      "refs": [
+        "62_Northside_Phase_2_Exterior.jpg",
+        "60_Northside_Entrance_2025.jpg"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Mapped residence. Family comparative elevation",
+          "eye": [
+            89.74,
+            976.38,
+            2.2
+          ],
+          "at": [
+            50.85,
+            1027.99,
+            8.06
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "62_Northside_Phase_2_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Massing and window rhythm",
+          "eye": [
+            1.34,
+            986.45,
+            10.85
+          ],
+          "at": [
+            50.85,
+            1027.99,
+            8.06
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "60_Northside_Entrance_2025.jpg"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Northside Building 8": {
+      "modelSlug": "northside_building_8",
+      "sources": [],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ]
+    },
+    "Northside Building 7": {
+      "modelSlug": "northside_building_7",
+      "sources": [],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ]
+    },
+    "Northside Building 5": {
+      "modelSlug": "northside_building_5",
+      "refs": [
+        "24_Northside_Phase_1.jpg",
+        "60_Northside_Entrance_2025.jpg"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Mapped residence. Family comparative elevation",
+          "eye": [
+            2.71,
+            939.83,
+            2.2
+          ],
+          "at": [
+            -37.16,
+            992.73,
+            7.9
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "24_Northside_Phase_1.jpg"
+          }
+        },
+        {
+          "name": "Massing and window rhythm",
+          "eye": [
+            -87.9,
+            950.15,
+            10.639999999999999
+          ],
+          "at": [
+            -37.16,
+            992.73,
+            7.9
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "60_Northside_Entrance_2025.jpg"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Northside Building 9": {
+      "modelSlug": "northside_building_9",
+      "refs": [
+        "62_Northside_Phase_2_Exterior.jpg",
+        "60_Northside_Entrance_2025.jpg"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Mapped residence. Family comparative elevation",
+          "eye": [
+            172.11,
+            968.21,
+            2.2
+          ],
+          "at": [
+            131.15,
+            1022.56,
+            8.27
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "62_Northside_Phase_2_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Massing and window rhythm",
+          "eye": [
+            79.01,
+            978.81,
+            11.129999999999999
+          ],
+          "at": [
+            131.15,
+            1022.56,
+            8.27
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "60_Northside_Entrance_2025.jpg"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Northside Building 3": {
+      "modelSlug": "northside_building_3",
+      "sources": [],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ]
+    },
+    "Northside Building 4": {
+      "modelSlug": "northside_building_4",
+      "sources": [],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ]
+    },
+    "Northside Plus Building 11": {
+      "modelSlug": "northside_plus_building_11",
+      "refs": [
+        "61_Northside_Phase_4_Exterior.jpg",
+        "60_Northside_Entrance_2025.jpg"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Mapped residence. Family comparative elevation",
+          "eye": [
+            333.52,
+            947.39,
+            2.2
+          ],
+          "at": [
+            316.18,
+            970.39,
+            4.26
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "61_Northside_Phase_4_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Massing and window rhythm",
+          "eye": [
+            294.12,
+            951.88,
+            5.739999999999999
+          ],
+          "at": [
+            316.18,
+            970.39,
+            4.26
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "60_Northside_Entrance_2025.jpg"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Northside Plus Building 12": {
+      "modelSlug": "northside_plus_building_12",
+      "refs": [
+        "61_Northside_Phase_4_Exterior.jpg",
+        "60_Northside_Entrance_2025.jpg"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Mapped residence. Family comparative elevation",
+          "eye": [
+            368.63,
+            971.26,
+            2.2
+          ],
+          "at": [
+            316.39,
+            1040.58,
+            8.01
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "61_Northside_Phase_4_Exterior.jpg"
+          }
+        },
+        {
+          "name": "Massing and window rhythm",
+          "eye": [
+            249.9,
+            984.78,
+            10.78
+          ],
+          "at": [
+            316.39,
+            1040.58,
+            8.01
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "60_Northside_Entrance_2025.jpg"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Northside Plus Building 10": {
+      "modelSlug": "northside_plus_building_10",
+      "sources": [],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ]
+    },
+    "Northside Plus Building 14": {
+      "modelSlug": "northside_plus_building_14",
+      "sources": [],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ]
+    },
+    "Northside Building 1": {
+      "modelSlug": "northside_building_1",
+      "refs": [
+        "24_Northside_Phase_1.jpg",
+        "60_Northside_Entrance_2025.jpg"
+      ],
+      "sources": [],
+      "compareViews": [
+        {
+          "name": "Mapped residence. Family comparative elevation",
+          "eye": [
+            65.9,
+            837.09,
+            2.2
+          ],
+          "at": [
+            22.23,
+            895.03,
+            9.83
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "24_Northside_Phase_1.jpg"
+          }
+        },
+        {
+          "name": "Massing and window rhythm",
+          "eye": [
+            -33.35,
+            848.39,
+            13.229999999999999
+          ],
+          "at": [
+            22.23,
+            895.03,
+            9.83
+          ],
+          "lens": 27,
+          "ref": {
+            "file": "60_Northside_Entrance_2025.jpg"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "Northside Plus Building 13": {
+      "modelSlug": "northside_plus_building_13",
+      "sources": [],
+      "features": [
+        [
+          "Shared Northside masonry, charcoal trim and punched windows",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Building-specific balcony details and material assignments unverified."
+      ]
+    },
+    "Synergy Park North 2": {
+      "modelSlug": "synergy_park_north_2",
+      "refs": [
+        "88_Synergy_Park_North_2_Site_Sign.jpg"
+      ],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Side elevations lack complete photographic coverage."
+      ]
+    },
+    "Classroom Building": {
+      "modelSlug": "classroom_building",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Erik Jonsson Academic Center": {
+      "modelSlug": "erik_jonsson_academic_center",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "North Office Building": {
+      "modelSlug": "north_office_building",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Service Building": {
+      "modelSlug": "service_building",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Founders West Annex": {
+      "modelSlug": "founders_west_annex",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Energy Plant": {
+      "modelSlug": "energy_plant",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Student Union Food Court": {
+      "modelSlug": "student_union_food_court",
+      "refs": [],
+      "sources": [
+        "https://union.utdallas.edu/facilities/building-directories/"
+      ],
+      "compareViews": [
+        {
+          "name": "OSM envelope and conservative campus finish",
+          "eye": [
+            110.8,
+            127.11,
+            2.2
+          ],
+          "at": [
+            81.6,
+            106.67,
+            3.17
+          ],
+          "lens": 27,
+          "ref": null
+        },
+        {
+          "name": "OSM envelope and conservative campus finish",
+          "eye": [
+            78.49,
+            142.18,
+            4.27
+          ],
+          "at": [
+            81.6,
+            106.67,
+            3.17
+          ],
+          "lens": 27,
+          "ref": null
+        }
+      ],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained."
+    },
+    "University Surplus": {
+      "modelSlug": "university_surplus",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Facilities Management Pole Barn": {
+      "modelSlug": "facilities_management_pole_barn",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Facilities Management Events Building": {
+      "modelSlug": "facilities_management_events_building",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Waterview Academic and Administrative Center": {
+      "modelSlug": "waterview_academic_and_administrative_center",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Modular Lab 1": {
+      "modelSlug": "modular_lab_1",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Construction Maintenance Building 1": {
+      "modelSlug": "construction_maintenance_building_1",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Construction Maintenance Building 2": {
+      "modelSlug": "construction_maintenance_building_2",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Construction Maintenance Building 3": {
+      "modelSlug": "construction_maintenance_building_3",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Facilities Management Storage Building": {
+      "modelSlug": "facilities_management_storage_building",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Facilities Management Shop Building": {
+      "modelSlug": "facilities_management_shop_building",
+      "refs": [],
+      "sources": [],
+      "features": [
+        [
+          "Mapped levels or existing estimated height. Conservative campus masonry or metal cladding.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "No verified exterior for this footprint. Signature features omitted."
+      ]
+    },
+    "Activity Center Bookstore": {
+      "modelSlug": "activity_center_bookstore",
+      "refs": [
+        "40_Visitor_Center.jpg"
+      ],
+      "sources": [
+        "https://websites.utdallas.edu/enhance/points/",
+        "https://news.utdallas.edu/campus-community/visitor-center-and-university-bookstore-wins-archi/",
+        "https://larryspeck.com/architecture/visitor-center-and-university-bookstore-ut-dallas/",
+        "https://datum.imgix.net/projects/utd-visitor-center-and-bookstore/UTDbookstore.pdf"
+      ],
+      "compareViews": [
+        {
+          "name": "East rotunda of the original Bookstore complex",
+          "eye": [
+            112,
+            -142,
+            1.65
+          ],
+          "at": [
+            91,
+            -125,
+            5.25
+          ],
+          "lens": 30,
+          "ref": {
+            "file": "40_Visitor_Center.jpg"
+          }
+        },
+        {
+          "name": "Cylindrical glass from the southeast path",
+          "eye": [
+            107,
+            -149,
+            2.3
+          ],
+          "at": [
+            93,
+            -126,
+            5.35
+          ],
+          "lens": 28,
+          "ref": {
+            "download": "Side of Bookstore - Tree-Obscured Cylindrical Glass Facade.png"
+          }
+        }
+      ],
+      "features": [
+        [
+          "The archive shows the correct eastern Bookstore rotunda before the Visitor Center moved to PS3.",
+          "high"
+        ],
+        [
+          "Reference-matched major materials and enclosed footprint. Main glazing bands or apron expressed in geometry.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Precise rear construction and service openings are unverified."
+      ],
+      "photoPass": "Separate low metal-clad rectangle and 35-foot open-air rotunda. Steel shade rings follow the mapped circular facade, with radiused supporting frames and open entry bays."
+    },
+    "Student Union / Student Success Center": {
+      "modelSlug": "student_union_student_success_center",
+      "refs": [
+        "64_Comet_Student_Center_Exterior_2026-10.webp",
+        "63_Student_Success_Center_Construction_2025.webp"
+      ],
+      "sources": [
+        "https://union.utdallas.edu/about/into-the-future/",
+        "https://provost.utdallas.edu/2025/02/20/sscs-future-home-will-open-door-to-more-attention/",
+        "https://www.utdallas.edu/about-us/history-traditions/interactive-timeline/",
+        "https://www.openstreetmap.org/way/1482479187"
+      ],
+      "compareViews": [
+        {
+          "name": "Construction-era image and documented shell",
+          "eye": [
+            168,
+            162,
+            19
+          ],
+          "at": [
+            267,
+            218,
+            10
+          ],
+          "lens": 33,
+          "ref": {
+            "file": "64_Comet_Student_Center_Exterior_2026-10.webp"
+          }
+        },
+        {
+          "name": "Mapped shape and west frontage",
+          "eye": [
+            170,
+            283,
+            13
+          ],
+          "at": [
+            269,
+            222,
+            12
+          ],
+          "lens": 30,
+          "ref": {
+            "file": "63_Student_Success_Center_Construction_2025.webp"
+          }
+        }
+      ],
+      "features": [
+        [
+          "The new Union and Student Success Center occupy w1482479187 at the former Green Center. The dated construction imagery indicates silver-gray panels, a white upper edge and glazed lower levels.",
+          "high"
+        ],
+        [
+          "Large metal-clad block, low amber glazing and long projecting floor bands.",
+          "medium"
+        ]
+      ],
+      "unknown": [
+        "Provisional exterior based on construction photos. Opening, final trim and entrances remain unconfirmed."
+      ],
+      "photoPass": "Facade texture and glazing depth pass; the mapped perimeter, access, and openings are retained.",
+      "paletteReview": "Adjusted visible glazing or masonry against the supplied exterior photograph."
+    },
+    "The Plinth": {
+      "modelSlug": "the_plinth",
+      "sources": [
+        "https://websites.utdallas.edu/enhance/new-era/enhancement-facts/",
+        "https://www.pwpla.com/projects/university-of-texas-at-dallas",
+        "https://icamp.utdallas.edu/magazine/files/Spring-2011.pdf"
+      ],
+      "refs": [
+        "Eugene McDermott Library and Plinth - Pergola Canopy Detail.png",
+        "10_Student_Union_Plaza.jpg"
+      ],
+      "compareViews": [
+        {
+          "name": "Open ring and slatted canopy",
+          "render": "final_library.png",
+          "ref": {
+            "file": "10_Student_Union_Plaza.jpg"
+          }
+        },
+        {
+          "name": "Library edge and louver rhythm",
+          "render": "plinth_capture_b.png",
+          "ref": {
+            "download": "Eugene McDermott Library and Plinth - Pergola Canopy Detail.png"
+          }
+        }
+      ],
+      "features": [
+        [
+          "Procedural louver and hole retained. Published 7.62 m top and physical columns match the render.",
+          "high"
+        ]
+      ],
+      "photoPass": "Dense open steel blades and transverse bars clipped to the OSM trellis and circular opening. Ipe seating, the existing footprint and height scale are preserved."
     }
   }
 }

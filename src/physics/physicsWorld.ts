@@ -2,10 +2,14 @@
 // streamed per chunk around the vehicle (buildings, walls, fences, curbs,
 // speed bumps, stairs, bollards, lamp posts, tree trunks, pond edges).
 import RAPIER from '@dimforge/rapier3d-compat';
+import { ShapeUtils, Vector2 } from 'three';
+import type { ModelSolids } from '../world/buildingModels.ts';
+import { baseLevel } from '../world/buildings.ts';
 import type { ChunkContent } from '../world/chunks.ts';
 import { CHUNK_SIZE } from '../world/chunks.ts';
-import { ensureCCW, resample, ribbonEdges } from '../world/geometry.ts';
-import { bumpSolid, stairBlocks } from '../world/features.ts';
+import { ensureCCW, ensureCW, resample, ribbonEdges } from '../world/geometry.ts';
+import { canopyColumns, overheadLevels, plinthLayout } from '../world/overheadStructures.ts';
+import { bumpSolid, insetRing, stairBlocks } from '../world/features.ts';
 import type { Terrain } from '../world/terrain.ts';
 import type { Pt } from '../world/campusData.ts';
 import { pointInRing } from '../world/spatial.ts';
@@ -30,8 +34,9 @@ export class PhysicsWorld {
   /** Extra solid boxes per chunk (parked cars): center (world), half extents, rotation about +y. */
   extraBoxes: (c: ChunkContent) => { x: number; y: number; z: number; hx: number; hy: number; hz: number; yaw: number }[] = () => [];
 
-  /** Solid parts of reconstructed models outside their footprints, by building (set from main). */
-  modelSolids: (b: ChunkContent['buildings'][number]) => { posts: [number, number, number][]; rings: [number, number][][] } | undefined = () => undefined;
+  /** Model colliders, including the full solid layout for reconstructed open footprints. */
+  modelSolids: (b: ChunkContent['buildings'][number]) => ModelSolids | undefined = () => undefined;
+  accessSolids: (b: ChunkContent['buildings'][number]) => ModelSolids | undefined = () => undefined;
 
   /** Every canopy footprint on the map (arcades can straddle chunk borders). */
   private canopies: { outer: Pt[] }[];
@@ -75,8 +80,62 @@ export class PhysicsWorld {
     };
 
     for (const b of c.buildings) {
+      if (b.name === 'The Plinth') {
+        const { columnTop, columns, yaw } = plinthLayout(b, T);
+        for (const { point: [x, y], width } of columns) {
+          const ground = T.heightAt(x, y);
+          W.createCollider(R.ColliderDesc.cuboid(width / 2, (columnTop - ground) / 2, width / 2)
+            .setTranslation(x, (columnTop + ground) / 2, -y).setRotation(yawQ(yaw)), body);
+        }
+        continue;
+      }
+      const addModelSolids = (extra: ModelSolids) => {
+        const { base } = baseLevel(b.outer, T);
+        const addPrism = (ring: Pt[], [bottom, top]: [number, number], topRing = ring, holes: Pt[][] = []) => {
+          const { vertices, indices } = modelPrism(ring, topRing, base + bottom, base + top, holes);
+          W.createCollider(R.ColliderDesc.trimesh(vertices, indices).setFriction(0.6), body);
+        };
+        extra.rings.forEach((ring, i) => addPrism(ring, extra.ringLevels?.[i] ?? [-1.2, b.h]));
+        for (const volume of extra.volumes ?? []) addPrism(volume.ring, volume.height, volume.topRing, volume.holes);
+        for (const shell of extra.shells ?? []) {
+          const vertices = Float32Array.from(shell.vertices.flatMap(([x, y, z]) => [x, base + z, -y]));
+          W.createCollider(R.ColliderDesc.trimesh(vertices, Uint32Array.from(shell.triangles.flat())).setFriction(0.6), body);
+        }
+        extra.posts.forEach(([x, y, radius], i) => {
+          const [bottom, top] = extra.postLevels?.[i] ?? [T.heightAt(x, y) - base, 4];
+          W.createCollider(R.ColliderDesc.cylinder((top - bottom) / 2, radius)
+            .setTranslation(x, base + (bottom + top) / 2, -y), body);
+        });
+        for (const hull of extra.hulls ?? []) {
+          const points = Float32Array.from(hull.flatMap(([east, height, north]) => [east, base + height, -north]));
+          const desc = R.ColliderDesc.convexHull(points);
+          if (desc) W.createCollider(desc.setFriction(0.6), body);
+        }
+        for (const surface of extra.paving ?? []) {
+          const vertices = Float32Array.from(surface.flatMap(([x, y, z]) => [x, base + z, -y]));
+          const indices = ShapeUtils.triangulateShape(surface.map(([x, y]) => new Vector2(x, y)), []);
+          W.createCollider(R.ColliderDesc.trimesh(vertices, Uint32Array.from(indices.flat())).setFriction(0.9), body);
+        }
+      };
+      const access = this.accessSolids(b);
+      if (access) addModelSolids(access);
+      const extra = this.modelSolids(b);
+      if (extra?.replaceFootprint) {
+        addModelSolids(extra);
+        continue;
+      }
       if (b.style === 'canopy' || (b.minH ?? 0) > PASSABLE_MIN_HEIGHT) {
-        for (const p of supportPoints(b)) post(p, Math.max(2, b.minH ?? 4), 0.3);
+        const { bottom, top } = overheadLevels(b, T);
+        const underside = modelPrism(b.outer, b.outer, bottom, top, b.holes ?? []);
+        W.createCollider(R.ColliderDesc.trimesh(underside.vertices, underside.indices), body);
+        const columns = b.style === 'canopy' ? canopyColumns(b)
+          : supportPoints(b).map(point => ({ point, width: .5 }));
+        const columnTop = b.style === 'canopy' ? top : bottom;
+        for (const { point: [x, y], width } of columns) {
+          const ground = T.heightAt(x, y) - .1;
+          W.createCollider(R.ColliderDesc.cuboid(width / 2, (columnTop - ground) / 2, width / 2)
+            .setTranslation(x, (columnTop + ground) / 2, -y), body);
+        }
         continue;
       }
       const g = T.minAlong(b.outer);
@@ -105,8 +164,7 @@ export class PhysicsWorld {
         const { vertices, indices } = wallMesh(ring, g - 1, g + b.h);
         W.createCollider(R.ColliderDesc.trimesh(vertices, indices).setFriction(0.6), body);
       }
-      // Entrance drums, canopy posts and columns the model adds beyond the footprint.
-      const extra = this.modelSolids(b);
+      // Legacy model additions beyond the footprint.
       if (extra) {
         for (const [x, y, r] of extra.posts) post([x, y], 4, Math.max(r, 0.2));
         for (const ring of extra.rings) {
@@ -204,6 +262,31 @@ export function wallMesh(ring: [number, number][], y0: number, y1: number) {
     indices.set([a, b, b + 1, a, b + 1, a + 1], i * 6);
   }
   return { vertices, indices };
+}
+
+/** Closed, optionally tapered prism used for an enclosed portion of a model. */
+function modelPrism(bottom: Pt[], top: Pt[], y0: number, y1: number, holes: Pt[][]) {
+  const ring = ensureCCW(bottom);
+  const roof = ring[0] === bottom[0] ? top : [...top].reverse();
+  const contours = holes.map(ensureCW);
+  const shells = [ring, ...contours].map(r => wallMesh(r, y0, y1));
+  const vertices = new Float32Array(shells.reduce((n, m) => n + m.vertices.length, 0));
+  const walls: number[] = [];
+  let offset = 0;
+  for (const shell of shells) {
+    vertices.set(shell.vertices, offset * 3);
+    for (const i of shell.indices) walls.push(i + offset);
+    offset += shell.vertices.length / 3;
+  }
+  roof.forEach(([x, y], i) => vertices.set([x, y1, -y], i * 6 + 3));
+  const vec2 = (points: Pt[]) => points.map(([x, y]) => new Vector2(x, y));
+  const bottomFaces = ShapeUtils.triangulateShape(vec2(ring), contours.map(vec2));
+  const topFaces = ShapeUtils.triangulateShape(vec2(roof), contours.map(vec2));
+  const caps = [
+    ...bottomFaces.flatMap(([a, b, c]) => [c * 2, b * 2, a * 2]),
+    ...topFaces.flatMap(([a, b, c]) => [a * 2 + 1, b * 2 + 1, c * 2 + 1]),
+  ];
+  return { vertices, indices: Uint32Array.from(walls.concat(caps)) };
 }
 
 /** Closed box-section strip along a polyline, following the terrain (curbs, islands). */

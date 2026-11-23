@@ -593,6 +593,14 @@ export function* buildChunkSteps(c: ChunkContent, mats: CampusMaterials, ctx: Wo
   const ao = new MeshBuilder();
   for (const b of c.buildings) {
     if (b.style !== 'canopy') wallSkirt(ao, b.outer, T);
+    const access = b.name && ctx.models?.get(slugOf(b.modelName ?? b.name) + '_access');
+    if (access) {
+      const ring = b.outer;
+      const center = ring.reduce(([x, y], p) => [x + p[0] / ring.length, y + p[1] / ring.length], [0, 0]);
+      const model = access.clone();
+      model.position.set(center[0], baseLevel(ring, T).base, -center[1]);
+      base.add(model);
+    }
     if (hasModel(ctx.models, b)) {
       // Reconstructed model: centroid of the footprint, seated at the ground-floor level.
       const m = ctx.models!.get(slugOf(b.modelName ?? b.name!))!.clone();

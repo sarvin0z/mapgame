@@ -1,5 +1,5 @@
 import type { LatLon } from '../geo/projection.ts';
-import { applySceneEdits, roadFlares, trimCurbs } from './sceneEdits.ts';
+import { applySceneEdits, PLINTH_HEIGHT_SCALE, roadFlares, trimCurbs } from './sceneEdits.ts';
 
 export type Pt = [number, number]; // [east, north] meters
 
@@ -106,12 +106,19 @@ export async function loadCampus(base = 'data/'): Promise<CampusData> {
   campus.medians = openMedians(campus.medians, campus.roads);
   hugRoundabout(campus.roads);
   applySceneEdits(campus);
+  // The south Student Services flight is modeled from this mapped run, including
+  // the upper landing. Drawing the generic step strip as well puts treads under it.
+  campus.steps = campus.steps.filter((step: Steps) => step.id !== 1210248131);
   // Divided roads keep their full width where they split (campus-wide fix; see sceneEdits.ts).
   const flares = roadFlares(campus.roads);
   campus.areas.push(...flares);
   campus.curbs = trimCurbs(campus.curbs, flares);
   for (const b of campus.buildings) {
     Object.assign(b, BUILDING_OVERRIDES[b.name ?? ''] ?? {});
+    if (b.name === 'The Plinth') b.h = 7.62 / PLINTH_HEIGHT_SCALE - 1.5;
+    if (b.style === 'villageStone' && b.name && /^\d+$/.test(b.name)) {
+      b.modelName = 'University Village ' + b.name;
+    }
     const fixed = NAME_FIXES[b.name ?? ''];
     if (fixed) { b.modelName = b.name; b.name = fixed; }
   }
@@ -130,6 +137,8 @@ export async function loadCampus(base = 'data/'): Promise<CampusData> {
 const BUILDING_OVERRIDES: Record<string, Partial<Building>> = {
   // Two storeys with the orange accent panels of the 2016 renovation.
   'Callier Center Richardson': { levels: 2, h: 8.6, style: 'callier' },
+  // OSM uses the district name for the museum's separate, mapped footprint.
+  'Edith and Peter O’Donnell Jr. Athenaeum': { modelName: 'Crow Museum of Asian Art', h: 17.4, levels: 2 },
   // Finished (2026): the Athenaeum's Performance Hall and Music Building beside the museum.
   'Performance Hall and Music Building': { style: 'stoneHall', kind: 'university', h: 21, levels: 4 },
   'Naveen Jindal School of Management': { style: 'jsom' },

@@ -209,6 +209,10 @@ async function main() {
 
   const physics = new PhysicsWorld(R, chunks, terrain);
   physics.modelSolids = b => (b.name && models.has(slugOf(b.modelName ?? b.name)) ? solids[slugOf(b.modelName ?? b.name)] : undefined);
+  physics.accessSolids = b => {
+    const slug = b.name && slugOf(b.modelName ?? b.name) + '_access';
+    return slug && models.has(slug) ? solids[slug] : undefined;
+  };
   // Parked cars are solid: a box per car, lower body plus cabin height.
   physics.extraBoxes = c => [
     ...parkedCars(c, ctx).map(pc => ({

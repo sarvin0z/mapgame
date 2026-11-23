@@ -12,6 +12,7 @@ import { MeshBuilder, addFlatPolygon, addWalls, ensureCCW, centroid } from './ge
 import { insetRing, maxInset } from './features.ts';
 import { simplify } from './curbs.ts';
 import { supportPoints } from '../physics/physicsWorld.ts';
+import { canopyColumns, overheadLevels } from './overheadStructures.ts';
 
 const lin = (c: number[]) => c.map(v => Math.pow(v, 2.2));
 function hash(s: string) { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return (h >>> 0) / 4294967295; }
@@ -207,7 +208,8 @@ export function buildBuilding(b: Building, T: Terrain, styles: Record<string, Fa
   // Adjoining OSM footprints often share edges: a small per-building inset keeps faces apart.
   const outer = b.style === 'cometsGlass'
     ? insetRing(b.outer, -0.5) ?? b.outer // stands just proud of the Union model it adjoins
-    : insetRing(b.outer, 0.03 + 0.06 * hash(b.id + 'i')) ?? b.outer;
+    : b.style === 'canopy' || b.style === 'skybridge' ? b.outer
+      : insetRing(b.outer, 0.03 + 0.06 * hash(b.id + 'i')) ?? b.outer;
   const holes = b.holes ?? [];
   if (b.name === 'The Plinth') return; // louvered canopy and fountain: extras.ts
   if (b.style === 'canopy') return canopy(b, outer, holes, T, kit);
@@ -218,7 +220,7 @@ export function buildBuilding(b: Building, T: Terrain, styles: Record<string, Fa
   const rc = lin(style.roof).map((c, i) => c * (0.9 + 0.2 * hash(b.id + 'r' + i)));
 
   if (b.style === 'skybridge') {
-    const y0 = s.ground + (b.minH ?? 4.2), y1 = s.ground + b.h;
+    const { bottom: y0, top: y1 } = overheadLevels(b, T, outer);
     addWalls(kit.walls('glassPavilion'), outer, y0, y1, [1, 1, 1], false, 3, y1 - y0, y0);
     addFlatPolygon(kit.white, outer, [], y1, [0.95, 0.95, 0.93]);
     addFlatPolygon(kit.white, outer, [], y0, [0.85, 0.85, 0.83], 1, -1);
@@ -477,23 +479,15 @@ function numberPlaque(mb: MeshBuilder, e: { a: Pt; u: Pt; n: Pt }, along: number
 // ---------------------------------------------------------------- open structures
 
 function canopy(b: Building, outer: Pt[], holes: Pt[][], T: Terrain, kit: BuildingKit) {
-  let lo = Infinity;
-  for (const p of outer) lo = Math.min(lo, T.heightAt(p[0], p[1]));
-  const top = lo + b.h + 0.08 * hash(b.id + 'h');
+  const { top } = overheadLevels(b, T, outer);
   addFlatPolygon(kit.white, outer, holes, top, [0.95, 0.95, 0.93]);
   addFlatPolygon(kit.white, outer, holes, top - 0.3, [0.75, 0.75, 0.73], 1, -1);
   addWalls(kit.white, outer, top - 0.3, top, [0.85, 0.85, 0.83], false);
   // Posts every ~6 m around the slab, set 0.3 m in from its edge (tall canopies too: none may
   // hover); thicker for tall ones.
-  const r = insetRing(ensureCCW(outer), 0.3) ?? ensureCCW(outer);
-  const post = b.h >= 8 ? 0.45 : 0.22;
-  for (const e of edges(r)) {
-    const n = Math.max(1, Math.round(e.len / 6));
-    for (let k = 0; k < n; k++) {
-      const p: Pt = [e.a[0] + e.u[0] * e.len * k / n, e.a[1] + e.u[1] * e.len * k / n];
-      const y = T.heightAt(p[0], p[1]);
-      box(kit.white, [p[0], (y + top) / 2, -p[1]], [post, top - y, post], 0, [0.9, 0.9, 0.88]);
-    }
+  for (const { point: [x, north], width } of canopyColumns(b, outer)) {
+    const y = T.heightAt(x, north);
+    box(kit.white, [x, (y + top) / 2, -north], [width, top - y, width], 0, [0.9, 0.9, 0.88]);
   }
 }
 
